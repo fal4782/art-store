@@ -1,13 +1,306 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
     provider = "prisma-client"
 }
 
 datasource db {
     provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+    ADMIN
+    CUSTOMER
+}
+
+enum ArtworkCategory {
+    PAINTING
+    CROCHET
+    DRAWING
+    DIGITAL_ART
+}
+
+enum ArtworkType {
+    PHYSICAL
+    DIGITAL
+    BOTH // For artworks that come with both physical and digital versions
+}
+
+enum OrderStatus {
+    PENDING
+    CONFIRMED
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REFUNDED
+}
+
+model User {
+    id        String   @id @default(uuid())
+    email     String   @unique
+    password  String
+    firstName String
+    lastName  String
+    role      UserRole @default(CUSTOMER)
+    isActive  Boolean  @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    orders    Order[]
+    cartItems CartItem[]
+    wishlist  WishlistItem[]
+    reviews   Review[]
+    addresses Address[]
+
+    @@index([email])
+    @@index([role])
+    @@map("users")
+}
+
+model Artwork {
+    id            String          @id @default(uuid())
+    name          String
+    slug          String          @unique
+    description   String?
+    category      ArtworkCategory
+    type          ArtworkType     @default(PHYSICAL)
+    priceInPaise  Int // Price in paise (1 INR = 100 paise)
+    dimensions    String? // For physical artworks: "24x36 inches"
+    medium        String? // "Oil on canvas", "Acrylic Yarn", "Digital illustration"
+    filePath      String? // For digital artworks: path to downloadable file
+    stockQuantity Int             @default(1)
+    isAvailable   Boolean         @default(true)
+    isFeatured    Boolean         @default(false)
+    isMadeToOrder Boolean         @default(false)
+    sortOrder     Int             @default(0)
+    images        String[] // Array of image URLs
+    views         Int             @default(0)
+    lastViewedAt  DateTime?
+    deletedAt     DateTime?
+    createdAt     DateTime        @default(now())
+    updatedAt     DateTime        @updatedAt
+
+    // Relations
+    cartItems             CartItem[]
+    wishlistItems         WishlistItem[]
+    orderItems            OrderItem[]
+    reviews               Review[]
+    tags                  ArtworkTag[]
+    downloadVerifications DownloadVerification[]
+
+    @@index([category])
+    @@index([type])
+    @@index([isAvailable])
+    @@index([isFeatured])
+    @@index([deletedAt])
+    @@index([slug])
+    @@index([createdAt])
+    @@map("artworks")
+}
+
+model Tag {
+    id        String   @id @default(uuid())
+    name      String   @unique
+    slug      String   @unique
+    createdAt DateTime @default(now())
+
+    // Relations
+    artworks ArtworkTag[]
+
+    @@map("tags")
+}
+
+model ArtworkTag {
+    artworkId String
+    tagId     String
+
+    // Relations
+    artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+    tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+    @@id([artworkId, tagId])
+    @@map("artwork_tags")
+}
+
+model CartItem {
+    id        String   @id @default(uuid())
+    userId    String
+    artworkId String
+    quantity  Int      @default(1)
+    createdAt DateTime @default(now())
+
+    // Relations
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, artworkId])
+    @@map("cart_items")
+}
+
+model WishlistItem {
+    id        String   @id @default(uuid())
+    userId    String
+    artworkId String
+    createdAt DateTime @default(now())
+
+    // Relations
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, artworkId])
+    @@map("wishlist_items")
+}
+
+model Address {
+    id         String   @id @default(uuid())
+    userId     String
+    name       String
+    line1      String
+    line2      String?
+    city       String
+    state      String?
+    postalCode String
+    country    String   @default("India")
+    phone      String?
+    isDefault  Boolean  @default(false)
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    // Relations
+    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    orders Order[]
+
+    @@index([userId])
+    @@map("addresses")
+}
+
+model Order {
+    id                String        @id @default(uuid())
+    userId            String
+    addressId         String?
+    status            OrderStatus   @default(PENDING)
+    paymentStatus     PaymentStatus @default(PENDING)
+    totalPriceInPaise Int
+    paymentIntentId   String?
+    trackingNumber    String?
+    notes             String? // Internal admin notes
+    cancelReason      String?
+    cancelledAt       DateTime?
+    createdAt         DateTime      @default(now())
+    updatedAt         DateTime      @updatedAt
+
+    // Shipping address snapshot (for physical items)
+    shippingName         String?
+    shippingAddressLine1 String?
+    shippingAddressLine2 String?
+    shippingCity         String?
+    shippingState        String?
+    shippingPostalCode   String?
+    shippingCountry      String?
+    shippingPhone        String?
+
+    // Relations
+    user       User        @relation(fields: [userId], references: [id])
+    address    Address?    @relation(fields: [addressId], references: [id])
+    orderItems OrderItem[]
+    payment    Payment?
+
+    @@index([userId, status])
+    @@index([createdAt])
+    @@index([status])
+    @@map("orders")
+}
+
+model OrderItem {
+    id           String @id @default(uuid())
+    orderId      String
+    artworkId    String
+    quantity     Int
+    priceInPaise Int // Price at time of purchase
+
+    // Snapshot of artwork details at time of order
+    artworkName        String
+    artworkType        String // "PHYSICAL", "DIGITAL", or "BOTH"
+    artworkDescription String?
+    artworkImage       String? // Primary image
+
+    // Relations
+    order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Restrict)
+
+    @@map("order_items")
+}
+
+model Payment {
+    id               String        @id @default(uuid())
+    orderId          String        @unique
+    amountInPaise    Int
+    currency         String        @default("INR")
+    status           PaymentStatus @default(PENDING)
+    paymentGateway   String?       @default("razorpay")
+    gatewayPaymentId String?
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+
+    // Relations
+    order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    @@map("payments")
+}
+
+model Review {
+    id        String   @id @default(uuid())
+    userId    String
+    artworkId String
+    rating    Int // 1-5 stars
+    comment   String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, artworkId])
+    @@index([artworkId])
+    @@map("reviews")
+}
+
+model DiscountCode {
+    id                 String    @id @default(uuid())
+    code               String    @unique
+    description        String?
+    discountType       String // "PERCENTAGE" or "FIXED"
+    discountValue      Int // Percentage (0-100) or amount in paise
+    minPurchaseInPaise Int? // Minimum purchase amount in paise
+    maxUses            Int?
+    usedCount          Int       @default(0)
+    isActive           Boolean   @default(true)
+    validFrom          DateTime  @default(now())
+    validUntil         DateTime?
+    createdAt          DateTime  @default(now())
+    updatedAt          DateTime  @updatedAt
+
+    @@index([code])
+    @@index([isActive])
+    @@map("discount_codes")
+}
+
+model DownloadVerification {
+    id        String   @id @default(uuid())
+    artworkId String
+    expiresAt DateTime
+    createdAt DateTime @default(now())
+
+    // Relations
+    artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+    @@index([artworkId])
+    @@map("download_verifications")
 }

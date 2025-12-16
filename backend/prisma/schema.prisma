@@ -45,7 +45,7 @@ model User {
     email     String   @unique
     password  String
     firstName String
-    lastName  String
+    lastName  String?
     role      UserRole @default(CUSTOMER)
     isActive  Boolean  @default(true)
     createdAt DateTime @default(now())

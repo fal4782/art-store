@@ -59,7 +59,7 @@ router.post("/signup", async (req, res) => {
         email,
         password: hashedPassword,
         firstName,
-        lastName,
+        lastName: lastName || "",
         // role defaults to CUSTOMER, isActive defaults to true
       },
     });

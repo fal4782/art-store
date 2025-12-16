@@ -37,3 +37,44 @@ export const UserResponseSchema = z.object({
 });
 
 export type UserResponse = z.infer<typeof UserResponseSchema>;
+export const GetArtworksQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(12),
+  search: z.string().optional(),
+  category: z
+    .enum(["PAINTING", "CROCHET", "DRAWING", "DIGITAL_ART"])
+    .optional(),
+  type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]).optional(),
+  isAvailable: z.enum(["true", "false"]).optional(),
+  isFeatured: z.enum(["true", "false"]).optional(),
+  tag: z.string().optional(),
+  sortBy: z.enum(["createdAt", "price", "views", "name"]).default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
+export const ArtworkResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+  category: z.enum(["PAINTING", "CROCHET", "DRAWING", "DIGITAL_ART"]),
+  type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]),
+  priceInPaise: z.number(),
+  dimensions: z.string().nullable(),
+  medium: z.string().nullable(),
+  stockQuantity: z.number(),
+  isAvailable: z.boolean(),
+  isFeatured: z.boolean(),
+  isMadeToOrder: z.boolean(),
+  images: z.array(z.string()),
+  views: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  tags: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      slug: z.string(),
+    })
+  ),
+});

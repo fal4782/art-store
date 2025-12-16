@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { authRouter } from "./routes/authRouter";
 import { userRouter } from "./routes/userRouter";
+import { artworkRouter } from "./routes/artworkRouter";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/artworks", artworkRouter);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

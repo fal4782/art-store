@@ -89,3 +89,9 @@ export type CreateArtworkInput = z.infer<typeof CreateArtworkSchema>;
 
 export const UpdateArtworkSchema = CreateArtworkSchema.partial();
 export type UpdateArtworkInput = z.infer<typeof UpdateArtworkSchema>;
+
+export const CreateTagSchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+});
+export type CreateTagInput = z.infer<typeof CreateTagSchema>;

@@ -132,4 +132,54 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const artwork = await prisma.artwork.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        category: true,
+        type: true,
+        priceInPaise: true,
+        dimensions: true,
+        medium: true,
+        stockQuantity: true,
+        isAvailable: true,
+        isFeatured: true,
+        isMadeToOrder: true,
+        images: true,
+        views: true,
+        createdAt: true,
+        updatedAt: true,
+        tags: {
+          select: {
+            tag: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!artwork) {
+      return res.status(404).json({ message: "Artwork not found" });
+    }
+    // Transform tags to simpler format
+    const artworkWithTags = {
+      ...artwork,
+      tags: artwork.tags.map((at) => at.tag),
+    };
+    return res.json(artworkWithTags);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
 export { router as artworkRouter };

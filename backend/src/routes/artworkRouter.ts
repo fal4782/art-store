@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { GetArtworksQuerySchema } from "../lib/types";
+import {
+  CreateArtworkSchema,
+  GetArtworksQuerySchema,
+  UpdateArtworkSchema,
+} from "../lib/types";
+import { adminMiddleware, authMiddleware } from "../middleware";
 
 const router = Router();
 
@@ -182,4 +187,116 @@ router.get("/:id", async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
+router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
+  const parsedResult = CreateArtworkSchema.safeParse(req.body);
+  if (!parsedResult.success) {
+    return res.status(400).json({
+      message: "Invalid request body",
+      errors: parsedResult.error.issues,
+    });
+  }
+  const data = parsedResult.data;
+  try {
+    const existing = await prisma.artwork.findUnique({
+      where: { slug: data.slug },
+      select: { id: true },
+    });
+    if (existing) {
+      return res.status(409).json({ message: "Artwork slug already exists" });
+    }
+
+    const artwork = await prisma.artwork.create({
+      data: {
+        ...data,
+        tags: {
+          create: data.tags.map((tagId: string) => ({
+            tag: { connect: { id: tagId } },
+          })),
+        },
+      },
+      include: {
+        tags: { include: { tag: true } },
+      },
+    });
+    const artworkWithTags = {
+      ...artwork,
+      tags: artwork.tags.map((at) => at.tag),
+    };
+    return res.status(201).json(artworkWithTags);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.patch("/:id", authMiddleware, adminMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const parseResult = UpdateArtworkSchema.safeParse(req.body);
+
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: "Invalid request body",
+      errors: parseResult.error.issues,
+    });
+  }
+
+  try {
+    const artwork = await prisma.artwork.findUnique({ where: { id } });
+    if (!artwork || artwork.deletedAt) {
+      return res.status(404).json({ message: "Artwork not found" });
+    }
+
+    // Handle tags update if present
+    let tagsUpdate = undefined;
+    if (parseResult.data.tags) {
+      tagsUpdate = {
+        // Remove all existing tags and add new ones
+        deleteMany: {},
+        create: parseResult.data.tags.map((tagId: string) => ({
+          tag: { connect: { id: tagId } },
+        })),
+      };
+    }
+
+    const updatedArtwork = await prisma.artwork.update({
+      where: { id },
+      data: {
+        ...parseResult.data,
+        tags: tagsUpdate,
+      },
+      include: {
+        tags: { include: { tag: true } },
+      },
+    });
+
+    return res.json(updatedArtwork);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const artwork = await prisma.artwork.findUnique({
+      where: { id },
+      select: { deletedAt: true },
+    });
+    if (!artwork || artwork.deletedAt) {
+      return res.status(404).json({ message: "Artwork not found" });
+    }
+
+    await prisma.artwork.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+    return res.json({ message: "Artwork deleted" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export { router as artworkRouter };

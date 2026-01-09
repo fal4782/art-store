@@ -67,29 +67,25 @@ export const GetArtworksQuerySchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
-export const ArtworkResponseSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  slug: z.string(),
-  description: z.string().nullable(),
+export const CreateArtworkSchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  description: z.string().optional(),
   category: z.enum(["PAINTING", "CROCHET", "DRAWING", "DIGITAL_ART"]),
-  type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]),
-  priceInPaise: z.number(),
-  dimensions: z.string().nullable(),
-  medium: z.string().nullable(),
-  stockQuantity: z.number(),
-  isAvailable: z.boolean(),
-  isFeatured: z.boolean(),
-  isMadeToOrder: z.boolean(),
-  images: z.array(z.string()),
-  views: z.number(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  tags: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      slug: z.string(),
-    })
-  ),
+  type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]).default("PHYSICAL"),
+  priceInPaise: z.number().int().min(0),
+  dimensions: z.string().optional(),
+  medium: z.string().optional(),
+  filePath: z.string().nullable().optional(),
+  stockQuantity: z.number().int().min(0).default(1),
+  isAvailable: z.boolean().default(true),
+  isFeatured: z.boolean().default(false),
+  isMadeToOrder: z.boolean().default(false),
+  sortOrder: z.number().int().default(0),
+  images: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([]), // array of tag IDs
 });
+export type CreateArtworkInput = z.infer<typeof CreateArtworkSchema>;
+
+export const UpdateArtworkSchema = CreateArtworkSchema.partial();
+export type UpdateArtworkInput = z.infer<typeof UpdateArtworkSchema>;

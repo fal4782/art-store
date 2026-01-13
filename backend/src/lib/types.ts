@@ -95,3 +95,14 @@ export const CreateTagSchema = z.object({
   slug: z.string().min(1),
 });
 export type CreateTagInput = z.infer<typeof CreateTagSchema>;
+
+export const AddToCartSchema = z.object({
+  artworkId: z.string().min(1),
+  quantity: z.number().int().min(1).default(1),
+});
+export type AddToCartInput = z.infer<typeof AddToCartSchema>;
+
+export const UpdateCartItemSchema = z.object({
+  quantity: z.number().int().min(1),
+});
+export type UpdateCartItemInput = z.infer<typeof UpdateCartItemSchema>;

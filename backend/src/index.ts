@@ -27,6 +27,7 @@ app.use("/api/v1/tags", tagRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/payments", paymentRouter);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

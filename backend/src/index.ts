@@ -9,6 +9,7 @@ import { wishlistRouter } from "./routes/wishlistRouter";
 import { orderRouter } from "./routes/orderRouter";
 import { paymentRouter } from "./routes/paymetRouter";
 import { addressRouter } from "./routes/addressRouter";
+import { reviewRouter } from "./routes/reviewRouter";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/orders", orderRouter);
 app.use("/api/v1/payments", paymentRouter);
+app.use("/api/v1", reviewRouter);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

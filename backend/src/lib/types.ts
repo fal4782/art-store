@@ -150,3 +150,9 @@ export type OrderItemData = {
   artworkDescription: string | null;
   artworkImage: string | null;
 };
+
+export const CreateReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().optional(),
+});
+export type CreateReviewInput = z.infer<typeof CreateReviewSchema>;

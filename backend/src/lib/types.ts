@@ -106,3 +106,8 @@ export const UpdateCartItemSchema = z.object({
   quantity: z.number().int().min(1),
 });
 export type UpdateCartItemInput = z.infer<typeof UpdateCartItemSchema>;
+
+export const AddToWishlistSchema = z.object({
+  artworkId: z.string().min(1),
+});
+export type AddToWishlistInput = z.infer<typeof AddToWishlistSchema>;

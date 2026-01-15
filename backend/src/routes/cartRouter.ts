@@ -120,3 +120,5 @@ router.delete("/:itemId", authMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
+export { router as cartRouter };

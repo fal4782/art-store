@@ -4,6 +4,8 @@ import { authRouter } from "./routes/authRouter";
 import { userRouter } from "./routes/userRouter";
 import { artworkRouter } from "./routes/artworkRouter";
 import { tagRouter } from "./routes/tagRouter";
+import { cartRouter } from "./routes/cartRouter";
+import { wishlistRouter } from "./routes/wishlistRouter";
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/artworks", artworkRouter);
 app.use("/api/v1/tags", tagRouter);
+app.use("/api/v1/cart", cartRouter);
+app.use("/api/v1/wishlist", wishlistRouter);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

@@ -111,3 +111,26 @@ export const AddToWishlistSchema = z.object({
   artworkId: z.string().min(1),
 });
 export type AddToWishlistInput = z.infer<typeof AddToWishlistSchema>;
+
+export const PlaceOrderSchema = z.object({
+  addressId: z.string().min(1),
+  items: z.array(
+    z.object({
+      artworkId: z.string().min(1),
+      quantity: z.number().int().min(1),
+    })
+  ),
+  notes: z.string().optional(),
+  discountCode: z.string().optional(),
+});
+export type PlaceOrderInput = z.infer<typeof PlaceOrderSchema>;
+
+export type OrderItemData = {
+  artworkId: string;
+  quantity: number;
+  priceInPaise: number;
+  artworkName: string;
+  artworkType: string;
+  artworkDescription: string | null;
+  artworkImage: string | null;
+};

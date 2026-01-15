@@ -6,6 +6,7 @@ import { artworkRouter } from "./routes/artworkRouter";
 import { tagRouter } from "./routes/tagRouter";
 import { cartRouter } from "./routes/cartRouter";
 import { wishlistRouter } from "./routes/wishlistRouter";
+import { orderRouter } from "./routes/orderRouter";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/api/v1/artworks", artworkRouter);
 app.use("/api/v1/tags", tagRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
+app.use("/api/v1/orders", orderRouter);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

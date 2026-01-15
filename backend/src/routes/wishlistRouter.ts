@@ -7,9 +7,6 @@ const router = Router();
 
 router.get("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   try {
     const wishlist = await prisma.wishlistItem.findMany({
       where: { userId },
@@ -31,9 +28,6 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.post("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const parseResult = AddToWishlistSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res
@@ -68,9 +62,6 @@ router.post("/", authMiddleware, async (req, res) => {
 
 router.delete("/:itemId", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const { itemId } = req.params;
   try {
     // Check if wishlist item exists and belongs to user

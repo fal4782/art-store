@@ -8,9 +8,6 @@ const router = Router();
 
 router.get("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   try {
     const orders = await prisma.order.findMany({
       where: { userId },
@@ -30,9 +27,6 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.get("/:id", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const { id } = req.params;
   try {
     const order = await prisma.order.findUnique({
@@ -55,9 +49,6 @@ router.get("/:id", authMiddleware, async (req, res) => {
 
 router.post("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const parseResult = PlaceOrderSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res

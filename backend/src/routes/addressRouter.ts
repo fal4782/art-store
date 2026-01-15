@@ -18,9 +18,6 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.post("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const parseResult = CreateAddressSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res.status(400).json({
@@ -47,9 +44,6 @@ router.post("/", authMiddleware, async (req, res) => {
 
 router.patch("/:id", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const { id } = req.params;
   const parseResult = UpdateAddressSchema.safeParse(req.body);
   if (!parseResult.success) {
@@ -82,9 +76,6 @@ router.patch("/:id", authMiddleware, async (req, res) => {
 
 router.delete("/:id", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const { id } = req.params;
   try {
     const address = await prisma.address.findUnique({ where: { id } });

@@ -28,9 +28,6 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.post("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const parseResult = AddToCartSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res
@@ -69,9 +66,6 @@ router.post("/", authMiddleware, async (req, res) => {
 
 router.patch("/:itemId", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const { itemId } = req.params;
   const parseResult = UpdateCartItemSchema.safeParse(req.body);
   if (!parseResult.success) {
@@ -101,9 +95,6 @@ router.patch("/:itemId", authMiddleware, async (req, res) => {
 
 router.delete("/:itemId", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   const { itemId } = req.params;
   try {
     // Check if cart item exists and belongs to user

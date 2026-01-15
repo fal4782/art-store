@@ -14,9 +14,6 @@ const router = Router();
 
 router.get("/me", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -50,9 +47,6 @@ router.patch("/me", authMiddleware, async (req, res) => {
     });
   }
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   try {
     const updated = await prisma.user.update({
       where: { id: userId },
@@ -86,9 +80,6 @@ router.patch("/me/password", authMiddleware, async (req, res) => {
   }
   const { oldPassword, newPassword } = parseResult.data;
   const userId = req.userId;
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
   try {
     const user = await prisma.user.findUnique({
       where: {

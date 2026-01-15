@@ -29,6 +29,7 @@ router.get("/me", authMiddleware, async (req, res) => {
         isActive: true,
         createdAt: true,
         updatedAt: true,
+        addresses: true,
       },
     });
     if (!user) {

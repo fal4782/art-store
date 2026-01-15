@@ -7,6 +7,8 @@ import { tagRouter } from "./routes/tagRouter";
 import { cartRouter } from "./routes/cartRouter";
 import { wishlistRouter } from "./routes/wishlistRouter";
 import { orderRouter } from "./routes/orderRouter";
+import { paymentRouter } from "./routes/paymetRouter";
+import { addressRouter } from "./routes/addressRouter";
 
 const app = express();
 
@@ -19,6 +21,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/addresses", addressRouter);
 app.use("/api/v1/artworks", artworkRouter);
 app.use("/api/v1/tags", tagRouter);
 app.use("/api/v1/cart", cartRouter);

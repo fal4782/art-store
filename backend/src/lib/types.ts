@@ -52,6 +52,22 @@ export const ChangePasswordSchema = z.object({
 
 export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
 
+export const CreateAddressSchema = z.object({
+  name: z.string().min(1),
+  line1: z.string().min(1),
+  line2: z.string().optional(),
+  city: z.string().min(1),
+  state: z.string().optional(),
+  postalCode: z.string().min(1),
+  country: z.string().default("India"),
+  phone: z.string().optional(),
+  isDefault: z.boolean().optional(),
+});
+export type AddressInput = z.infer<typeof CreateAddressSchema>;
+
+export const UpdateAddressSchema = CreateAddressSchema.partial();
+export type UpdateAddressInput = z.infer<typeof UpdateAddressSchema>;
+
 export const GetArtworksQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(12),

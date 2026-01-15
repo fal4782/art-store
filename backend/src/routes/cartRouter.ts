@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { authMiddleware } from "../middleware";
-import { AddToCartSchema } from "../lib/types";
+import { AddToCartSchema, UpdateCartItemSchema } from "../lib/types";
 
 const router = Router();
 
@@ -61,6 +61,60 @@ router.post("/", authMiddleware, async (req, res) => {
       data: { userId, artworkId, quantity },
     });
     return res.status(201).json(cartItem);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.patch("/:itemId", authMiddleware, async (req, res) => {
+  const userId = req.userId;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const { itemId } = req.params;
+  const parseResult = UpdateCartItemSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res
+      .status(400)
+      .json({ message: "Invalid request", errors: parseResult.error.issues });
+  }
+  const { quantity } = parseResult.data;
+  try {
+    // Check if cart item exists and belongs to user
+    const cartItem = await prisma.cartItem.findUnique({
+      where: { id: itemId },
+    });
+    if (!cartItem || cartItem.userId !== userId) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+    const updated = await prisma.cartItem.update({
+      where: { id: itemId },
+      data: { quantity },
+    });
+    return res.json(updated);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.delete("/:itemId", authMiddleware, async (req, res) => {
+  const userId = req.userId;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const { itemId } = req.params;
+  try {
+    // Check if cart item exists and belongs to user
+    const cartItem = await prisma.cartItem.findUnique({
+      where: { id: itemId },
+    });
+    if (!cartItem || cartItem.userId !== userId) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+    await prisma.cartItem.delete({ where: { id: itemId } });
+    return res.json({ message: "Cart item removed" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });

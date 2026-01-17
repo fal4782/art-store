@@ -64,51 +64,49 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Desktop navbar below the header */}
+      {/* Desktop navbar below the header*/}
       <nav
-        className="hidden md:block fixed top-14.5 left-0 right-0 z-30"
+        className="hidden md:block w-full"
         style={{
           background: `${theme.colors.surface}f8`,
           borderBottom: `1px solid ${theme.colors.accent}`,
           backdropFilter: "blur(10px)",
         }}
       >
-        <div className="mx-auto px-10">
-          <div className="flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.label}
-                  to={item.href}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold relative transition-all duration-200 hover:scale-[1.02]"
+        <div className="flex gap-1 px-10">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.label}
+                to={item.href}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold relative transition-all duration-200 hover:scale-[1.02]"
+                style={{
+                  color: isActive
+                    ? theme.colors.primary
+                    : `${theme.colors.primary}bb`,
+                }}
+              >
+                <item.icon
+                  className="text-xl"
                   style={{
                     color: isActive
                       ? theme.colors.primary
                       : `${theme.colors.primary}bb`,
                   }}
-                >
-                  <item.icon
-                    className="text-xl"
+                />
+                <span>{item.label}</span>
+                {isActive && (
+                  <div
+                    className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-full h-1 rounded-full"
                     style={{
-                      color: isActive
-                        ? theme.colors.primary
-                        : `${theme.colors.primary}bb`,
+                      background: theme.colors.primary,
                     }}
                   />
-                  <span>{item.label}</span>
-                  {isActive && (
-                    <div
-                      className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-full h-1 rounded-full"
-                      style={{
-                        background: theme.colors.primary,
-                      }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </>

@@ -14,10 +14,22 @@ export default function MainLayout({ children }: MainLayoutProps) {
       className="min-h-screen flex flex-col"
       style={{ background: theme.colors.background }}
     >
-      <Header />
-      <main className="flex-1 px-2 pt-6 md:pt-20 pb-16 md:pb-4">{children}</main>
-      <Navbar />
-      <Footer />
+      <div className="shrink-0">
+        <Header />
+      </div>
+
+      <div className="hidden md:flex shrink-0">
+        <Navbar />
+      </div>
+
+      <div className="flex-1 pb-16 md:pb-0">
+        <main className="m-4">{children}</main>
+        <Footer />
+      </div>
+
+      <div className="md:hidden shrink-0">
+        <Navbar />
+      </div>
     </div>
   );
 }

@@ -14,7 +14,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Mobile: Bottom Navigation Bar */}
+      {/* Mobile navbar at bottom */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 shadow-2xl h-16"
         style={{
@@ -64,7 +64,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Desktop: Fixed Menu Bar BELOW Header */}
+      {/* Desktop navbar below the header */}
       <nav
         className="hidden md:block fixed top-14.5 left-0 right-0 z-30"
         style={{

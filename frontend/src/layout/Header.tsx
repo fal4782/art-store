@@ -5,9 +5,9 @@ import { FiSearch, FiHeart, FiShoppingCart } from "react-icons/fi";
 export default function Header() {
   return (
     <header
-      className="w-full flex items-center justify-between px-4 md:px-10"
+      className="fixed top-0 left-0 right-0 z-50 w-full flex items-center justify-between px-4 md:px-10"
       style={{
-        background: `${theme.colors.surface}f5`,
+        background: `${theme.colors.surface}`,
         height: theme.headerHeight,
         minHeight: theme.headerHeight,
         borderBottom: `1px solid ${theme.colors.accent}`,

@@ -161,52 +161,6 @@ export default function Footer() {
         </div>
       </footer>
 
-      {/* Mobile Footer */}
-      <footer className="md:hidden w-full py-8 px-6 bg-linear-to-t from-primary/95 to-primary/90">
-        <div className="max-w-md mx-auto text-center space-y-6">
-          <div
-            className="text-2xl font-bold mb-4"
-            style={{ color: theme.colors.surface }}
-          >
-            ArtStore
-          </div>
-          <div
-            className="text-sm px-4"
-            style={{ color: `${theme.colors.surface}dd` }}
-          >
-            Crafted with ❤️ for art lovers worldwide
-          </div>
-          <div className="flex justify-center gap-6">
-            {socialLinks.map((social) => {
-              const Icon = social.icon;
-              return (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  className="p-3 rounded-full hover:scale-110 transition-all duration-300"
-                  style={{
-                    background: `${theme.colors.surface}40`,
-                    color: theme.colors.surface,
-                    backdropFilter: "blur(10px)",
-                  }}
-                >
-                  <Icon size={20} />
-                </a>
-              );
-            })}
-          </div>
-          <div
-            className="text-xs pt-4 border-t"
-            style={{
-              color: `${theme.colors.surface}bb`,
-              borderColor: `${theme.colors.surface}40`,
-            }}
-          >
-            © {new Date().getFullYear()} ArtStore. All rights reserved.
-          </div>
-        </div>
-      </footer>
-
       {/* Copyright Bar - Desktop */}
       <div
         className="hidden md:block w-full py-4 text-center"

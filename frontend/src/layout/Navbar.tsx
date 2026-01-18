@@ -16,10 +16,10 @@ export default function Navbar() {
     <>
       {/* Mobile navbar at bottom */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 shadow-2xl h-16"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16"
         style={{
           background: theme.colors.surface,
-          borderTop: `1px solid ${theme.colors.accent}`,
+          borderTop: `2px solid ${theme.colors.accent}`,
         }}
       >
         <div className="flex h-full items-center justify-around px-4">
@@ -30,12 +30,17 @@ export default function Navbar() {
                 key={item.label}
                 to={item.href}
                 className="group flex flex-col items-center justify-center gap-1 flex-1 h-full relative p-2 rounded-xl transition-all duration-200"
+                style={{
+                  background: isActive
+                    ? `${theme.colors.secondary}12`
+                    : "transparent",
+                }}
               >
                 {isActive && (
                   <div
                     className="absolute -top-0.5 left-1/2 -translate-x-1/2 rounded-2xl w-full h-1"
                     style={{
-                      background: theme.colors.primary,
+                      background: theme.colors.secondary,
                     }}
                   />
                 )}
@@ -43,7 +48,7 @@ export default function Navbar() {
                   className="text-xl transition-transform duration-200"
                   style={{
                     color: isActive
-                      ? theme.colors.primary
+                      ? theme.colors.secondary
                       : `${theme.colors.primary}aa`,
                     transform: isActive ? "scale(1.1)" : "scale(1)",
                   }}
@@ -52,7 +57,7 @@ export default function Navbar() {
                   className="text-xs font-semibold"
                   style={{
                     color: isActive
-                      ? theme.colors.primary
+                      ? theme.colors.secondary
                       : `${theme.colors.primary}80`,
                   }}
                 >
@@ -64,43 +69,46 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Desktop navbar below the header*/}
+      {/* Desktop navbar below the header */}
       <nav
         className="hidden md:block w-full"
         style={{
-          background: `${theme.colors.surface}f8`,
-          borderBottom: `1px solid ${theme.colors.accent}`,
-          backdropFilter: "blur(10px)",
+          background: theme.colors.secondary,
         }}
       >
-        <div className="flex gap-1 px-10">
+        <div className="flex items-center gap-2 px-10">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.label}
                 to={item.href}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold relative transition-all duration-200 hover:scale-[1.02]"
+                className="group flex items-center gap-3 px-5 py-4 font-semibold relative transition-all duration-200 ease-out"
                 style={{
                   color: isActive
-                    ? theme.colors.primary
-                    : `${theme.colors.primary}bb`,
+                    ? theme.colors.surface
+                    : `${theme.colors.primary}dd`,
                 }}
               >
                 <item.icon
-                  className="text-xl"
+                  className="text-xl transition-transform duration-200 ease-out group-hover:scale-125"
                   style={{
                     color: isActive
-                      ? theme.colors.primary
-                      : `${theme.colors.primary}bb`,
+                      ? theme.colors.surface
+                      : `${theme.colors.primary}dd`,
                   }}
                 />
-                <span>{item.label}</span>
+                <span className="transition-all duration-200 group-hover:tracking-wide">
+                  {item.label}
+                </span>
+
+                {/* Active indicator */}
                 {isActive && (
                   <div
-                    className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-full h-1 rounded-full"
+                    className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-full h-2 rounded-t-2xl"
                     style={{
-                      background: theme.colors.primary,
+                      background: theme.colors.background,
+                      animation: "slideIn 0.2s ease-out",
                     }}
                   />
                 )}
@@ -108,6 +116,19 @@ export default function Navbar() {
             );
           })}
         </div>
+
+        <style>{`
+          @keyframes slideIn {
+            from {
+              width: 60%;
+              opacity: 0;
+            }
+            to {
+              width: 100%;
+              opacity: 1;
+            }
+          }
+        `}</style>
       </nav>
     </>
   );

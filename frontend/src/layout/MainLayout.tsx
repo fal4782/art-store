@@ -25,7 +25,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <div className="flex-1 pb-16 md:pb-0">
         <main className="m-4">{children}</main>
       </div>
-        <Footer />
+      <Footer />
 
       <div className="md:hidden shrink-0">
         <Navbar />

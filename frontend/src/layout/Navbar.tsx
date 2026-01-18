@@ -76,14 +76,14 @@ export default function Navbar() {
           background: theme.colors.secondary,
         }}
       >
-        <div className="flex items-center gap-1 px-10 pt-2">
+        <div className="flex items-center px-10">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.label}
                 to={item.href}
-                className="group flex items-center gap-3 px-6 py-2 font-semibold relative transition-all duration-300 ease-out rounded-t-xl"
+                className={`group flex items-center gap-3 px-6 py-3 font-semibold relative transition-all duration-300 ease-out`}
                 style={{
                   color: !isActive
                     ? theme.colors.surface
@@ -105,9 +105,7 @@ export default function Navbar() {
                 />
                 <span
                   className={`transition-all duration-300 ${
-                    isActive
-                      ? "scale-105 tracking-wide translate-x-0.5"
-                      : "group-hover:scale-105 group-hover:tracking-wide group-hover:translate-x-0.5"
+                    isActive ? "scale-105" : "group-hover:scale-105"
                   }`}
                 >
                   {item.label}

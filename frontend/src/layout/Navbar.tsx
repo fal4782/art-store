@@ -76,59 +76,46 @@ export default function Navbar() {
           background: theme.colors.secondary,
         }}
       >
-        <div className="flex items-center gap-2 px-10">
+        <div className="flex items-center gap-1 px-10 pt-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.label}
                 to={item.href}
-                className="group flex items-center gap-3 px-5 py-4 font-semibold relative transition-all duration-200 ease-out"
+                className="group flex items-center gap-3 px-6 py-2 font-semibold relative transition-all duration-300 ease-out rounded-t-xl"
                 style={{
-                  color: isActive
+                  color: !isActive
                     ? theme.colors.surface
-                    : `${theme.colors.primary}dd`,
+                    : theme.colors.primary,
+                  background: isActive
+                    ? theme.colors.background
+                    : "transparent",
                 }}
               >
                 <item.icon
-                  className="text-xl transition-transform duration-200 ease-out group-hover:scale-125"
+                  className={`text-xl transition-all duration-300 ease-out ${
+                    isActive ? "scale-110" : "group-hover:scale-110"
+                  }`}
                   style={{
-                    color: isActive
+                    color: !isActive
                       ? theme.colors.surface
-                      : `${theme.colors.primary}dd`,
+                      : theme.colors.primary,
                   }}
                 />
-                <span className="transition-all duration-200 group-hover:tracking-wide">
+                <span
+                  className={`transition-all duration-300 ${
+                    isActive
+                      ? "scale-105 tracking-wide translate-x-0.5"
+                      : "group-hover:scale-105 group-hover:tracking-wide group-hover:translate-x-0.5"
+                  }`}
+                >
                   {item.label}
                 </span>
-
-                {/* Active indicator */}
-                {isActive && (
-                  <div
-                    className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-full h-2 rounded-t-2xl"
-                    style={{
-                      background: theme.colors.background,
-                      animation: "slideIn 0.2s ease-out",
-                    }}
-                  />
-                )}
               </Link>
             );
           })}
         </div>
-
-        <style>{`
-          @keyframes slideIn {
-            from {
-              width: 60%;
-              opacity: 0;
-            }
-            to {
-              width: 100%;
-              opacity: 1;
-            }
-          }
-        `}</style>
       </nav>
     </>
   );

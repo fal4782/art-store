@@ -61,7 +61,13 @@ router.post("/signup", async (req, res) => {
         // role defaults to CUSTOMER, isActive defaults to true
       },
     });
-    return res.status(201).json({ message: "Signup successful" });
+
+    // Generate token for auto-login
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+      expiresIn: "24h",
+    });
+
+    return res.status(201).json({ token });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });

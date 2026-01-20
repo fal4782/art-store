@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { theme } from "../theme";
-import { FaPaintBrush, FaEye, FaEyeSlash } from "react-icons/fa";
+import {
+  FaPaintBrush,
+  FaEye,
+  FaEyeSlash,
+  FaHeart,
+  FaLayerGroup,
+} from "react-icons/fa";
 import { FiMail, FiLock, FiUser, FiArrowRight } from "react-icons/fi";
-import type { LoginInput, SignupInput } from "../types/auth";
 import { authService } from "../services/authService";
+import type { LoginInput, SignupInput } from "../types/auth";
+import { FcGoogle } from "react-icons/fc";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -12,8 +19,12 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Form states
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const [loginData, setLoginData] = useState<LoginInput>({
     email: "",
     password: "",
@@ -30,14 +41,13 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-
     try {
       const response = await authService.login(loginData);
       authService.setToken(response.token);
       navigate("/");
     } catch (err: any) {
       setError(
-        err.response?.data?.message || "Login failed. Please try again.",
+        err.response?.data?.message || "Login failed. Check your credentials.",
       );
     } finally {
       setIsLoading(false);
@@ -48,15 +58,12 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-
     try {
       const response = await authService.signup(signupData);
       authService.setToken(response.token);
       navigate("/");
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Signup failed. Please try again.",
-      );
+      setError(err.response?.data?.message || "Signup failed. Try again.");
     } finally {
       setIsLoading(false);
     }
@@ -64,473 +71,406 @@ export default function AuthPage() {
 
   return (
     <div
-      className="min-h-screen flex"
+      className="min-h-screen flex overflow-hidden selection:bg-secondary/30"
       style={{ background: theme.colors.background }}
     >
-      {/* Left Side - Art Image (Desktop Only) */}
+      {/* --- Left Side: Artistic Showcase (Desktop) --- */}
       <div
-        className="hidden md:flex md:w-1/2 relative overflow-hidden"
-        style={{ background: theme.colors.secondary }}
+        className="hidden lg:flex lg:w-3/5 relative items-center justify-center p-12 overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${theme.colors.accent}40 0%, ${theme.colors.background} 100%)`,
+        }}
       >
-        {/* Decorative elements */}
-        <div className="absolute inset-0 flex items-center justify-center p-12">
-          <div className="text-center">
-            <div
-              className="inline-block p-6 rounded-3xl mb-6"
-              style={{
-                background: `${theme.colors.surface}20`,
-              }}
-            >
-              <FaPaintBrush
-                className="text-7xl"
-                style={{ color: theme.colors.surface }}
-              />
-            </div>
-            <h2
-              className="text-4xl font-bold mb-4"
-              style={{ color: theme.colors.surface }}
-            >
-              Welcome to ArtStore
-            </h2>
-            <p
-              className="text-lg max-w-md mx-auto"
-              style={{ color: `${theme.colors.surface}dd` }}
-            >
-              Discover and collect exceptional artworks from talented artists
-              around the world
-            </p>
-          </div>
-        </div>
-
-        {/* Decorative circles */}
+        {/* Artistic Background blobs */}
         <div
-          className="absolute -top-20 -left-20 w-64 h-64 rounded-full opacity-10"
-          style={{ background: theme.colors.surface }}
+          className="absolute top-[-5%] left-[-5%] w-[45%] h-[45%] rounded-full opacity-20 blur-3xl animate-float"
+          style={{ background: theme.colors.secondary }}
         />
         <div
-          className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full opacity-10"
-          style={{ background: theme.colors.surface }}
+          className="absolute bottom-[5%] right-[-5%] w-[35%] h-[35%] rounded-full opacity-10 blur-3xl animate-float"
+          style={{ background: theme.colors.primary, animationDelay: "3s" }}
         />
-      </div>
 
-      {/* Right Side - Auth Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="md:hidden flex flex-col items-center mb-8">
-            <div
-              className="p-3 rounded-xl mb-4"
-              style={{
-                background: `${theme.colors.accent}80`,
-              }}
-            >
-              <FaPaintBrush
-                className="text-3xl"
-                style={{ color: theme.colors.secondary }}
-              />
-            </div>
-          </div>
+        <div
+          className={`relative z-10 w-full max-w-2xl transition-all duration-1000 transform ${isMounted ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
+        >
+          <div className="flex flex-col gap-6">
+            {/* Main Creative Card */}
+            <div className="bg-white/80 backdrop-blur-xl border border-white p-12 rounded-[3rem] shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -translate-y-10 translate-x-10 blur-2xl" />
 
-          {/* Auth Card */}
-          <div
-            className="rounded-2xl p-8 md:p-10"
-            style={{
-              background: theme.colors.surface,
-              border: `1px solid ${theme.colors.accent}`,
-            }}
-          >
-            {/* Header */}
-            <div className="mb-8">
-              <h1
-                className="text-2xl md:text-3xl font-bold mb-2"
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 text-secondary font-bold text-xs uppercase tracking-widest mb-6">
+                <FaHeart className="animate-pulse" /> Handmade with Love
+              </div>
+
+              <h2
+                className="text-5xl font-black leading-[1.1] mb-6"
                 style={{ color: theme.colors.primary }}
               >
-                {isSignUp ? "Create Account" : "Sign In"}
-              </h1>
+                From{" "}
+                <span style={{ color: theme.colors.secondary }}>Stitches</span>{" "}
+                <br />
+                to{" "}
+                <span style={{ color: theme.colors.secondary }}>Strokes</span>.
+              </h2>
+
               <p
-                className="text-sm"
-                style={{ color: `${theme.colors.primary}99` }}
+                className="text-lg font-medium opacity-70 mb-10 leading-relaxed"
+                style={{ color: theme.colors.primary }}
               >
-                {isSignUp
-                  ? "Join our community of art lovers"
-                  : "Welcome back! Please sign in to continue"}
+                Explore a curated collection of cozy crochet amigurumi, timeless
+                oil paintings, and avant-garde digital art.
               </p>
+
+              {/* Tags/Categories */}
+              <div className="flex flex-wrap gap-3 mb-10">
+                {[
+                  "Amigurumi",
+                  "Fine Art",
+                  "Digital Prints",
+                  "Artisan Crafts",
+                ].map((cat) => (
+                  <span
+                    key={cat}
+                    className="px-5 py-2.5 rounded-2xl bg-white border border-accent/30 shadow-sm text-sm font-bold text-primary/60"
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
+
+              {/* Testimonial preview */}
+              <div className="flex items-center gap-4 pt-6 border-t border-accent/20">
+                <div className="flex -space-x-3">
+                  {[1, 2, 3].map((i) => (
+                    <img
+                      key={i}
+                      src={`https://i.pravatar.cc/100?img=${i + 20}`}
+                      className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
+                      alt="curator"
+                    />
+                  ))}
+                </div>
+                <p className="text-sm font-bold opacity-60">
+                  Joined by 2,000+ niche art curators.
+                </p>
+              </div>
             </div>
 
-            {/* Error Message */}
-            {error && (
+            {/* Bottom floating elements */}
+            <div className="flex gap-6">
+              <div className="flex-1 bg-secondary text-white p-8 rounded-[2.5rem] shadow-xl shadow-secondary/20 flex flex-col items-start gap-3 animate-float">
+                <div className="p-3 bg-white/20 rounded-2xl">
+                  <FaPaintBrush className="text-xl" />
+                </div>
+                <h3 className="font-black text-xl leading-none">
+                  Global Creator <br />
+                  Network
+                </h3>
+                <p className="text-sm opacity-80 font-medium">
+                  Supporting artists from local studios to digital spaces.
+                </p>
+              </div>
               <div
-                className="mb-6 p-3 rounded-lg text-sm"
+                className="flex-1 bg-[#5C4A3A] text-[#FDFCFB] p-8 rounded-[2.5rem] shadow-xl shadow-primary/20 flex flex-col items-start gap-3 animate-float"
+                style={{ animationDelay: "1.5s" }}
+              >
+                <div className="p-3 bg-white/10 rounded-2xl">
+                  <FaLayerGroup className="text-xl" />
+                </div>
+                <h3 className="font-black text-xl leading-none">
+                  Curated <br />
+                  Quality
+                </h3>
+                <p className="text-sm opacity-80 font-medium">
+                  Every piece is vetted for craftsmanship and authenticity.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- Right Side: Auth Container --- */}
+      <div
+        className="w-full lg:w-2/5 flex items-center justify-center p-6 relative"
+        style={{ background: theme.colors.surface }}
+      >
+        <div
+          className={`w-full max-w-md transition-all duration-700 delay-300 transform ${isMounted ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
+        >
+          {/* Header */}
+          <div className="flex flex-col items-start mb-10">
+            <div
+              className="p-4 rounded-xl mb-6"
+              style={{
+                background: `${theme.colors.accent}80`,
+                color: theme.colors.secondary,
+              }}
+            >
+              <FaPaintBrush className="text-xl md:text-3xl" />
+            </div>
+            <h1
+              className="text-4xl font-black tracking-tight"
+              style={{ color: theme.colors.primary }}
+            >
+              {isSignUp ? "Create Account" : "Welcome Back"}
+            </h1>
+            <p
+              className="mt-2 font-bold text-lg"
+              style={{ color: theme.colors.primary, opacity: 0.6 }}
+            >
+              {isSignUp
+                ? "Sign up to discover handmade art."
+                : "Sign in to continue your journey."}
+            </p>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div
+              className="mb-6 p-4 rounded-lg border text-sm font-bold flex items-center gap-3"
+              style={{
+                background: theme.colors.error + "15",
+                borderColor: theme.colors.error + "40",
+                color: theme.colors.error,
+              }}
+            >
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ background: theme.colors.error }}
+              />
+              {error}
+            </div>
+          )}
+
+          {/* Auth Form */}
+          <div className="space-y-6">
+            <form
+              onSubmit={isSignUp ? handleSignup : handleLogin}
+              className="space-y-4"
+            >
+              {isSignUp && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label
+                      className="text-xs font-black uppercase tracking-widest ml-1"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      First Name
+                    </label>
+                    <div className="relative group">
+                      <FiUser
+                        className="absolute left-4 top-1/2 -translate-y-1/2"
+                        style={{ color: theme.colors.primary }}
+                      />
+                      <input
+                        type="text"
+                        required
+                        value={signupData.firstName}
+                        onChange={(e) =>
+                          setSignupData({
+                            ...signupData,
+                            firstName: e.target.value,
+                          })
+                        }
+                        className="w-full pl-12 pr-4 py-4 rounded-lg transition-all outline-none font-bold"
+                        style={{
+                          color: theme.colors.primary,
+                        }}
+                        placeholder="John"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      className="text-xs font-black uppercase tracking-widest ml-1"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      Last Name
+                    </label>
+                    <div className="relative group">
+                      <FiUser
+                        className="absolute left-4 top-1/2 -translate-y-1/2"
+                        style={{ color: theme.colors.primary }}
+                      />
+                      <input
+                        type="text"
+                        value={signupData.lastName}
+                        onChange={(e) =>
+                          setSignupData({
+                            ...signupData,
+                            lastName: e.target.value,
+                          })
+                        }
+                        className="w-full pl-12 pr-4 py-4 rounded-lg transition-all outline-none font-bold"
+                        style={{
+                          color: theme.colors.primary,
+                        }}
+                        placeholder="Doe"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label
+                  className="text-xs font-black uppercase tracking-widest ml-1"
+                  style={{ color: theme.colors.primary }}
+                >
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <FiMail
+                    className="absolute left-4 top-1/2 -translate-y-1/2"
+                    style={{ color: theme.colors.primary }}
+                  />
+                  <input
+                    type="email"
+                    required
+                    value={isSignUp ? signupData.email : loginData.email}
+                    onChange={(e) =>
+                      isSignUp
+                        ? setSignupData({
+                            ...signupData,
+                            email: e.target.value,
+                          })
+                        : setLoginData({ ...loginData, email: e.target.value })
+                    }
+                    className="w-full pl-12 pr-4 py-4 rounded-lg transition-all outline-none font-bold"
+                    style={{
+                      color: theme.colors.primary,
+                    }}
+                    placeholder="artist@artstore.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center ml-1">
+                  <label
+                    className="text-xs font-black uppercase tracking-widest ml-1"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    Password
+                  </label>
+                  {!isSignUp && (
+                    <button
+                      type="button"
+                      className="text-xs font-bold hover:underline underline-offset-8"
+                      style={{
+                        color: theme.colors.secondary,
+                      }}
+                    >
+                      Forgot Password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative group">
+                  <FiLock
+                    className="absolute left-4 top-1/2 -translate-y-1/2"
+                    style={{ color: theme.colors.primary }}
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    value={isSignUp ? signupData.password : loginData.password}
+                    onChange={(e) =>
+                      isSignUp
+                        ? setSignupData({
+                            ...signupData,
+                            password: e.target.value,
+                          })
+                        : setLoginData({
+                            ...loginData,
+                            password: e.target.value,
+                          })
+                    }
+                    className="w-full pl-12 pr-4 py-4 rounded-lg transition-all outline-none font-bold"
+                    style={{
+                      color: theme.colors.primary,
+                    }}
+                    placeholder="••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-5 top-1/2 -translate-y-1/2"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    {showPassword ? <FaEye /> : <FaEyeSlash />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4 rounded-xl font-black text-xl shadow-xl hover:scale-[1.03] active:scale-[0.99] transition-all disabled:opacity-70 disabled:pointer-events-none mt-4 flex items-center justify-center gap-2"
                 style={{
-                  background: error.includes("created")
-                    ? `${theme.colors.success}20`
-                    : `${theme.colors.error}20`,
-                  color: error.includes("created")
-                    ? theme.colors.success
-                    : theme.colors.error,
-                  border: `1px solid ${
-                    error.includes("created")
-                      ? theme.colors.success
-                      : theme.colors.error
-                  }40`,
+                  background: theme.colors.secondary,
+                  color: theme.colors.surface,
                 }}
               >
-                {error}
-              </div>
-            )}
+                {isLoading ? (
+                  <div className="w-6 h-6 border-4 rounded-full animate-spin" />
+                ) : (
+                  <>
+                    {isSignUp ? "Sign Up" : "Sign In"}
+                    <FiArrowRight />
+                  </>
+                )}
+              </button>
+            </form>
 
-            {/* Forms */}
-            {!isSignUp ? (
-              // Sign In Form
-              <form onSubmit={handleLogin} className="space-y-5">
-                {/* Email Input */}
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    Email
-                  </label>
-                  <div className="relative">
-                    <div
-                      className="absolute left-3 top-1/2 -translate-y-1/2"
-                      style={{ color: `${theme.colors.primary}66` }}
-                    >
-                      <FiMail className="text-lg" />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={loginData.email}
-                      onChange={(e) =>
-                        setLoginData({ ...loginData, email: e.target.value })
-                      }
-                      placeholder="you@example.com"
-                      className="w-full pl-11 pr-4 py-3 rounded-lg text-sm transition-all duration-200"
-                      style={{
-                        background: theme.colors.background,
-                        border: `1px solid ${theme.colors.accent}`,
-                        color: theme.colors.primary,
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = theme.colors.secondary;
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = theme.colors.accent;
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Password Input */}
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div
-                      className="absolute left-3 top-1/2 -translate-y-1/2"
-                      style={{ color: `${theme.colors.primary}66` }}
-                    >
-                      <FiLock className="text-lg" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      required
-                      value={loginData.password}
-                      onChange={(e) =>
-                        setLoginData({ ...loginData, password: e.target.value })
-                      }
-                      placeholder="••••••••"
-                      className="w-full pl-11 pr-12 py-3 rounded-lg text-sm transition-all duration-200"
-                      style={{
-                        background: theme.colors.background,
-                        border: `1px solid ${theme.colors.accent}`,
-                        color: theme.colors.primary,
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = theme.colors.secondary;
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = theme.colors.accent;
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors duration-200"
-                      style={{ color: `${theme.colors.primary}66` }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = theme.colors.secondary;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = `${theme.colors.primary}66`;
-                      }}
-                    >
-                      {showPassword ? (
-                        <FaEyeSlash className="text-lg" />
-                      ) : (
-                        <FaEye className="text-lg" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 rounded-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  style={{
-                    background: theme.colors.secondary,
-                    color: theme.colors.surface,
-                  }}
-                >
-                  {isLoading ? "Signing in..." : "Sign In"}
-                  {!isLoading && <FiArrowRight />}
-                </button>
-              </form>
-            ) : (
-              // Sign Up Form
-              <form onSubmit={handleSignup} className="space-y-4">
-                {/* First Name Input */}
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    First Name
-                  </label>
-                  <div className="relative">
-                    <div
-                      className="absolute left-3 top-1/2 -translate-y-1/2"
-                      style={{ color: `${theme.colors.primary}66` }}
-                    >
-                      <FiUser className="text-lg" />
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      value={signupData.firstName}
-                      onChange={(e) =>
-                        setSignupData({
-                          ...signupData,
-                          firstName: e.target.value,
-                        })
-                      }
-                      placeholder="John"
-                      className="w-full pl-11 pr-4 py-3 rounded-lg text-sm transition-all duration-200"
-                      style={{
-                        background: theme.colors.background,
-                        border: `1px solid ${theme.colors.accent}`,
-                        color: theme.colors.primary,
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = theme.colors.secondary;
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = theme.colors.accent;
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Last Name Input */}
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    Last Name{" "}
-                    <span style={{ color: `${theme.colors.primary}66` }}>
-                      (optional)
-                    </span>
-                  </label>
-                  <div className="relative">
-                    <div
-                      className="absolute left-3 top-1/2 -translate-y-1/2"
-                      style={{ color: `${theme.colors.primary}66` }}
-                    >
-                      <FiUser className="text-lg" />
-                    </div>
-                    <input
-                      type="text"
-                      value={signupData.lastName}
-                      onChange={(e) =>
-                        setSignupData({
-                          ...signupData,
-                          lastName: e.target.value,
-                        })
-                      }
-                      placeholder="Doe"
-                      className="w-full pl-11 pr-4 py-3 rounded-lg text-sm transition-all duration-200"
-                      style={{
-                        background: theme.colors.background,
-                        border: `1px solid ${theme.colors.accent}`,
-                        color: theme.colors.primary,
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = theme.colors.secondary;
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = theme.colors.accent;
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Email Input */}
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    Email
-                  </label>
-                  <div className="relative">
-                    <div
-                      className="absolute left-3 top-1/2 -translate-y-1/2"
-                      style={{ color: `${theme.colors.primary}66` }}
-                    >
-                      <FiMail className="text-lg" />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={signupData.email}
-                      onChange={(e) =>
-                        setSignupData({ ...signupData, email: e.target.value })
-                      }
-                      placeholder="you@example.com"
-                      className="w-full pl-11 pr-4 py-3 rounded-lg text-sm transition-all duration-200"
-                      style={{
-                        background: theme.colors.background,
-                        border: `1px solid ${theme.colors.accent}`,
-                        color: theme.colors.primary,
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = theme.colors.secondary;
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = theme.colors.accent;
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Password Input */}
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div
-                      className="absolute left-3 top-1/2 -translate-y-1/2"
-                      style={{ color: `${theme.colors.primary}66` }}
-                    >
-                      <FiLock className="text-lg" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      required
-                      minLength={6}
-                      value={signupData.password}
-                      onChange={(e) =>
-                        setSignupData({
-                          ...signupData,
-                          password: e.target.value,
-                        })
-                      }
-                      placeholder="••••••••"
-                      className="w-full pl-11 pr-12 py-3 rounded-lg text-sm transition-all duration-200"
-                      style={{
-                        background: theme.colors.background,
-                        border: `1px solid ${theme.colors.accent}`,
-                        color: theme.colors.primary,
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = theme.colors.secondary;
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = theme.colors.accent;
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors duration-200"
-                      style={{ color: `${theme.colors.primary}66` }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = theme.colors.secondary;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = `${theme.colors.primary}66`;
-                      }}
-                    >
-                      {showPassword ? (
-                        <FaEyeSlash className="text-lg" />
-                      ) : (
-                        <FaEye className="text-lg" />
-                      )}
-                    </button>
-                  </div>
-                  <p
-                    className="text-xs mt-1.5"
-                    style={{ color: `${theme.colors.primary}66` }}
-                  >
-                    Minimum 6 characters
-                  </p>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 rounded-lg font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  style={{
-                    background: theme.colors.secondary,
-                    color: theme.colors.surface,
-                  }}
-                >
-                  {isLoading ? "Creating account..." : "Create Account"}
-                  {!isLoading && <FiArrowRight />}
-                </button>
-              </form>
-            )}
-
-            {/* Switch between Sign In/Sign Up */}
-            <div className="mt-6 text-center">
-              <p
-                className="text-sm"
-                style={{ color: `${theme.colors.primary}99` }}
+            <div className="flex items-center gap-4 py-2">
+              <div
+                className="flex-1 h-px"
+                style={{ background: theme.colors.primary, opacity: 0.1 }}
+              />
+              <span
+                className="text-[10px] font-black uppercase tracking-[0.2em]"
+                style={{ color: theme.colors.primary }}
               >
-                {isSignUp
-                  ? "Already have an account?"
-                  : "Don't have an account?"}{" "}
-                <button
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setError("");
-                  }}
-                  className="font-semibold transition-colors duration-200"
-                  style={{ color: theme.colors.secondary }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = `${theme.colors.secondary}dd`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = theme.colors.secondary;
-                  }}
-                >
-                  {isSignUp ? "Sign in" : "Sign up"}
-                </button>
-              </p>
+                Or Continue With
+              </span>
+              <div
+                className="flex-1 h-px"
+                style={{ background: theme.colors.primary, opacity: 0.1 }}
+              />
             </div>
+
+            <button
+              type="button"
+              className="w-full py-4 rounded-xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-3 active:scale-[0.99] hover:scale-[1.03]"
+              style={{
+                background: `${theme.colors.accent}50`,
+                color: theme.colors.primary,
+                borderColor: theme.colors.accent,
+              }}
+            >
+              <FcGoogle className="w-5 h-5" />
+              Google Account
+            </button>
+
+            <p
+              className="pt-2 text-center font-bold text-sm"
+              style={{ color: theme.colors.primary }}
+            >
+              {isSignUp ? "Already have an account?" : "New to the art store?"}{" "}
+              <button
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setError("");
+                }}
+                className="hover:underline underline-offset-8"
+                style={{ color: theme.colors.secondary }}
+              >
+                {isSignUp ? "Sign In" : "Register Now"}
+              </button>
+            </p>
           </div>
         </div>
       </div>

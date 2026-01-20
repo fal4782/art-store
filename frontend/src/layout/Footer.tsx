@@ -1,4 +1,4 @@
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaPaintBrush } from "react-icons/fa";
 import { theme } from "../theme";
 import { footerLinks, socialLinks, contactInfo } from "../utils/footerData";
 
@@ -7,127 +7,131 @@ export default function Footer() {
     <>
       {/* Main Footer */}
       <footer
-        className="hidden md:block w-full py-8 px-4"
+        className="hidden md:block w-full py-12 px-4"
         style={{
           background: theme.colors.surface,
-          borderTop: `1px solid ${theme.colors.secondary}40`,
+          borderTop: `1px solid ${theme.colors.accent}`,
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-3 gap-12">
+          <div className="grid grid-cols-3 gap-16">
             {/* Brand Section */}
             <div className="col-span-1">
-              <div
-                className="flex items-center gap-3 mb-6 pb-6"
-                style={{
-                  borderBottom: `2px solid ${theme.colors.secondary}50`,
-                  paddingBottom: theme.spacing.lg,
-                }}
-              >
+              <div className="flex items-center gap-2 mb-4">
                 <div
-                  className="p-3 rounded-xl"
+                  className="p-2 rounded-lg"
                   style={{
-                    background: `${theme.colors.secondary}30`,
-                    boxShadow: `0 4px 12px ${theme.colors.secondary}20`,
+                    background: `${theme.colors.accent}80`,
                   }}
                 >
-                  <span
-                    className="text-2xl font-bold block"
-                    style={{
-                      color: theme.colors.primary,
-                      textShadow: `0 1px 2px ${theme.colors.secondary}30`,
-                    }}
-                  >
-                    ArtStore
-                  </span>
+                  <FaPaintBrush
+                    className="text-lg"
+                    style={{ color: theme.colors.secondary }}
+                  />
                 </div>
+                <span
+                  className="text-xl font-bold"
+                  style={{
+                    color: theme.colors.primary,
+                  }}
+                >
+                  ArtStore
+                </span>
               </div>
-              <div
-                className="text-sm leading-relaxed mb-6"
-                style={{ color: `${theme.colors.primary}99` }}
+              <p
+                className="text-sm leading-relaxed mt-4"
+                style={{ color: `${theme.colors.primary}aa` }}
               >
-                Discover exceptional art curated for collectors and enthusiasts.
-              </div>
+                Discover exceptional art curated for collectors and enthusiasts worldwide.
+              </p>
             </div>
 
             {/* Link Sections */}
-            <div className="grid grid-cols-1 gap-8">
-              {footerLinks.map((section) => (
-                <div key={section.title}>
-                  <h3
-                    className="font-semibold mb-6 pb-2"
-                    style={{
-                      color: theme.colors.primary,
-                      fontSize: "1.05rem",
-                      borderBottom: `2px solid ${theme.colors.secondary}40`,
-                    }}
-                  >
-                    {section.title}
-                  </h3>
-                  <ul className="space-y-3">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <a
-                          href={link.href}
-                          className="group flex items-center gap-2 p-2 rounded-lg transition-all duration-300 hover:scale-[1.02]"
-                          style={{
-                            color: `${theme.colors.primary}cc`,
-                            fontSize: "0.95rem",
-                          }}
-                        >
-                          <div
-                            className="w-1 h-1 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            style={{ background: theme.colors.secondary }}
-                          />
-                          {link.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            {/* Contact & Socials */}
-            <div className="space-y-8">
-              {/* Contact */}
-              <div>
+            {footerLinks.map((section) => (
+              <div key={section.title}>
                 <h3
-                  className="font-semibold mb-6 pb-2"
+                  className="font-semibold mb-4 text-sm uppercase tracking-wider relative pb-2"
                   style={{
                     color: theme.colors.primary,
-                    fontSize: "1.05rem",
-                    borderBottom: `2px solid ${theme.colors.secondary}40`,
                   }}
                 >
-                  Contact
+                  {section.title}
+                  <div
+                    className="absolute bottom-0 left-0 w-8 h-0.5 rounded-full"
+                    style={{
+                      background: theme.colors.secondary,
+                    }}
+                  />
                 </h3>
-                <div className="space-y-4 text-sm">
-                  <div style={{ color: `${theme.colors.primary}dd` }}>
-                    {contactInfo.email}
-                  </div>
-                  <div style={{ color: `${theme.colors.primary}dd` }}>
-                    {contactInfo.phone}
-                  </div>
-                  <div style={{ color: `${theme.colors.primary}dd` }}>
-                    {contactInfo.address}
-                  </div>
+                <ul className="space-y-2.5">
+                  {section.links.map((link) => (
+                    <li key={link.label}>
+                      <a
+                        href={link.href}
+                        className="text-sm transition-colors duration-200 hover:translate-x-0.5 inline-block"
+                        style={{
+                          color: `${theme.colors.primary}99`,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = theme.colors.secondary;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = `${theme.colors.primary}99`;
+                        }}
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            {/* Contact & Socials */}
+            <div>
+              <h3
+                className="font-semibold mb-4 text-sm uppercase tracking-wider relative pb-2"
+                style={{
+                  color: theme.colors.primary,
+                }}
+              >
+                Contact
+                <div
+                  className="absolute bottom-0 left-0 w-8 h-0.5 rounded-full"
+                  style={{
+                    background: theme.colors.secondary,
+                  }}
+                />
+              </h3>
+              <div className="space-y-2.5 text-sm mb-6">
+                <div style={{ color: `${theme.colors.primary}99` }}>
+                  {contactInfo.email}
+                </div>
+                <div style={{ color: `${theme.colors.primary}99` }}>
+                  {contactInfo.phone}
+                </div>
+                <div style={{ color: `${theme.colors.primary}99` }}>
+                  {contactInfo.address}
                 </div>
               </div>
 
               {/* Social Links */}
-              <div>
-                <h3
-                  className="font-semibold mb-6 pb-2"
+              <div className="mt-6">
+                <h4
+                  className="font-semibold mb-3 text-sm uppercase tracking-wider relative pb-2"
                   style={{
                     color: theme.colors.primary,
-                    fontSize: "1.05rem",
-                    borderBottom: `2px solid ${theme.colors.secondary}40`,
                   }}
                 >
-                  Follow Us
-                </h3>
-                <div className="flex gap-4">
+                  Follow
+                  <div
+                    className="absolute bottom-0 left-0 w-8 h-0.5 rounded-full"
+                    style={{
+                      background: theme.colors.secondary,
+                    }}
+                  />
+                </h4>
+                <div className="flex gap-3">
                   {socialLinks.map((social) => {
                     const Icon = social.icon;
                     return (
@@ -137,13 +141,21 @@ export default function Footer() {
                         aria-label={social.label}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group p-3 rounded-xl hover:scale-110 transition-all duration-300"
+                        className="p-2.5 rounded-lg transition-all duration-200 hover:scale-110"
                         style={{
-                          background: `${theme.colors.accent}40`,
-                          color: `${theme.colors.primary}dd`,
+                          background: `${theme.colors.secondary}20`,
+                          color: theme.colors.secondary,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = theme.colors.secondary;
+                          e.currentTarget.style.color = theme.colors.surface;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = `${theme.colors.secondary}20`;
+                          e.currentTarget.style.color = theme.colors.secondary;
                         }}
                       >
-                        <Icon />
+                        <Icon className="text-base" />
                       </a>
                     );
                   })}
@@ -156,24 +168,22 @@ export default function Footer() {
 
       {/* Copyright Bar */}
       <div
-        className="hidden md:block w-full py-2 text-center"
+        className="hidden md:block w-full py-4 text-center"
         style={{
-          background: `${theme.colors.primary}e8`,
+          background: theme.colors.primary,
           color: theme.colors.accent,
           fontSize: "0.875rem",
-          fontWeight: 500,
-          letterSpacing: "0.025em",
-          backdropFilter: "blur(10px)",
         }}
       >
         <div className="max-w-7xl mx-auto px-6">
-          © {new Date().getFullYear()} ArtStore. All rights reserved. <br />{" "}
-          <div className="inline-flex items-center gap-1">
-            Made with
-            <span style={{ color: theme.colors.secondary }}>
-              <FaHeart />
-            </span>
-            for art lovers.
+          <div className="flex items-center justify-center gap-6">
+            <span>© {new Date().getFullYear()} ArtStore. All rights reserved.</span>
+            <span className="text-xs" style={{ color: `${theme.colors.accent}cc` }}>•</span>
+            <div className="inline-flex items-center gap-1.5">
+              Made with
+              <FaHeart className="text-xs" style={{ color: theme.colors.secondary }} />
+              for art lovers
+            </div>
           </div>
         </div>
       </div>

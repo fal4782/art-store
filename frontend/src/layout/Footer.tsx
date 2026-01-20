@@ -1,40 +1,42 @@
+import { FaHeart } from "react-icons/fa";
 import { theme } from "../theme";
 import { footerLinks, socialLinks, contactInfo } from "../utils/footerData";
 
 export default function Footer() {
   return (
     <>
-      {/* Main Footer - Desktop */}
+      {/* Main Footer */}
       <footer
-        className="hidden md:block w-full pt-12 pb-8 px-4"
+        className="hidden md:block w-full py-8 px-4"
         style={{
-          background: `${theme.colors.surface}ff`,
-          borderTop: `1px solid ${theme.colors.accent}cc`,
-          backdropFilter: "blur(20px)",
-          boxShadow: `0 -2px 20px ${theme.colors.primary}05`,
+          background: theme.colors.surface,
+          borderTop: `1px solid ${theme.colors.secondary}40`,
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+          <div className="grid grid-cols-3 gap-12">
             {/* Brand Section */}
-            <div className="lg:col-span-1">
+            <div className="col-span-1">
               <div
                 className="flex items-center gap-3 mb-6 pb-6"
                 style={{
-                  borderBottom: `2px solid ${theme.colors.accent}80`,
+                  borderBottom: `2px solid ${theme.colors.secondary}50`,
                   paddingBottom: theme.spacing.lg,
                 }}
               >
                 <div
                   className="p-3 rounded-xl"
                   style={{
-                    background: `${theme.colors.accent}e0`,
-                    boxShadow: `0 4px 12px ${theme.colors.primary}10`,
+                    background: `${theme.colors.secondary}30`,
+                    boxShadow: `0 4px 12px ${theme.colors.secondary}20`,
                   }}
                 >
                   <span
                     className="text-2xl font-bold block"
-                    style={{ color: theme.colors.primary }}
+                    style={{
+                      color: theme.colors.primary,
+                      textShadow: `0 1px 2px ${theme.colors.secondary}30`,
+                    }}
                   >
                     ArtStore
                   </span>
@@ -49,7 +51,7 @@ export default function Footer() {
             </div>
 
             {/* Link Sections */}
-            <div className="lg:col-span-2 grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-8">
               {footerLinks.map((section) => (
                 <div key={section.title}>
                   <h3
@@ -57,7 +59,7 @@ export default function Footer() {
                     style={{
                       color: theme.colors.primary,
                       fontSize: "1.05rem",
-                      borderBottom: `1px solid ${theme.colors.accent}60`,
+                      borderBottom: `2px solid ${theme.colors.secondary}40`,
                     }}
                   >
                     {section.title}
@@ -95,7 +97,7 @@ export default function Footer() {
                   style={{
                     color: theme.colors.primary,
                     fontSize: "1.05rem",
-                    borderBottom: `1px solid ${theme.colors.accent}60`,
+                    borderBottom: `2px solid ${theme.colors.secondary}40`,
                   }}
                 >
                   Contact
@@ -120,7 +122,7 @@ export default function Footer() {
                   style={{
                     color: theme.colors.primary,
                     fontSize: "1.05rem",
-                    borderBottom: `1px solid ${theme.colors.accent}60`,
+                    borderBottom: `2px solid ${theme.colors.secondary}40`,
                   }}
                 >
                   Follow Us
@@ -141,7 +143,7 @@ export default function Footer() {
                           color: `${theme.colors.primary}dd`,
                         }}
                       >
-                        <Icon size={20} />
+                        <Icon />
                       </a>
                     );
                   })}
@@ -149,25 +151,15 @@ export default function Footer() {
               </div>
             </div>
           </div>
-
-          {/* Divider */}
-          <div
-            className="w-full h-px my-12 mx-auto"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${theme.colors.accent}cc, transparent)`,
-              maxWidth: "400px",
-            }}
-          />
         </div>
       </footer>
 
-      {/* Copyright Bar - Desktop */}
+      {/* Copyright Bar */}
       <div
-        className="hidden md:block w-full py-4 text-center"
+        className="hidden md:block w-full py-2 text-center"
         style={{
-          background: `${theme.colors.secondary}e8`,
-          borderTop: `1px solid ${theme.colors.primary}40`,
-          color: `${theme.colors.primary}cc`,
+          background: `${theme.colors.primary}e8`,
+          color: theme.colors.accent,
           fontSize: "0.875rem",
           fontWeight: 500,
           letterSpacing: "0.025em",
@@ -175,8 +167,14 @@ export default function Footer() {
         }}
       >
         <div className="max-w-7xl mx-auto px-6">
-          © {new Date().getFullYear()} ArtStore. All rights reserved. | Made
-          with <span style={{ color: theme.colors.error }}>♥</span> for artists.
+          © {new Date().getFullYear()} ArtStore. All rights reserved. <br />{" "}
+          <div className="inline-flex items-center gap-1">
+            Made with
+            <span style={{ color: theme.colors.secondary }}>
+              <FaHeart />
+            </span>
+            for art lovers.
+          </div>
         </div>
       </div>
     </>

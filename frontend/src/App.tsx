@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import AuthPage from "./pages/AuthPage";
+import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
@@ -11,11 +14,17 @@ function App() {
           path="/*"
           element={
             <MainLayout>
-              <div className="text-xl font-semibold">
-                Hello! <br />
-                Welcome to ArtStore! <br />
-                Happy Shopping~
-              </div>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/profile/*"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
             </MainLayout>
           }
         />

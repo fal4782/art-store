@@ -23,7 +23,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </div>
 
       <div className="flex-1 pb-16 md:pb-0">
-        <main className="m-4">{children}</main>
+        <main className="mx-4 my-10">{children}</main>
       </div>
       <Footer />
 

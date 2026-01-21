@@ -39,7 +39,7 @@ export const UserResponseSchema = z.object({
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 
 export const UpdateProfileSchema = z.object({
-  firstName: z.string().min(1).optional(),
+  firstName: z.string().min(1),
   lastName: z.string().optional(),
 });
 

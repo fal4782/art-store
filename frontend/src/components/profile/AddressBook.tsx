@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { addressService } from "../../services/addressService";
 import { theme } from "../../theme";
 import type { Address, AddressInput } from "../../types/user";
-import { FiPlus, FiTrash2, FiEdit2, FiMapPin, FiUser, FiPhone, FiHash } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit2, FiMapPin, FiUser, FiPhone, FiHash, FiCheck } from "react-icons/fi";
+import { useToast } from "../../context/ToastContext";
 
 export default function AddressBook() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const { showToast } = useToast();
   
   const initialFormState: AddressInput = {
     name: "",
@@ -69,9 +71,10 @@ export default function AddressBook() {
       setFormData(initialFormState);
       // Reload to ensure consistency (esp. regarding isDefault logic)
       loadAddresses();
+      showToast("Address saved successfully!", "success");
     } catch (err) {
       console.error(err);
-      alert("Failed to save address");
+      showToast("Failed to save address", "error");
     }
   };
 

@@ -4,11 +4,13 @@ import { theme } from "../../theme";
 import type { UserResponse } from "../../types/auth";
 import type { UpdateProfileInput, ChangePasswordInput } from "../../types/user";
 
+import { useToast } from "../../context/ToastContext";
+
 export default function PersonalInfo() {
   const [user, setUser] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const { showToast } = useToast();
 
   const [formData, setFormData] = useState<UpdateProfileInput>({
     firstName: "",
@@ -42,14 +44,13 @@ export default function PersonalInfo() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage(null);
     try {
       const updatedUser = await userService.updateProfile(formData);
       setUser(updatedUser);
-      setMessage({ type: "success", text: "Profile updated successfully!" });
+      showToast("Profile updated successfully!", "success");
     } catch (err: any) {
       console.error(err);
-      setMessage({ type: "error", text: "Failed to update profile." });
+      showToast("Failed to update profile.", "error");
     } finally {
       setSaving(false);
     }
@@ -58,17 +59,13 @@ export default function PersonalInfo() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage(null);
     try {
       await userService.changePassword(passwordData);
-      setMessage({ type: "success", text: "Password changed successfully!" });
+      showToast("Password changed successfully!", "success");
       setPasswordData({ oldPassword: "", newPassword: "" });
     } catch (err: any) {
       console.error(err);
-      setMessage({ 
-        type: "error", 
-        text: err.response?.data?.message || "Failed to change password." 
-      });
+      showToast(err.response?.data?.message || "Failed to change password.", "error");
     } finally {
       setSaving(false);
     }
@@ -84,21 +81,7 @@ export default function PersonalInfo() {
         <p className="opacity-60 font-medium">Manage your personal details and security.</p>
       </div>
 
-      {message && (
-         <div 
-          className={`p-4 rounded-xl font-bold text-sm flex items-center gap-3 border shadow-sm animate-fade-in`}
-          style={{
-             background: message.type === 'success' ? `${theme.colors.success}1A` : `${theme.colors.error}1A`,
-             color: message.type === 'success' ? theme.colors.success : theme.colors.error,
-             borderColor: message.type === 'success' ? `${theme.colors.success}40` : `${theme.colors.error}40`
-          }}
-        >
-          <div className="w-2 h-2 rounded-full shrink-0" 
-             style={{ background: message.type === 'success' ? theme.colors.success : theme.colors.error }} 
-          />
-          {message.text}
-        </div>
-      )}
+
 
       {/* Form Grid */}
       <div className="space-y-10">

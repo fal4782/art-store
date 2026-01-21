@@ -4,10 +4,12 @@ import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { ToastProvider } from "./context/ToastContext";
 
 function App() {
   return (
     <BrowserRouter>
+      <ToastProvider>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route
@@ -29,6 +31,7 @@ function App() {
           }
         />
       </Routes>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

@@ -3,6 +3,9 @@ import ProfileSidebar from "../components/profile/ProfileSidebar";
 import PersonalInfo from "../components/profile/ProfileInfo";
 import AddressBook from "../components/profile/AddressBook";
 import OrderHistory from "../components/profile/OrderHistory";
+import { userService } from "../services/userService";
+import type { UserResponse } from "../types/auth";
+import { useState, useEffect } from "react";
 import { theme } from "../theme";
 import { FiArrowRight, FiUser, FiPackage, FiMapPin, FiLogOut } from "react-icons/fi";
 import { authService } from "../services/authService";
@@ -10,6 +13,11 @@ import { authService } from "../services/authService";
 // --- Mobile Mobile Menu Component ---
 const MobileProfileMenu = () => {
     const navigate = useNavigate();
+    const [user, setUser] = useState<UserResponse | null>(null);
+
+    useEffect(() => {
+        userService.getProfile().then(setUser).catch(console.error);
+    }, []);
     
     const menuItems = [
         { path: "/profile/info", label: "Personal Info", icon: FiUser, color: theme.colors.primary },
@@ -20,8 +28,10 @@ const MobileProfileMenu = () => {
     return (
         <div className="space-y-6 animate-fade-in">
              <div className="p-6 rounded-3xl bg-white shadow-sm border border-stone-100">
-                <h1 className="text-2xl font-black mb-2" style={{ color: theme.colors.primary }}>My Profile</h1>
-                <p className="opacity-60 text-sm font-medium">Manage your account settings and preferences.</p>
+                <span className="text-xs font-bold uppercase tracking-widest opacity-60">Welcome Back</span>
+                <h1 className="text-2xl font-black mt-1" style={{ color: theme.colors.primary }}>
+                    {user ? `Hi, ${user.firstName}` : 'My Profile'}
+                </h1>
              </div>
 
              <div className="space-y-3">

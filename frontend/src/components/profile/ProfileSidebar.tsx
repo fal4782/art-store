@@ -2,6 +2,9 @@ import { NavLink } from "react-router-dom";
 import { theme } from "../../theme";
 import { FiUser, FiMapPin, FiPackage, FiLogOut } from "react-icons/fi";
 import { authService } from "../../services/authService";
+import { useState, useEffect } from "react";
+import { userService } from "../../services/userService";
+import type { UserResponse } from "../../types/auth";
 
 const navItems = [
   { path: "/profile", end: true, label: "Personal Info", icon: FiUser },
@@ -10,14 +13,22 @@ const navItems = [
 ];
 
 export default function ProfileSidebar() {
+  const [user, setUser] = useState<UserResponse | null>(null);
+
+  useEffect(() => {
+    userService.getProfile().then(setUser).catch(console.error);
+  }, []);
+
   return (
     <div className="flex flex-col gap-2">
       <div 
         className="p-6 rounded-3xl mb-4"
         style={{ background: `${theme.colors.accent}33` }}
       >
-        <span className="text-xs font-bold uppercase tracking-widest opacity-60">Account</span>
-        <h2 className="text-2xl font-black mt-1" style={{ color: theme.colors.primary }}>Settings</h2>
+        <span className="text-xs font-bold uppercase tracking-widest opacity-60">Welcome Back</span>
+        <h2 className="text-2xl font-black mt-1" style={{ color: theme.colors.primary }}>
+            {user ? `Hi, ${user.firstName}` : 'Account'}
+        </h2>
       </div>
 
       <nav className="flex flex-col gap-2">

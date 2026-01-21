@@ -96,14 +96,26 @@ export default function AuthPage() {
         >
           <div className="flex flex-col gap-6">
             {/* Main Creative Card */}
-            <div className="bg-white/80 backdrop-blur-xl border border-white p-12 rounded-[3rem] shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -translate-y-10 translate-x-10 blur-2xl" />
+            <div 
+              className="backdrop-blur-xl border border-white p-12 rounded-[3rem] shadow-xl relative overflow-hidden"
+              style={{ background: `${theme.colors.surface}CC` }} // 80% opacity
+            >
+              <div 
+                className="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-10 translate-x-10 blur-2xl" 
+                style={{ background: `${theme.colors.secondary}0D` }} 
+              />
 
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 text-secondary font-bold text-xs uppercase tracking-widest mb-6">
-                <FaHeart className="animate-pulse" /> Handmade with Love
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest mb-6"
+                style={{ 
+                  background: `${theme.colors.secondary}1A`, // 10% opacity
+                  color: theme.colors.secondary 
+                }}
+              >
+                <FaHeart className="animate-pulse" /> Artist Owned & Operated
               </div>
 
-              <h2
+               <h2
                 className="text-5xl font-black leading-[1.1] mb-6"
                 style={{ color: theme.colors.primary }}
               >
@@ -118,8 +130,7 @@ export default function AuthPage() {
                 className="text-lg font-medium opacity-70 mb-10 leading-relaxed"
                 style={{ color: theme.colors.primary }}
               >
-                Explore a curated collection of cozy crochet amigurumi, timeless
-                oil paintings, and avant-garde digital art.
+                Every piece tells a story. From my studio to your home, discover art that speaks to you.
               </p>
 
               {/* Tags/Categories */}
@@ -132,58 +143,56 @@ export default function AuthPage() {
                 ].map((cat) => (
                   <span
                     key={cat}
-                    className="px-5 py-2.5 rounded-2xl bg-white border border-accent/30 shadow-sm text-sm font-bold text-primary/60"
+                    className="px-5 py-2.5 rounded-2xl bg-white border shadow-sm text-sm font-bold"
+                    style={{
+                      borderColor: `${theme.colors.accent}4D`,
+                      color: `${theme.colors.primary}99`
+                    }}
                   >
                     {cat}
                   </span>
                 ))}
               </div>
-
-              {/* Testimonial preview */}
-              <div className="flex items-center gap-4 pt-6 border-t border-accent/20">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3].map((i) => (
-                    <img
-                      key={i}
-                      src={`https://i.pravatar.cc/100?img=${i + 20}`}
-                      className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
-                      alt="curator"
-                    />
-                  ))}
-                </div>
-                <p className="text-sm font-bold opacity-60">
-                  Joined by 2,000+ niche art curators.
-                </p>
-              </div>
             </div>
 
             {/* Bottom floating elements */}
             <div className="flex gap-6">
-              <div className="flex-1 bg-secondary text-white p-8 rounded-[2.5rem] shadow-xl shadow-secondary/20 flex flex-col items-start gap-3 animate-float">
+              <div 
+                className="flex-1 p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 animate-float"
+                style={{ 
+                  background: theme.colors.secondary, 
+                  color: theme.colors.surface,
+                  boxShadow: `0 20px 25px -5px ${theme.colors.secondary}33`
+                }}
+              >
                 <div className="p-3 bg-white/20 rounded-2xl">
                   <FaPaintBrush className="text-xl" />
                 </div>
                 <h3 className="font-black text-xl leading-none">
-                  Global Creator <br />
-                  Network
+                  Direct from <br /> Studio
                 </h3>
                 <p className="text-sm opacity-80 font-medium">
-                  Supporting artists from local studios to digital spaces.
+                  Created, signed, and shipped by the artist.
                 </p>
               </div>
               <div
-                className="flex-1 bg-[#5C4A3A] text-[#FDFCFB] p-8 rounded-[2.5rem] shadow-xl shadow-primary/20 flex flex-col items-start gap-3 animate-float"
-                style={{ animationDelay: "1.5s" }}
+                className="flex-1 p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 animate-float"
+                style={{ 
+                  animationDelay: "1.5s", 
+                  background: theme.colors.primary, 
+                  color: theme.colors.surface,
+                  boxShadow: `0 20px 25px -5px ${theme.colors.primary}33`
+                }}
               >
                 <div className="p-3 bg-white/10 rounded-2xl">
                   <FaLayerGroup className="text-xl" />
                 </div>
                 <h3 className="font-black text-xl leading-none">
-                  Curated <br />
-                  Quality
+                  Unique <br />
+                  Creations
                 </h3>
                 <p className="text-sm opacity-80 font-medium">
-                  Every piece is vetted for craftsmanship and authenticity.
+                  No mass production. Just authentic creativity.
                 </p>
               </div>
             </div>

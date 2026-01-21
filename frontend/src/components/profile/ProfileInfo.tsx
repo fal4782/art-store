@@ -183,8 +183,8 @@ export default function PersonalInfo() {
                 <button 
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-3 rounded-xl border-2 font-bold hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all disabled:opacity-50"
-                  style={{ borderColor: theme.colors.primary, color: theme.colors.primary }}
+                  className="px-6 py-3 rounded-xl text-white font-bold hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-lg"
+                  style={{ background: theme.colors.primary }}
                 >
                   {saving ? "Updating..." : "Update Password"}
                 </button>

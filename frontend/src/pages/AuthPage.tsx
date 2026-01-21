@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import {
@@ -36,6 +36,19 @@ export default function AuthPage() {
     firstName: "",
     lastName: "",
   });
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width - 0.5;
+    const y = (e.clientY - top) / height - 0.5;
+    
+    // Set CSS variables for performant animation without re-renders
+    containerRef.current.style.setProperty("--mouse-x", x.toString());
+    containerRef.current.style.setProperty("--mouse-y", y.toString());
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,124 +89,179 @@ export default function AuthPage() {
     >
       {/* --- Left Side: Artistic Showcase (Desktop) --- */}
       <div
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
         className="hidden lg:flex lg:w-3/5 relative items-center justify-center p-12 overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${theme.colors.accent}40 0%, ${theme.colors.background} 100%)`,
         }}
       >
-        {/* Artistic Background blobs */}
+        {/* --- DYNAMIC BACKGROUND SPOTLIGHT --- */}
+        {/* This creates a soft glow that follows the mouse */}
         <div
-          className="absolute top-[-5%] left-[-5%] w-[45%] h-[45%] rounded-full opacity-20 blur-3xl animate-float"
-          style={{ background: theme.colors.secondary }}
-        />
-        <div
-          className="absolute bottom-[5%] right-[-5%] w-[35%] h-[35%] rounded-full opacity-10 blur-3xl animate-float"
-          style={{ background: theme.colors.primary, animationDelay: "3s" }}
+            className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+            style={{
+              background: `radial-gradient(circle 600px at calc(var(--mouse-x, 0.5) * 100% + 50%) calc(var(--mouse-y, 0.5) * 100% + 50%), ${theme.colors.accent}66, transparent 100%)`,
+              opacity: isMounted ? 1 : 0
+            }}
         />
 
-        <div
-          className={`relative z-10 w-full max-w-2xl transition-all duration-1000 transform ${isMounted ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
+        {/* Artistic Background blobs - Subtle Movement */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
         >
-          <div className="flex flex-col gap-6">
-            {/* Main Creative Card */}
+          <div
+            className="absolute top-[-5%] left-[-5%] w-[45%] h-[45%] rounded-full opacity-20 blur-3xl animate-float-organic transition-transform duration-700 ease-out"
+            style={{ 
+              background: theme.colors.secondary,
+              // Move slightly AWAY from mouse for depth
+              transform: 'translate(calc(var(--mouse-x, 0) * -40px), calc(var(--mouse-y, 0) * -40px))'
+            }}
+          />
+          <div
+            className="absolute bottom-[5%] right-[-5%] w-[35%] h-[35%] rounded-full opacity-10 blur-3xl animate-float-organic-re transition-transform duration-700 ease-out"
+            style={{ 
+              background: theme.colors.primary, 
+              animationDelay: "1s",
+              // Move slightly AWAY from mouse for depth
+              transform: 'translate(calc(var(--mouse-x, 0) * -30px), calc(var(--mouse-y, 0) * -30px))'
+            }}
+          />
+        </div>
+
+        <div
+          className={`relative z-10 w-full max-w-2xl transition-all duration-1000 ease-out ${isMounted ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
+        >
+          <div className="flex flex-col gap-6 ">
+            
+             {/* Main Creative Card - Static but Glassy */}
             <div 
-              className="backdrop-blur-xl border border-white p-12 rounded-[3rem] shadow-xl relative overflow-hidden"
-              style={{ background: `${theme.colors.surface}CC` }} // 80% opacity
+               className="relative"
             >
               <div 
-                className="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-10 translate-x-10 blur-2xl" 
-                style={{ background: `${theme.colors.secondary}0D` }} 
-              />
-
-              <div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest mb-6"
-                style={{ 
-                  background: `${theme.colors.secondary}1A`, // 10% opacity
-                  color: theme.colors.secondary 
-                }}
+                className="backdrop-blur-2xl border border-white/60 p-12 rounded-[3rem] shadow-2xl relative overflow-hidden"
+                style={{ background: `${theme.colors.surface}CC` }}
               >
-                <FaHeart className="animate-pulse" /> Artist Owned & Operated
-              </div>
+                <div 
+                  className="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-10 translate-x-10 blur-2xl" 
+                  style={{ background: `${theme.colors.secondary}0D` }} 
+                />
 
-               <h2
-                className="text-5xl font-black leading-[1.1] mb-6"
-                style={{ color: theme.colors.primary }}
-              >
-                From{" "}
-                <span style={{ color: theme.colors.secondary }}>Stitches</span>{" "}
-                <br />
-                to{" "}
-                <span style={{ color: theme.colors.secondary }}>Strokes</span>.
-              </h2>
+                <div 
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest mb-6 border border-white/20 shadow-sm transition-transform duration-200 ease-out will-change-transform"
+                  style={{ 
+                    background: `${theme.colors.secondary}1A`, 
+                    color: theme.colors.secondary,
+                    transform: 'translate(calc(var(--mouse-x, 0) * 10px), calc(var(--mouse-y, 0) * 10px))' // Magnetic badge
+                  }}
+                >
+                  <FaHeart className="animate-pulse" /> Artist Owned & Operated
+                </div>
 
-              <p
-                className="text-lg font-medium opacity-70 mb-10 leading-relaxed"
-                style={{ color: theme.colors.primary }}
-              >
-                Every piece tells a story. From my studio to your home, discover art that speaks to you.
-              </p>
+                <h2
+                  className="text-5xl font-black leading-[1.1] mb-6 drop-shadow-sm"
+                  style={{ color: theme.colors.primary }}
+                >
+                  From{" "}
+                  <span style={{ color: theme.colors.secondary }}>Stitches</span>{" "}
+                  <br />
+                  to{" "}
+                  <span style={{ color: theme.colors.secondary }}>Strokes</span>.
+                </h2>
 
-              {/* Tags/Categories */}
-              <div className="flex flex-wrap gap-3 mb-10">
-                {[
-                  "Amigurumi",
-                  "Fine Art",
-                  "Digital Prints",
-                  "Artisan Crafts",
-                ].map((cat) => (
-                  <span
-                    key={cat}
-                    className="px-5 py-2.5 rounded-2xl bg-white border shadow-sm text-sm font-bold"
-                    style={{
-                      borderColor: `${theme.colors.accent}4D`,
-                      color: `${theme.colors.primary}99`
-                    }}
-                  >
-                    {cat}
-                  </span>
-                ))}
+                <p
+                  className="text-lg font-medium opacity-70 mb-10 leading-relaxed max-w-md"
+                  style={{ color: theme.colors.primary }}
+                >
+                  Every piece tells a story. From my studio to your home, discover art that speaks to you.
+                </p>
+
+                {/* Tags/Categories */}
+                <div className="flex flex-wrap gap-3 mb-2">
+                  {[
+                    "Amigurumi",
+                    "Fine Art",
+                    "Digital Prints",
+                    "Artisan Crafts",
+                  ].map((cat) => (
+                    <span
+                      key={cat}
+                      className="px-5 py-2.5 rounded-2xl bg-white/80 border shadow-sm text-sm font-bold hover:scale-105 transition-transform cursor-default"
+                      style={{
+                        borderColor: `${theme.colors.accent}4D`,
+                        color: `${theme.colors.primary}99`
+                      }}
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Bottom floating elements */}
+            {/* Bottom floating elements - Parallax Layer (Front) */}
             <div className="flex gap-6">
+              {/* Card 1 */}
               <div 
-                className="flex-1 p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 animate-float"
-                style={{ 
-                  background: theme.colors.secondary, 
-                  color: theme.colors.surface,
-                  boxShadow: `0 20px 25px -5px ${theme.colors.secondary}33`
-                }}
+                className="flex-1 animate-float"
+                style={{ animationDuration: '6s' }}
               >
-                <div className="p-3 bg-white/20 rounded-2xl">
-                  <FaPaintBrush className="text-xl" />
-                </div>
-                <h3 className="font-black text-xl leading-none">
-                  Direct from <br /> Studio
-                </h3>
-                <p className="text-sm opacity-80 font-medium">
-                  Created, signed, and shipped by the artist.
-                </p>
+                  <div 
+                    className="p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 transition-transform duration-100 ease-out h-full border border-white/20 backdrop-blur-md"
+                    style={{ 
+                      background: theme.colors.secondary, 
+                      color: theme.colors.surface,
+                      boxShadow: `0 20px 40px -10px ${theme.colors.secondary}40`,
+                      // Removed translate
+                    }}
+                  >
+                    <div 
+                        className="p-3 bg-white/20 rounded-2xl shadow-inner transition-transform duration-200 ease-out will-change-transform"
+                        style={{
+                             transform: 'translate(calc(var(--mouse-x, 0) * 15px), calc(var(--mouse-y, 0) * 15px))' // Magnetic Icon
+                        }}
+                    >
+                      <FaPaintBrush className="text-xl" />
+                    </div>
+                    <h3 className="font-black text-xl leading-none">
+                      Direct from <br /> Studio
+                    </h3>
+                    <p className="text-sm opacity-90 font-medium">
+                      Created, signed, and shipped by the artist.
+                    </p>
+                  </div>
               </div>
+
+              {/* Card 2 */}
               <div
-                className="flex-1 p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 animate-float"
-                style={{ 
-                  animationDelay: "1.5s", 
-                  background: theme.colors.primary, 
-                  color: theme.colors.surface,
-                  boxShadow: `0 20px 25px -5px ${theme.colors.primary}33`
-                }}
+                className="flex-1 animate-float"
+                style={{ animationDelay: "1.5s", animationDuration: '7s' }}
               >
-                <div className="p-3 bg-white/10 rounded-2xl">
-                  <FaLayerGroup className="text-xl" />
-                </div>
-                <h3 className="font-black text-xl leading-none">
-                  Unique <br />
-                  Creations
-                </h3>
-                <p className="text-sm opacity-80 font-medium">
-                  No mass production. Just authentic creativity.
-                </p>
+                 <div 
+                    className="p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 transition-transform duration-100 ease-out h-full border border-white/20 backdrop-blur-md"
+                    style={{ 
+                      background: theme.colors.primary, 
+                      color: theme.colors.surface,
+                      boxShadow: `0 20px 40px -10px ${theme.colors.primary}40`,
+                      // Removed translate
+                    }}
+                  >
+                    <div 
+                        className="p-3 bg-white/10 rounded-2xl shadow-inner transition-transform duration-200 ease-out will-change-transform"
+                        style={{
+                             transform: 'translate(calc(var(--mouse-x, 0) * 15px), calc(var(--mouse-y, 0) * 15px))' // Magnetic Icon
+                        }}
+                    >
+                      <FaLayerGroup className="text-xl" />
+                    </div>
+                    <h3 className="font-black text-xl leading-none">
+                      Unique <br />
+                      Creations
+                    </h3>
+                    <p className="text-sm opacity-90 font-medium">
+                      No mass production. Just authentic creativity.
+                    </p>
+                  </div>
               </div>
             </div>
           </div>

@@ -143,7 +143,7 @@ export default function ProductDetailsPage() {
                     className="px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border"
                     style={{ backgroundColor: `${theme.colors.secondary}10`, borderColor: `${theme.colors.secondary}20`, color: theme.colors.secondary }}
                   >
-                      Collection #{artwork.id.slice(0, 5)}
+                      ID: #{artwork.id.slice(0, 5)}
                   </span>
                   {artwork.category && (
                     <Link

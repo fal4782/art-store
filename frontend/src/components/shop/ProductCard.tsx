@@ -21,10 +21,10 @@ export default function ProductCard({ artwork, onView, onAddToCart }: ProductCar
   return (
     <div 
         className="group relative flex flex-col gap-3 rounded-2xl p-3 hover:bg-white transition-all duration-300"
-        onClick={() => onView(artwork.id)}
+        onClick={() => onView(artwork.slug)}
     >
       {/* Image Container with Overlay */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-stone-100 cursor-pointer">
+      <div className="relative aspect-4/5 w-full overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${theme.colors.primary}08` }}>
         <img
           src={imageUrl}
           alt={name}
@@ -34,7 +34,7 @@ export default function ProductCard({ artwork, onView, onAddToCart }: ProductCar
         {/* Hover Overlay Actions */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
              <button 
-                onClick={(e) => { e.stopPropagation(); onView(artwork.id); }}
+                onClick={(e) => { e.stopPropagation(); onView(artwork.slug); }}
                 className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-xl hover:scale-110 transition-transform shadow-lg"
                 style={{ color: theme.colors.primary }}
                 title="View Details"
@@ -53,7 +53,7 @@ export default function ProductCard({ artwork, onView, onAddToCart }: ProductCar
 
         {/* Tag/Badge (Optional) */}
         {!artwork.isAvailable && (
-             <div className="absolute top-3 right-3 px-3 py-1 bg-stone-800 text-white text-xs font-bold uppercase tracking-widest rounded-full">
+             <div className="absolute top-3 right-3 px-3 py-1 text-white text-xs font-bold uppercase tracking-widest rounded-full" style={{ backgroundColor: theme.colors.primary }}>
                  Sold Out
              </div>
         )}

@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import ShopPage from "./pages/ShopPage";
 import CollectionPage from "./pages/CollectionPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ToastProvider } from "./context/ToastContext";
 
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/shop" element={<ShopPage />} />
                 <Route path="/collection" element={<CollectionPage />} />
+                <Route path="/artwork/:slug" element={<ProductDetailsPage />} />
                 <Route
                   path="/profile/*"
                   element={

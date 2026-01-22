@@ -117,9 +117,9 @@ router.get("/", async (req, res) => {
 
 
     // Transform tags to simpler format
-    const artworksWithTags = artworks.map((artwork) => ({
+    const artworksWithTags = artworks.map((artwork: any) => ({
       ...artwork,
-      tags: artwork.tags.map((at) => at.tag),
+      tags: artwork.tags.map((at: any) => at.tag),
     }));
 
     return res.json({
@@ -139,50 +139,59 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/slug/:slug", async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const artwork = await prisma.artwork.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        }
+      }
+    });
+
+    if (!artwork || artwork.deletedAt) {
+      return res.status(404).json({ message: "Artwork not found" });
+    }
+
+    // Transform tags to simpler format
+    const artworkWithTags = {
+      ...artwork,
+      tags: artwork.tags.map((at: any) => at.tag),
+    };
+
+    return res.json(artworkWithTags);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const artwork = await prisma.artwork.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        categoryId: true,
+      include: {
         category: true,
-        type: true,
-        priceInPaise: true,
-        dimensions: true,
-        medium: true,
-        stockQuantity: true,
-        isAvailable: true,
-        isFeatured: true,
-        isMadeToOrder: true,
-        images: true,
-        views: true,
-        createdAt: true,
-        updatedAt: true,
         tags: {
-          select: {
-            tag: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
-      },
+          include: {
+            tag: true
+          }
+        }
+      }
     });
-    if (!artwork) {
+    if (!artwork || artwork.deletedAt) {
       return res.status(404).json({ message: "Artwork not found" });
     }
     // Transform tags to simpler format
     const artworkWithTags = {
       ...artwork,
-      tags: artwork.tags.map((at) => at.tag),
+      tags: artwork.tags.map((at: any) => at.tag),
     };
     return res.json(artworkWithTags);
   } catch (error) {

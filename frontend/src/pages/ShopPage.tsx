@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { artworkService } from "../services/artworkService";
 import type { Artwork, GetArtworksQuery } from "../types/artwork";
 import ProductCard from "../components/shop/ProductCard";
@@ -11,6 +11,7 @@ import { FiFilter, FiX } from "react-icons/fi";
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { showToast } = useToast();
   
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -65,10 +66,8 @@ export default function ShopPage() {
       showToast(`Added product ${id} to cart (Demo)`, "success");
   };
 
-  const handleViewDetails = (id: string) => {
-      // TODO: Implement Product Details Page
-      showToast(`View product ${id}`, "success");
-      // navigate(`/shop/${id}`);
+  const handleViewDetails = (slug: string) => {
+      navigate(`/artwork/${slug}`);
   };
 
   return (

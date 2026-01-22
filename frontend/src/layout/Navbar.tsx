@@ -1,11 +1,11 @@
-import { FiHome, FiGrid, FiPackage, FiUser } from "react-icons/fi";
+import { FiHome, FiGrid, FiUser, FiShoppingBag } from "react-icons/fi";
 import { theme } from "../theme";
 import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
   { label: "Home", icon: FiHome, href: "/" },
+  { label: "Shop", icon: FiShoppingBag, href: "/shop" },
   { label: "Collection", icon: FiGrid, href: "/collection" },
-  { label: "Orders", icon: FiPackage, href: "/orders" },
   { label: "Me", icon: FiUser, href: "/profile" },
 ];
 

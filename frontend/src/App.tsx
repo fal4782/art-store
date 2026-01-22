@@ -3,6 +3,8 @@ import MainLayout from "./layout/MainLayout";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
+import ShopPage from "./pages/ShopPage";
+import CollectionPage from "./pages/CollectionPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ToastProvider } from "./context/ToastContext";
 
@@ -18,6 +20,8 @@ function App() {
             <MainLayout>
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/collection" element={<CollectionPage />} />
                 <Route
                   path="/profile/*"
                   element={

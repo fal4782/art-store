@@ -72,9 +72,7 @@ export const GetArtworksQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(12),
   search: z.string().optional(),
-  category: z
-    .enum(["PAINTING", "CROCHET", "DRAWING", "DIGITAL_ART"])
-    .optional(),
+  categoryId: z.string().optional(),
   type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]).optional(),
   isAvailable: z.enum(["true", "false"]).optional(),
   isFeatured: z.enum(["true", "false"]).optional(),
@@ -87,7 +85,7 @@ export const CreateArtworkSchema = z.object({
   name: z.string().min(1),
   slug: z.string().min(1),
   description: z.string().optional(),
-  category: z.enum(["PAINTING", "CROCHET", "DRAWING", "DIGITAL_ART"]),
+  categoryId: z.string().min(1),
   type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]).default("PHYSICAL"),
   priceInPaise: z.number().int().min(0),
   dimensions: z.string().optional(),
@@ -156,3 +154,11 @@ export const CreateReviewSchema = z.object({
   comment: z.string().optional(),
 });
 export type CreateReviewInput = z.infer<typeof CreateReviewSchema>;
+
+export const CreateCategorySchema = z.object({
+    name: z.string().min(1),
+    slug: z.string().min(1),
+    description: z.string().optional(),
+    image: z.string().optional(),
+});
+export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;

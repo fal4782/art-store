@@ -12,13 +12,6 @@ enum UserRole {
     CUSTOMER
 }
 
-enum ArtworkCategory {
-    PAINTING
-    CROCHET
-    DRAWING
-    DIGITAL_ART
-}
-
 enum ArtworkType {
     PHYSICAL
     DIGITAL
@@ -63,30 +56,46 @@ model User {
     @@map("users")
 }
 
+model Category {
+    id          String   @id @default(uuid())
+    name        String   @unique
+    slug        String   @unique
+    description String?
+    image       String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    // Relations
+    artworks Artwork[]
+
+    @@map("categories")
+}
+
 model Artwork {
-    id            String          @id @default(uuid())
+    id            String      @id @default(uuid())
     name          String
-    slug          String          @unique
+    slug          String      @unique
     description   String?
-    category      ArtworkCategory
-    type          ArtworkType     @default(PHYSICAL)
+    type          ArtworkType @default(PHYSICAL)
     priceInPaise  Int // Price in paise (1 INR = 100 paise)
     dimensions    String? // For physical artworks: "24x36 inches"
     medium        String? // "Oil on canvas", "Acrylic Yarn", "Digital illustration"
     filePath      String? // For digital artworks: path to downloadable file
-    stockQuantity Int             @default(1)
-    isAvailable   Boolean         @default(true)
-    isFeatured    Boolean         @default(false)
-    isMadeToOrder Boolean         @default(false)
-    sortOrder     Int             @default(0)
+    stockQuantity Int         @default(1)
+    isAvailable   Boolean     @default(true)
+    isFeatured    Boolean     @default(false)
+    isMadeToOrder Boolean     @default(false)
+    sortOrder     Int         @default(0)
     images        String[] // Array of image URLs
-    views         Int             @default(0)
+    views         Int         @default(0)
     lastViewedAt  DateTime?
     deletedAt     DateTime?
-    createdAt     DateTime        @default(now())
-    updatedAt     DateTime        @updatedAt
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
 
     // Relations
+    categoryId            String
+    category              Category               @relation(fields: [categoryId], references: [id])
     cartItems             CartItem[]
     wishlistItems         WishlistItem[]
     orderItems            OrderItem[]
@@ -94,7 +103,7 @@ model Artwork {
     tags                  ArtworkTag[]
     downloadVerifications DownloadVerification[]
 
-    @@index([category])
+    @@index([categoryId])
     @@index([type])
     @@index([isAvailable])
     @@index([isFeatured])

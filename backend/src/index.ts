@@ -10,6 +10,7 @@ import { orderRouter } from "./routes/orderRouter";
 import { paymentRouter } from "./routes/paymetRouter";
 import { addressRouter } from "./routes/addressRouter";
 import { reviewRouter } from "./routes/reviewRouter";
+import { categoryRouter } from "./routes/categoryRouter";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get("/health", (req, res) => {
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/addresses", addressRouter);
+app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/artworks", artworkRouter);
 app.use("/api/v1/tags", tagRouter);
 app.use("/api/v1/cart", cartRouter);

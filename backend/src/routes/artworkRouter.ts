@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
     page,
     limit,
     search,
-    category,
+    categoryId,
     type,
     isAvailable,
     isFeatured,
@@ -45,7 +45,7 @@ router.get("/", async (req, res) => {
         { medium: { contains: search, mode: "insensitive" } },
       ];
     }
-    if (category) where.category = category;
+    if (categoryId) where.categoryId = categoryId;
     if (type) where.type = type;
     if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
     if (isFeatured !== undefined) where.isFeatured = isFeatured === "true";
@@ -86,6 +86,7 @@ router.get("/", async (req, res) => {
           slug: true,
           description: true,
           category: true,
+          categoryId: true,
           type: true,
           priceInPaise: true,
           dimensions: true,
@@ -113,6 +114,7 @@ router.get("/", async (req, res) => {
       }),
       prisma.artwork.count({ where }),
     ]);
+
 
     // Transform tags to simpler format
     const artworksWithTags = artworks.map((artwork) => ({
@@ -147,6 +149,7 @@ router.get("/:id", async (req, res) => {
         name: true,
         slug: true,
         description: true,
+        categoryId: true,
         category: true,
         type: true,
         priceInPaise: true,
@@ -216,6 +219,7 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
         },
       },
       include: {
+        category: true,
         tags: { include: { tag: true } },
       },
     });
@@ -266,6 +270,7 @@ router.patch("/:id", authMiddleware, adminMiddleware, async (req, res) => {
         tags: tagsUpdate,
       },
       include: {
+        category: true,
         tags: { include: { tag: true } },
       },
     });

@@ -1,7 +1,8 @@
-
+import { useState, useEffect } from "react";
 import { theme } from "../../theme";
 import { FiSearch, FiX } from "react-icons/fi";
-import type { ArtworkCategory, ArtworkType, GetArtworksQuery } from "../../types/artwork";
+import { categoryService } from "../../services/categoryService";
+import type { Category, ArtworkType, GetArtworksQuery } from "../../types/artwork";
 
 interface FilterBarProps {
   filters: GetArtworksQuery;
@@ -9,19 +10,17 @@ interface FilterBarProps {
   className?: string;
 }
 
-const CATEGORIES: { label: string; value: ArtworkCategory }[] = [
-  { label: "Paintings", value: "PAINTING" },
-  { label: "Crochet", value: "CROCHET" },
-  { label: "Drawings", value: "DRAWING" },
-  { label: "Digital Art", value: "DIGITAL_ART" },
-];
-
 const TYPES: { label: string; value: ArtworkType }[] = [
   { label: "Physical", value: "PHYSICAL" },
   { label: "Digital Download", value: "DIGITAL" },
 ];
 
 export default function FilterBar({ filters, onChange, className = "" }: FilterBarProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    categoryService.getCategories().then(setCategories).catch(console.error);
+  }, []);
   
   const updateFilter = (key: keyof GetArtworksQuery, value: any) => {
     onChange({ ...filters, [key]: value, page: 1 }); // Reset to page 1 on filter change
@@ -47,26 +46,26 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
             <h3 className="text-sm font-black uppercase tracking-widest opacity-40">Categories</h3>
             <div className="flex flex-col gap-2">
                 <button
-                    onClick={() => updateFilter("category", undefined)}
-                    className={`text-left px-4 py-3 rounded-xl font-bold transition-all ${!filters.category ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
-                    style={{ color: !filters.category ? theme.colors.primary : `${theme.colors.primary}99` }}
+                    onClick={() => updateFilter("categoryId", undefined)}
+                    className={`text-left px-4 py-3 rounded-xl font-bold transition-all ${!filters.categoryId ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
+                    style={{ color: !filters.categoryId ? theme.colors.primary : `${theme.colors.primary}99` }}
                 >
                     All Categories
                 </button>
-                {CATEGORIES.map(cat => (
+                {categories.map(cat => (
                     <button
-                        key={cat.value}
-                        onClick={() => updateFilter("category", filters.category === cat.value ? undefined : cat.value)}
-                        className={`text-left px-4 py-3 rounded-xl font-bold transition-all ${filters.category === cat.value ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
-                        style={{ color: filters.category === cat.value ? theme.colors.primary : `${theme.colors.primary}99` }}
+                        key={cat.id}
+                        onClick={() => updateFilter("categoryId", filters.categoryId === cat.id ? undefined : cat.id)}
+                        className={`text-left px-4 py-3 rounded-xl font-bold transition-all ${filters.categoryId === cat.id ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
+                        style={{ color: filters.categoryId === cat.id ? theme.colors.primary : `${theme.colors.primary}99` }}
                     >
-                        {cat.label}
+                        {cat.name}
                     </button>
                 ))}
             </div>
         </div>
 
-        {/* Types */}
+        {/* Format */}
         <div className="space-y-3">
              <h3 className="text-sm font-black uppercase tracking-widest opacity-40">Format</h3>
              <div className="flex gap-2 flex-wrap">
@@ -114,7 +113,7 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
          </div>
          
          {/* Clear Filters */}
-         {(filters.category || filters.type || filters.search) && (
+         {(filters.categoryId || filters.type || filters.search) && (
              <button
                 onClick={() => onChange({})}
                 className="flex items-center gap-2 text-sm font-bold opacity-50 hover:opacity-100 transition-opacity"

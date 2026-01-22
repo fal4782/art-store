@@ -5,7 +5,16 @@ export interface Tag {
   slug: string;
 }
 
-export type ArtworkCategory = "PAINTING" | "CROCHET" | "DRAWING" | "DIGITAL_ART";
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type ArtworkType = "PHYSICAL" | "DIGITAL" | "BOTH";
 
 export interface Artwork {
@@ -13,7 +22,8 @@ export interface Artwork {
   name: string;
   slug: string;
   description?: string;
-  category: ArtworkCategory;
+  categoryId: string;
+  category: Category;
   type: ArtworkType;
   priceInPaise: number;
   dimensions?: string;
@@ -33,7 +43,7 @@ export interface GetArtworksQuery {
   page?: number;
   limit?: number;
   search?: string;
-  category?: ArtworkCategory;
+  categoryId?: string;
   type?: ArtworkType;
   isAvailable?: boolean;
   isFeatured?: boolean;

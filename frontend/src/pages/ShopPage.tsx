@@ -23,7 +23,7 @@ export default function ShopPage() {
     page: Number(searchParams.get("page")) || 1,
     limit: 12,
     search: searchParams.get("search") || undefined,
-    category: (searchParams.get("category") as any) || undefined,
+    categoryId: searchParams.get("categoryId") || undefined,
     type: (searchParams.get("type") as any) || undefined,
     sortBy: (searchParams.get("sortBy") as any) || "createdAt",
     sortOrder: (searchParams.get("sortOrder") as any) || "desc",
@@ -51,7 +51,7 @@ export default function ShopPage() {
     const params: any = {};
     if (newFilters.page && newFilters.page > 1) params.page = newFilters.page.toString();
     if (newFilters.search) params.search = newFilters.search;
-    if (newFilters.category) params.category = newFilters.category;
+    if (newFilters.categoryId) params.categoryId = newFilters.categoryId;
     if (newFilters.type) params.type = newFilters.type;
     if (newFilters.sortBy) params.sortBy = newFilters.sortBy;
     if (newFilters.sortOrder) params.sortOrder = newFilters.sortOrder;

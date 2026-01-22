@@ -70,7 +70,7 @@ export default function ProductCard({ artwork, onView, onAddToCart }: ProductCar
             </span>
         </div>
         <p className="text-xs font-bold uppercase tracking-wider opacity-50" style={{ color: theme.colors.primary }}>
-          {category.replace("_", " ")}
+          {category?.name || "Uncategorized"}
         </p>
       </div>
     </div>

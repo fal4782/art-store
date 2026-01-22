@@ -110,17 +110,8 @@ export default function ProductDetailsPage() {
                 className="absolute bottom-6 right-6 md:bottom-10 md:right-10 p-4 md:p-5 rounded-2xl shadow-2xl opacity-100 lg:opacity-0 translate-y-0 lg:translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all hover:scale-110 active:scale-95 duration-500 backdrop-blur-xl"
                 style={{ backgroundColor: `${theme.colors.surface}cc`, color: theme.colors.primary }}
               >
-                <FiMaximize2 className="text-xl md:text-2xl" />
+                <FiMaximize2 className="text-xl md:text-2xl" onClick={() => {window.open(mainImage, '_blank')}}/>
               </button>
-
-              {/* <div 
-                className="absolute top-4 left-4 md:top-10 md:left-10 px-4 py-2 md:px-6 md:py-3 rounded-full shadow-lg text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 md:gap-3 backdrop-blur-xl"
-                style={{ backgroundColor: `${theme.colors.surface}cc`, color: theme.colors.primary }}
-              >
-                  <FiCheckCircle style={{ color: theme.colors.secondary }} className="text-base md:text-lg" /> 
-                  <span className="hidden xs:inline">Authenticated Original Artwork</span>
-                  <span className="xs:hidden">Authenticated</span>
-              </div> */}
             </div>
 
             {artwork.images.length > 1 && (

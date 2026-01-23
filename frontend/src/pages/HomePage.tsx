@@ -56,36 +56,45 @@ export default function HomePage() {
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: theme.colors.background }}>
       
-      {/* 1. DYNAMIC HERO: THE UNVUEILING */}
+      {/* 1. DYNAMIC HERO: THE UNVEILING */}
       <section 
         ref={heroRef}
-        className="relative h-[200vh] bg-stone-900 overflow-hidden"
+        className="relative h-[160vh] overflow-hidden"
+        style={{ backgroundColor: "#F9F6F3" }} // Slightly darker than background for contrast
       >
         <div className="sticky top-0 h-screen w-full flex items-center justify-center">
-          {/* Background Text: "CRAFT" */}
+          {/* Background Text: "CRAFT" - Improved visibility */}
           <div 
-            className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none"
+            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
             style={{ 
-                transform: `scale(${1 + heroProgress * 2})`,
-                opacity: 0.1 * (1 - heroProgress)
+                transform: `scale(${1 + heroProgress * 1.5})`,
+                opacity: 0.15 * (1 - heroProgress * 0.5)
             }}
           >
-            <span className="text-[30vw] font-black tracking-tighter text-white">CRAFT</span>
+            <span 
+              className="text-[23vw] font-black tracking-tighter"
+              style={{ color: theme.colors.primary }}
+            >
+              CRAFT
+            </span>
           </div>
 
           {/* Main Title Split Animation */}
-          <div className="relative text-center z-10">
-            <h1 className="flex flex-col text-7xl md:text-[10rem] font-black leading-none tracking-tighter text-white">
+          <div className="relative text-center z-10 px-4">
+            <h1 className="flex flex-col text-6xl md:text-[8rem] lg:text-[10rem] font-black leading-none tracking-tighter">
               <span 
                 className="inline-block transition-transform duration-75"
-                style={{ transform: `translateX(${-heroProgress * 150}px) rotate(${-heroProgress * 10}deg)` }}
+                style={{ 
+                  transform: `translateX(${-heroProgress * 120}px) rotate(${-heroProgress * 8}deg)`,
+                  color: theme.colors.primary 
+                }}
               >
                 MADE BY
               </span>
               <span 
-                className="inline-block italic font-serif text-secondary transition-transform duration-75"
+                className="inline-block italic font-serif transition-transform duration-75"
                 style={{ 
-                    transform: `translateX(${heroProgress * 150}px) rotate(${heroProgress * 10}deg)`,
+                    transform: `translateX(${heroProgress * 120}px) rotate(${heroProgress * 8}deg)`,
                     color: theme.colors.secondary 
                 }}
               >
@@ -94,19 +103,19 @@ export default function HomePage() {
             </h1>
             
             <div 
-              className="mt-12 space-y-6 transition-all duration-300"
+              className="mt-8 md:mt-12 space-y-6 transition-all duration-300"
               style={{ 
-                opacity: 1 - heroProgress * 2,
-                transform: `translateY(${heroProgress * 50}px)`
+                opacity: 1 - heroProgress * 2.5,
+                transform: `translateY(${heroProgress * 40}px)`
               }}
             >
-              <p className="text-xl md:text-2xl text-stone-400 font-medium max-w-xl mx-auto px-4">
-                A digital studio dedicated to the art of creation. 
-                Original paintings, delicate crochet, and timeless digital crafts.
+              <p className="text-lg md:text-2xl text-stone-500 font-medium max-w-xl mx-auto">
+                Discover the intimate world of handcrafted artistry. 
+                Unique paintings, digital works, and custom crafts.
               </p>
               <Link 
                 to="/shop"
-                className="inline-flex items-center gap-4 px-10 py-5 rounded-full font-black text-xl transition-all hover:scale-105 active:scale-95"
+                className="inline-flex items-center gap-4 px-10 py-5 rounded-full font-black text-xl transition-all hover:scale-105 active:scale-95 shadow-xl"
                 style={{ backgroundColor: theme.colors.secondary, color: theme.colors.background }}
               >
                 Enter the Shop <FiArrowRight />
@@ -114,18 +123,18 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Floating Accents */}
+          {/* Floating Accents - Lightened */}
           <div 
-             className="absolute top-1/4 left-10 md:left-20 text-stone-700 opacity-20"
-             style={{ transform: `translateY(${-scrollY * 0.2}px) rotate(${scrollY * 0.1}deg)` }}
+             className="absolute top-1/4 left-10 md:left-20 text-stone-400 opacity-20"
+             style={{ transform: `translateY(${-scrollY * 0.15}px) rotate(${scrollY * 0.08}deg)` }}
           >
-              <FiScissors size={120} />
+              <FiScissors size={100} />
           </div>
           <div 
-             className="absolute bottom-1/4 right-10 md:right-20 text-stone-700 opacity-20"
-             style={{ transform: `translateY(${-scrollY * 0.5}px) rotate(${-scrollY * 0.05}deg)` }}
+             className="absolute bottom-1/4 right-10 md:right-20 text-stone-400 opacity-20"
+             style={{ transform: `translateY(${-scrollY * 0.4}px) rotate(${-scrollY * 0.04}deg)` }}
           >
-              <FiPenTool size={160} />
+              <FiPenTool size={140} />
           </div>
         </div>
       </section>
@@ -158,7 +167,7 @@ export default function HomePage() {
                     </Link>
                 </div>
 
-                {/* The "Crazy" Assembly Grid */}
+                {/* The "Crazy" Assembly Grid - Remapped progress to finish early */}
                 <div className="relative h-[600px] md:h-[800px]">
                     {/* Floating Decorative Icons (Parallax) */}
                     <div 
@@ -174,54 +183,62 @@ export default function HomePage() {
                         <FiPenTool size={120} />
                     </div>
 
-                    {/* Floating Item 1: Painting */}
-                    <div 
-                        className="absolute top-0 right-0 w-64 md:w-80 h-96 rounded-3xl p-8 flex flex-col justify-end shadow-2xl transition-all duration-75 z-20"
-                        style={{ 
-                            backgroundColor: theme.colors.primary,
-                            transform: `translate(
-                                ${(1 - showCaseProgress) * 500}px, 
-                                ${(1 - showCaseProgress) * -300}px
-                            ) rotate(${(1 - showCaseProgress) * 60}deg)`,
-                            opacity: Math.min(showCaseProgress * 2, 1),
-                            boxShadow: `0 40px 60px -15px ${theme.colors.primary}60`
-                        }}
-                    >
-                        <FiFeather className="text-white/20 absolute top-8 left-8" size={64} />
-                        <h4 className="text-white text-3xl font-black mb-2">Art Pieces</h4>
-                        <p className="text-white/60 font-bold">Original oil & acrylic narratives.</p>
-                    </div>
+                    {/* Adjusted Assembly Timing: Reaches 1.0 when showCaseProgress is 0.7 */}
+                    {(() => {
+                        const assemblyProgress = Math.min(showCaseProgress / 0.7, 1);
+                        return (
+                          <>
+                            {/* Floating Item 1: Painting */}
+                            <div 
+                                className="absolute top-0 right-0 w-64 md:w-80 h-96 rounded-3xl p-8 flex flex-col justify-end shadow-2xl transition-all duration-75 z-20"
+                                style={{ 
+                                    backgroundColor: theme.colors.primary,
+                                    transform: `translate(
+                                        ${(1 - assemblyProgress) * 500}px, 
+                                        ${(1 - assemblyProgress) * -300}px
+                                    ) rotate(${(1 - assemblyProgress) * 60}deg)`,
+                                    opacity: Math.min(assemblyProgress * 2, 1),
+                                    boxShadow: `0 40px 60px -15px ${theme.colors.primary}60`
+                                }}
+                            >
+                                <FiFeather className="text-white/20 absolute top-8 left-8" size={64} />
+                                <h4 className="text-white text-3xl font-black mb-2">Art Pieces</h4>
+                                <p className="text-white/60 font-bold">Original oil & acrylic narratives.</p>
+                            </div>
 
-                    {/* Floating Item 2: Crochet / Crafts */}
-                    <div 
-                        className="absolute bottom-20 left-0 w-64 md:w-80 h-96 rounded-3xl p-8 flex flex-col justify-end shadow-2xl transition-all duration-75 z-10"
-                        style={{ 
-                            backgroundColor: theme.colors.secondary,
-                            transform: `translate(
-                                ${(1 - showCaseProgress) * -500}px, 
-                                ${(1 - showCaseProgress) * 300}px
-                            ) rotate(${(1 - showCaseProgress) * -45}deg)`,
-                            opacity: Math.min(showCaseProgress * 2, 1),
-                            boxShadow: `0 40px 60px -15px ${theme.colors.secondary}60`
-                        }}
-                    >
-                        <FiScissors className="text-white/20 absolute top-8 left-8" size={64} />
-                        <h4 className="text-white text-3xl font-black mb-2">Handmade</h4>
-                        <p className="text-white/80 font-bold">Crochet, crafts & home decor.</p>
-                    </div>
+                            {/* Floating Item 2: Crochet / Crafts */}
+                            <div 
+                                className="absolute bottom-20 left-0 w-64 md:w-80 h-96 rounded-3xl p-8 flex flex-col justify-end shadow-2xl transition-all duration-75 z-10"
+                                style={{ 
+                                    backgroundColor: theme.colors.secondary,
+                                    transform: `translate(
+                                        ${(1 - assemblyProgress) * -500}px, 
+                                        ${(1 - assemblyProgress) * 300}px
+                                    ) rotate(${(1 - assemblyProgress) * -45}deg)`,
+                                    opacity: Math.min(assemblyProgress * 2, 1),
+                                    boxShadow: `0 40px 60px -15px ${theme.colors.secondary}60`
+                                }}
+                            >
+                                <FiScissors className="text-white/20 absolute top-8 left-8" size={64} />
+                                <h4 className="text-white text-3xl font-black mb-2">Handmade</h4>
+                                <p className="text-white/80 font-bold">Crochet, crafts & home decor.</p>
+                            </div>
 
-                    {/* Floating Item 3: Digital (The Nucleus) */}
-                    <div 
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full flex items-center justify-center transition-all duration-75 z-30"
-                        style={{ 
-                            backgroundColor: theme.colors.accent,
-                            transform: `translate(-50%, -50%) scale(${showCaseProgress * 1.5}) rotate(${showCaseProgress * 360}deg)`,
-                            opacity: Math.min(showCaseProgress * 3, 1),
-                            boxShadow: `0 20px 40px -10px ${theme.colors.primary}30`
-                        }}
-                    >
-                        <FiHeart size={48} style={{ color: theme.colors.primary }} />
-                    </div>
+                            {/* Floating Item 3: Digital (The Nucleus) */}
+                            <div 
+                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full flex items-center justify-center transition-all duration-75 z-30"
+                                style={{ 
+                                    backgroundColor: theme.colors.accent,
+                                    transform: `translate(-50%, -50%) scale(${assemblyProgress * 1.5}) rotate(${assemblyProgress * 360}deg)`,
+                                    opacity: Math.min(assemblyProgress * 3, 1),
+                                    boxShadow: `0 20px 40px -10px ${theme.colors.primary}30`
+                                }}
+                            >
+                                <FiHeart size={48} style={{ color: theme.colors.primary }} />
+                            </div>
+                          </>
+                        );
+                    })()}
                 </div>
             </div>
         </div>

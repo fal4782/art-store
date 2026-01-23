@@ -56,14 +56,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: theme.colors.background }}>
       
-      {/* 1. DYNAMIC HERO: THE UNVEILING */}
+      {/*HERO*/}
       <section 
         ref={heroRef}
         className="relative h-[160vh] overflow-hidden"
-        style={{ backgroundColor: "#F9F6F3" }} // Slightly darker than background for contrast
+        style={{ backgroundColor: "#F9F6F3" }}
       >
         <div className="sticky top-0 h-screen w-full flex items-center justify-center">
-          {/* Background Text: "CRAFT" - Improved visibility */}
+          {/* Background Text: "CRAFT" */}
           <div 
             className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
             style={{ 
@@ -104,18 +104,19 @@ export default function HomePage() {
             
             <div 
               className="mt-8 md:mt-12 space-y-6 transition-all duration-300"
-              style={{ 
-                opacity: 1 - heroProgress * 2.5,
-                transform: `translateY(${heroProgress * 40}px)`
+              style={{
+                opacity: Math.min(1, Math.max(0, 1 - (heroProgress - 0.3) * 3)),
+                transform: `translateY(${Math.max(0, (heroProgress - 0.2) * 100)}px)`,
+                filter: `blur(${Math.max(0, (heroProgress - 0.35) * 10)}px)`
               }}
             >
-              <p className="text-lg md:text-2xl text-stone-500 font-medium max-w-xl mx-auto">
+              <p className="text-lg md:text-2xl font-medium max-w-xl mx-auto drop-shadow-sm" style={{ color: theme.colors.primary }}>
                 Discover the intimate world of handcrafted artistry. 
                 Unique paintings, digital works, and custom crafts.
               </p>
               <Link 
                 to="/shop"
-                className="inline-flex items-center gap-4 px-10 py-5 rounded-full font-black text-xl transition-all hover:scale-105 active:scale-95 shadow-xl"
+                className="inline-flex items-center gap-4 px-10 py-5 rounded-full font-black text-xl transition-all hover:scale-105 active:scale-95 shadow-2xl"
                 style={{ backgroundColor: theme.colors.secondary, color: theme.colors.background }}
               >
                 Enter the Shop <FiArrowRight />
@@ -123,7 +124,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Floating Accents - Lightened */}
+          {/* Floating Accents */}
           <div 
              className="absolute top-1/4 left-10 md:left-20 text-stone-400 opacity-20"
              style={{ transform: `translateY(${-scrollY * 0.15}px) rotate(${scrollY * 0.08}deg)` }}
@@ -139,7 +140,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. CRAFT SHOWCASE: THE ASSEMBLY */}
+      {/* CRAFT SHOWCASE */}
       <section 
         ref={showCaseRef}
         className="relative py-40 md:py-80 bg-stone-100"
@@ -167,7 +168,7 @@ export default function HomePage() {
                     </Link>
                 </div>
 
-                {/* The "Crazy" Assembly Grid - Remapped progress to finish early */}
+                {/* Assembly Grid */}
                 <div className="relative h-[600px] md:h-[800px]">
                     {/* Floating Decorative Icons (Parallax) */}
                     <div 
@@ -183,9 +184,9 @@ export default function HomePage() {
                         <FiPenTool size={120} />
                     </div>
 
-                    {/* Adjusted Assembly Timing: Reaches 1.0 when showCaseProgress is 0.7 */}
+                    {/* Assembly Timing */}
                     {(() => {
-                        const assemblyProgress = Math.min(showCaseProgress / 0.7, 1);
+                        const assemblyProgress = Math.min(showCaseProgress / 0.55, 1);
                         return (
                           <>
                             {/* Floating Item 1: Painting */}
@@ -224,7 +225,7 @@ export default function HomePage() {
                                 <p className="text-white/80 font-bold">Crochet, crafts & home decor.</p>
                             </div>
 
-                            {/* Floating Item 3: Digital (The Nucleus) */}
+                            {/* Floating Item 3: Heart*/}
                             <div 
                                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full flex items-center justify-center transition-all duration-75 z-30"
                                 style={{ 
@@ -296,14 +297,14 @@ export default function HomePage() {
             >
              <p className="text-xl md:text-3xl font-medium opacity-60 leading-relaxed max-w-2xl mx-auto italic">
                 This is more than a store. It's a collection of hours, late nights, 
-                and the pure joy of making things by hand. From our home studio to yours.
+                and the pure joy of making things by hand. From our home to yours.
              </p>
              <div 
                 className="h-1 bg-stone-200 mx-auto transition-all duration-500" 
                 style={{ width: `${storyProgress * 200}px` }} 
              />
              <p className="font-black text-sm uppercase tracking-[0.5em]" style={{ color: theme.colors.secondary }}>
-                Quality Over Quantity
+                Heartmade Originals
              </p>
            </div>
         </div>

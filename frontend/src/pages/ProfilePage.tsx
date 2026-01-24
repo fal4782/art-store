@@ -76,7 +76,7 @@ export default function ProfilePage() {
   // We can handle this with a simple check or Effect, but let's keep it simple for now and rely on Responsive display
   
   return (
-    <div className="max-w-6xl mx-auto w-full">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-10">
       <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
         {/* --- Sidebar (Desktop Only) --- */}
         <aside className="hidden md:block w-64 shrink-0">

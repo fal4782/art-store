@@ -30,7 +30,7 @@ export default function CollectionPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8 animate-pulse text-center">
+      <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 animate-pulse text-center">
           <div className="h-16 bg-stone-200 rounded-full w-48 mx-auto mb-16" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {[1, 2, 3, 4].map(i => (
@@ -42,7 +42,7 @@ export default function CollectionPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 animate-fade-in">
         <div className="text-center mb-16 space-y-4">
             <h1 className="text-5xl md:text-7xl font-black tracking-tight" style={{ color: theme.colors.primary }}>
                 The Collection
@@ -69,7 +69,7 @@ export default function CollectionPage() {
                     )}
                     
                     {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
                     {/* Content */}
                     <div className="absolute inset-0 p-8 flex flex-col justify-end items-start text-white">

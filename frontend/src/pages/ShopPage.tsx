@@ -71,8 +71,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 pb-20">
-      
+    <div className="max-w-7xl mx-auto px-4 md:px-8 pb-20 pt-6 md:pt-10 animate-fade-in">
       {/* Mobile Filter Toggle */}
       <div className="md:hidden flex items-center justify-between mb-6">
           <h1 className="text-2xl font-black" style={{ color: theme.colors.primary }}>Shop</h1>
@@ -113,7 +112,7 @@ export default function ShopPage() {
              {loading ? (
                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
                      {[1,2,3,4,5,6].map(i => (
-                         <div key={i} className="aspect-[4/5] bg-stone-200 rounded-2xl"></div>
+                         <div key={i} className="aspect-4/5 bg-stone-200 rounded-2xl"></div>
                      ))}
                  </div>
              ) : artworks.length === 0 ? (

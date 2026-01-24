@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { userService } from "../../services/userService";
 import { theme } from "../../theme";
-import type { UserResponse } from "../../types/auth";
 import type { UpdateProfileInput, ChangePasswordInput } from "../../types/user";
 
 import { useToast } from "../../context/ToastContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PersonalInfo() {
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, refreshUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
 
@@ -23,31 +22,23 @@ export default function PersonalInfo() {
   });
 
   useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      const data = await userService.getProfile();
-      setUser(data);
+    if (user) {
       setFormData({
-        firstName: data.firstName,
-        lastName: data.lastName || "",
+        firstName: user.firstName,
+        lastName: user.lastName || "",
       });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [user]);
+
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const updatedUser = await userService.updateProfile(formData);
-      setUser(updatedUser);
+      await userService.updateProfile(formData);
+      await refreshUser();
       showToast("Profile updated successfully!", "success");
+
     } catch (err: any) {
       console.error(err);
       showToast("Failed to update profile.", "error");
@@ -71,7 +62,7 @@ export default function PersonalInfo() {
     }
   };
 
-  if (loading) return (
+  if (!user) return (
     <div className="max-w-2xl space-y-12 animate-pulse">
       <div className="space-y-4">
         <div className="h-10 w-48 rounded-xl bg-stone-200" />

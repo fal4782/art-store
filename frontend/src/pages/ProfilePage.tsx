@@ -4,9 +4,7 @@ import PersonalInfo from "../components/profile/ProfileInfo";
 import AddressBook from "../components/profile/AddressBook";
 import OrderHistory from "../components/profile/OrderHistory";
 import Wishlist from "../components/profile/Wishlist";
-import { userService } from "../services/userService";
-import type { UserResponse } from "../types/auth";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { theme } from "../theme";
 import { FiArrowRight, FiUser, FiPackage, FiMapPin, FiLogOut, FiHeart } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
@@ -15,13 +13,9 @@ import { useAuth } from "../context/AuthContext";
 // --- Mobile Mobile Menu Component ---
 const MobileProfileMenu = () => {
     const navigate = useNavigate();
-    const { logout } = useAuth();
-    const [user, setUser] = useState<UserResponse | null>(null);
+    const { logout, user } = useAuth();
     const [loggingOut, setLoggingOut] = useState(false);
 
-    useEffect(() => {
-        userService.getProfile().then(setUser).catch(console.error);
-    }, []);
     
     const menuItems = [
         { path: "/profile/info", label: "Personal Info", icon: FiUser, color: theme.colors.primary },

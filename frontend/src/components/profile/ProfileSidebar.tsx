@@ -2,9 +2,7 @@ import { NavLink } from "react-router-dom";
 import { theme } from "../../theme";
 import { FiUser, FiMapPin, FiPackage, FiLogOut, FiHeart } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
-import { useState, useEffect } from "react";
-import { userService } from "../../services/userService";
-import type { UserResponse } from "../../types/auth";
+import { useState } from "react";
 
 const navItems = [
   { path: "/profile", end: true, label: "Personal Info", icon: FiUser },
@@ -14,13 +12,9 @@ const navItems = [
 ];
 
 export default function ProfileSidebar() {
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
 
-  useEffect(() => {
-    userService.getProfile().then(setUser).catch(console.error);
-  }, []);
 
   return (
     <div className="flex flex-col gap-2">

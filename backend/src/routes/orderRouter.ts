@@ -12,7 +12,13 @@ router.get("/", authMiddleware, async (req, res) => {
     const orders = await prisma.order.findMany({
       where: { userId },
       include: {
-        orderItems: true,
+        orderItems: {
+          include: {
+            artwork: {
+              select: { slug: true }
+            }
+          }
+        },
         payment: true,
         address: true,
       },

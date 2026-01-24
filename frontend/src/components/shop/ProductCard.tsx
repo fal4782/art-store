@@ -43,16 +43,17 @@ export default function ProductCard({ artwork, onView, onAddToCart }: ProductCar
              </button>
              <button 
                 onClick={(e) => { e.stopPropagation(); onAddToCart(artwork.id); }}
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl hover:scale-110 transition-transform shadow-lg"
+                disabled={artwork.stockQuantity === 0}
+                className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl hover:scale-110 transition-transform shadow-lg disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
                 style={{ background: theme.colors.secondary }}
-                title="Add to Cart"
+                title={artwork.stockQuantity === 0 ? "Sold Out" : "Add to Cart"}
              >
                  <FiShoppingBag />
              </button>
         </div>
 
         {/* Tag/Badge (Optional) */}
-        {!artwork.isAvailable && (
+        {artwork.stockQuantity === 0 && (
              <div className="absolute top-3 right-3 px-3 py-1 text-white text-xs font-bold uppercase tracking-widest rounded-full" style={{ backgroundColor: theme.colors.primary }}>
                  Sold Out
              </div>

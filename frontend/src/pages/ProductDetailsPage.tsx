@@ -183,7 +183,7 @@ export default function ProductDetailsPage() {
               <div className="pt-2 flex flex-row gap-3 md:gap-5">
                   <button 
                     onClick={handleAddToCart}
-                    disabled={cartLoading || !artwork.isAvailable}
+                    disabled={cartLoading || artwork.stockQuantity === 0}
                     className="group relative flex-4 flex items-center justify-center gap-3 md:gap-4 py-4 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-xl font-black tracking-wide transition-all overflow-hidden shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale"
                     style={{ 
                       backgroundColor: theme.colors.secondary, 
@@ -200,7 +200,7 @@ export default function ProductDetailsPage() {
                       ) : (
                         <>
                             <FiShoppingBag className="text-lg md:text-2xl group-hover:rotate-12 transition-transform" /> 
-                            {artwork.isAvailable ? "Add to Cart" : "Sold Out"}
+                            {artwork.stockQuantity > 0 ? "Add to Cart" : "Sold Out"}
                         </>
                       )}
                   </button>

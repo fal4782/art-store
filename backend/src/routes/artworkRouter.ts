@@ -5,11 +5,11 @@ import {
   GetArtworksQuerySchema,
   UpdateArtworkSchema,
 } from "../lib/types";
-import { adminMiddleware, authMiddleware } from "../middleware";
+import { adminMiddleware, authMiddleware, optionalAuthMiddleware } from "../middleware";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
+router.get("/", optionalAuthMiddleware, async (req, res) => {
   const parseResult = GetArtworksQuerySchema.safeParse(req.query);
 
   if (!parseResult.success) {
@@ -47,8 +47,14 @@ router.get("/", async (req, res) => {
     }
     if (categoryId) where.categoryId = categoryId;
     if (type) where.type = type;
-    if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
     if (isFeatured !== undefined) where.isFeatured = isFeatured === "true";
+
+    // Visibility logic
+    if (req.isAdmin) {
+      if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
+    } else {
+      where.isAvailable = true;
+    }
     if (tag) {
       where.tags = {
         some: {
@@ -139,7 +145,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/slug/:slug", async (req, res) => {
+router.get("/slug/:slug", optionalAuthMiddleware, async (req, res) => {
   const { slug } = req.params;
   try {
     const artwork = await prisma.artwork.findUnique({
@@ -158,6 +164,10 @@ router.get("/slug/:slug", async (req, res) => {
       return res.status(404).json({ message: "Artwork not found" });
     }
 
+    if (!artwork.isAvailable && !req.isAdmin) {
+      return res.status(404).json({ message: "Artwork not found" });
+    }
+
     // Transform tags to simpler format
     const artworkWithTags = {
       ...artwork,
@@ -171,7 +181,7 @@ router.get("/slug/:slug", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", optionalAuthMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
     const artwork = await prisma.artwork.findUnique({
@@ -188,6 +198,11 @@ router.get("/:id", async (req, res) => {
     if (!artwork || artwork.deletedAt) {
       return res.status(404).json({ message: "Artwork not found" });
     }
+
+    if (!artwork.isAvailable && !req.isAdmin) {
+      return res.status(404).json({ message: "Artwork not found" });
+    }
+
     // Transform tags to simpler format
     const artworkWithTags = {
       ...artwork,

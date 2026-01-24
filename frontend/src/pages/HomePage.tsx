@@ -60,7 +60,7 @@ export default function HomePage() {
       <section 
         ref={heroRef}
         className="relative h-[160vh] overflow-hidden"
-        style={{ backgroundColor: "#F9F6F3" }}
+        style={{ backgroundColor: `${theme.colors.surface}` }}
       >
         <div className="sticky top-0 h-screen w-full flex items-center justify-center">
           {/* Background Text: "CRAFT" */}
@@ -126,14 +126,20 @@ export default function HomePage() {
 
           {/* Floating Accents */}
           <div 
-             className="absolute top-1/4 left-10 md:left-20 text-stone-400 opacity-20"
-             style={{ transform: `translateY(${-scrollY * 0.15}px) rotate(${scrollY * 0.08}deg)` }}
+             className="absolute top-1/4 left-10 md:left-20 opacity-20"
+             style={{ 
+               transform: `translateY(${-scrollY * 0.15}px) rotate(${scrollY * 0.08}deg)`,
+               color: theme.colors.primary 
+             }}
           >
               <FiScissors size={100} />
           </div>
           <div 
-             className="absolute bottom-1/4 right-10 md:right-20 text-stone-400 opacity-20"
-             style={{ transform: `translateY(${-scrollY * 0.4}px) rotate(${-scrollY * 0.04}deg)` }}
+             className="absolute bottom-1/4 right-10 md:right-20 opacity-20"
+             style={{ 
+               transform: `translateY(${-scrollY * 0.4}px) rotate(${-scrollY * 0.04}deg)`,
+               color: theme.colors.primary
+             }}
           >
               <FiPenTool size={140} />
           </div>
@@ -143,7 +149,8 @@ export default function HomePage() {
       {/* CRAFT SHOWCASE */}
       <section 
         ref={showCaseRef}
-        className="relative py-40 md:py-80 bg-stone-100"
+        className="relative py-40 md:py-80"
+        style={{ backgroundColor: `${theme.colors.primary}05` }}
       >
         <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
@@ -189,7 +196,6 @@ export default function HomePage() {
                         const assemblyProgress = Math.min(showCaseProgress / 0.55, 1);
                         return (
                           <>
-                            {/* Floating Item 1: Painting */}
                             <div 
                                 className="absolute top-0 right-0 w-64 md:w-80 h-96 rounded-3xl p-8 flex flex-col justify-end shadow-2xl transition-all duration-75 z-20"
                                 style={{ 
@@ -202,12 +208,11 @@ export default function HomePage() {
                                     boxShadow: `0 40px 60px -15px ${theme.colors.primary}60`
                                 }}
                             >
-                                <FiFeather className="text-white/20 absolute top-8 left-8" size={64} />
-                                <h4 className="text-white text-3xl font-black mb-2">Art Pieces</h4>
-                                <p className="text-white/60 font-bold">Original oil & acrylic narratives.</p>
+                                <FiFeather className="absolute top-8 left-8 opacity-20" size={64} style={{ color: theme.colors.surface }} />
+                                <h4 className="text-3xl font-black mb-2" style={{ color: theme.colors.surface }}>Art Pieces</h4>
+                                <p className="font-bold opacity-60" style={{ color: theme.colors.surface }}>Original oil & acrylic narratives.</p>
                             </div>
 
-                            {/* Floating Item 2: Crochet / Crafts */}
                             <div 
                                 className="absolute bottom-20 left-0 w-64 md:w-80 h-96 rounded-3xl p-8 flex flex-col justify-end shadow-2xl transition-all duration-75 z-10"
                                 style={{ 
@@ -220,9 +225,9 @@ export default function HomePage() {
                                     boxShadow: `0 40px 60px -15px ${theme.colors.secondary}60`
                                 }}
                             >
-                                <FiScissors className="text-white/20 absolute top-8 left-8" size={64} />
-                                <h4 className="text-white text-3xl font-black mb-2">Handmade</h4>
-                                <p className="text-white/80 font-bold">Crochet, crafts & home decor.</p>
+                                <FiScissors className="absolute top-8 left-8 opacity-20" size={64} style={{ color: theme.colors.surface }} />
+                                <h4 className="text-3xl font-black mb-2" style={{ color: theme.colors.surface }}>Handmade</h4>
+                                <p className="font-bold opacity-80" style={{ color: theme.colors.surface }}>Crochet, crafts & home decor.</p>
                             </div>
 
                             {/* Floating Item 3: Heart*/}
@@ -248,18 +253,20 @@ export default function HomePage() {
       {/* 3. ARTIST NARRATIVE: THE CONCENTRIC EXPERIENCE */}
       <section 
         ref={storyRef}
-        className="relative py-40 md:py-80 bg-white overflow-hidden"
+        className="relative py-40 md:py-80 overflow-hidden"
+        style={{ backgroundColor: theme.colors.surface }}
       >
         {/* Parallax Background Rings */}
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
             {[1, 2, 3, 4, 5].map(i => (
                 <div 
                     key={i}
-                    className="absolute border-stone-900 border rounded-full transition-transform duration-75"
+                    className="absolute border rounded-full transition-transform duration-75"
                     style={{ 
                         width: `${i * 300}px`, 
                         height: `${i * 300}px`,
-                        transform: `scale(${1 + storyProgress * i * 0.15})`
+                        transform: `scale(${1 + storyProgress * i * 0.15})`,
+                        borderColor: theme.colors.primary
                     }}
                 />
             ))}
@@ -300,8 +307,8 @@ export default function HomePage() {
                 and the pure joy of making things by hand. From our home to yours.
              </p>
              <div 
-                className="h-1 bg-stone-200 mx-auto transition-all duration-500" 
-                style={{ width: `${storyProgress * 200}px` }} 
+                className="h-1 mx-auto transition-all duration-500" 
+                style={{ width: `${storyProgress * 200}px`, backgroundColor: `${theme.colors.primary}20` }} 
              />
              <p className="font-black text-sm uppercase tracking-[0.5em]" style={{ color: theme.colors.secondary }}>
                 Heartmade Originals
@@ -311,7 +318,10 @@ export default function HomePage() {
       </section>
 
       {/* 4. FINAL CTA: THE CALL TO ACTION */}
-      <section className="px-4 pb-20 md:pb-40 bg-white">
+      <section 
+        className="px-4 py-20 md:py-40"
+        style={{ backgroundColor: `${theme.colors.primary}05` }}
+      >
         <div 
             className="group max-w-7xl mx-auto p-12 md:p-32 rounded-[60px] text-center space-y-12 overflow-hidden relative shadow-2xl transition-transform hover:scale-[1.01]"
             style={{ backgroundColor: theme.colors.primary }}
@@ -319,15 +329,18 @@ export default function HomePage() {
             {/* Dynamic Hover Background */}
             <div className="absolute inset-0 bg-secondary/20 translate-y-full group-hover:translate-y-0 transition-transform duration-700 pointer-events-none" />
 
-            <h2 className="text-5xl md:text-[10rem] font-black tracking-tighter text-white leading-[0.85] relative z-10">
+            <h2 
+              className="text-5xl md:text-[10rem] font-black tracking-tighter leading-[0.85] relative z-10"
+              style={{ color: theme.colors.surface }}
+            >
                 START <br /> YOUR <br /> STORY.
             </h2>
             
             <div className="relative z-10 pt-8">
                 <Link 
                   to="/shop"
-                  className="inline-flex items-center gap-6 px-16 py-7 rounded-full font-black text-2xl bg-white transition-all hover:scale-110 active:scale-95 shadow-xl"
-                  style={{ color: theme.colors.primary }}
+                  className="inline-flex items-center gap-6 px-16 py-7 rounded-full font-black text-2xl transition-all hover:scale-110 active:scale-95 shadow-xl"
+                  style={{ backgroundColor: theme.colors.surface, color: theme.colors.primary }}
                 >
                   Go to Shop <FiShoppingBag />
                 </Link>

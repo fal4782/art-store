@@ -3,16 +3,19 @@ import ProfileSidebar from "../components/profile/ProfileSidebar";
 import PersonalInfo from "../components/profile/ProfileInfo";
 import AddressBook from "../components/profile/AddressBook";
 import OrderHistory from "../components/profile/OrderHistory";
+import Wishlist from "../components/profile/Wishlist";
 import { userService } from "../services/userService";
 import type { UserResponse } from "../types/auth";
 import { useState, useEffect } from "react";
 import { theme } from "../theme";
-import { FiArrowRight, FiUser, FiPackage, FiMapPin, FiLogOut } from "react-icons/fi";
-import { authService } from "../services/authService";
+import { FiArrowRight, FiUser, FiPackage, FiMapPin, FiLogOut, FiHeart } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
+
 
 // --- Mobile Mobile Menu Component ---
 const MobileProfileMenu = () => {
     const navigate = useNavigate();
+    const { logout } = useAuth();
     const [user, setUser] = useState<UserResponse | null>(null);
 
     useEffect(() => {
@@ -21,6 +24,7 @@ const MobileProfileMenu = () => {
     
     const menuItems = [
         { path: "/profile/info", label: "Personal Info", icon: FiUser, color: theme.colors.primary },
+        { path: "/profile/wishlist", label: "My Wishlist", icon: FiHeart, color: theme.colors.error },
         { path: "/profile/orders", label: "My Orders", icon: FiPackage, color: theme.colors.secondary },
         { path: "/profile/addresses", label: "Address Book", icon: FiMapPin, color: theme.colors.info },
     ];
@@ -53,7 +57,7 @@ const MobileProfileMenu = () => {
              </div>
 
              <button
-                onClick={authService.logout}
+                onClick={logout}
                 className="w-full p-4 rounded-2xl font-bold flex items-center justify-between mt-8 active:scale-95 transition-all shadow-sm hover:shadow-md"
                 style={{ background: theme.colors.error + '1A', color: theme.colors.error }}
              >
@@ -106,6 +110,7 @@ export default function ProfilePage() {
                 
                 {/* Sub Routes */}
                 <Route path="info" element={<PersonalInfo />} />
+                <Route path="wishlist" element={<Wishlist />} />
                 <Route path="addresses" element={<AddressBook />} />
                 <Route path="orders" element={<OrderHistory />} />
              </Routes>

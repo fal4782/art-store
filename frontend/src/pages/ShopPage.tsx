@@ -8,6 +8,8 @@ import FilterBar from "../components/shop/FilterBar";
 import { theme } from "../theme";
 import { useToast } from "../context/ToastContext";
 import { FiFilter, FiX } from "react-icons/fi";
+import { useCart } from "../context/CartContext";
+
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,6 +20,9 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const [total, setTotal] = useState(0);
+  
+  const { addToCart } = useCart();
+
 
   // Parse filters from URL
   const filters: GetArtworksQuery = {
@@ -62,8 +67,7 @@ export default function ShopPage() {
   };
 
   const handleAddToCart = (id: string) => {
-      // TODO: Implement actual Cart Logic
-      showToast(`Added product ${id} to cart (Demo)`, "success");
+      addToCart(id, 1);
   };
 
   const handleViewDetails = (slug: string) => {

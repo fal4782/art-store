@@ -1,13 +1,15 @@
-import { FiHome, FiGrid, FiUser, FiShoppingBag } from "react-icons/fi";
 import { theme } from "../theme";
 import { Link, useLocation } from "react-router-dom";
+
+import { FiHome, FiUser, FiShoppingBag, FiHeart } from "react-icons/fi";
 
 const navItems = [
   { label: "Home", icon: FiHome, href: "/" },
   { label: "Shop", icon: FiShoppingBag, href: "/shop" },
-  { label: "Collection", icon: FiGrid, href: "/collection" },
+  { label: "Wishlist", icon: FiHeart, href: "/profile/wishlist" },
   { label: "Me", icon: FiUser, href: "/profile" },
 ];
+
 
 export default function Navbar() {
   const { pathname } = useLocation();
@@ -25,6 +27,8 @@ export default function Navbar() {
         <div className="flex h-full items-center justify-around px-4">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
+            const count = 0;
+            
             return (
               <Link
                 key={item.label}
@@ -44,15 +48,27 @@ export default function Navbar() {
                     }}
                   />
                 )}
-                <item.icon
-                  className="text-xl transition-transform duration-200"
-                  style={{
-                    color: isActive
-                      ? theme.colors.secondary
-                      : `${theme.colors.primary}aa`,
-                    transform: isActive ? "scale(1.1)" : "scale(1)",
-                  }}
-                />
+                
+                <div className="relative">
+                  <item.icon
+                    className="text-xl transition-transform duration-200"
+                    style={{
+                      color: isActive
+                        ? theme.colors.secondary
+                        : `${theme.colors.primary}aa`,
+                      transform: isActive ? "scale(1.1)" : "scale(1)",
+                    }}
+                  />
+                  {count > 0 && (
+                    <span 
+                      className="absolute -top-1 -right-2 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-black text-white"
+                      style={{ background: theme.colors.secondary }}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </div>
+
                 <span
                   className="text-xs font-semibold"
                   style={{

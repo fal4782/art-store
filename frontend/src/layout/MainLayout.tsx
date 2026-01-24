@@ -3,6 +3,7 @@ import { theme } from "../theme";
 import Header from "./Header";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import CartDrawer from "../components/shop/CartDrawer";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       className="min-h-screen flex flex-col"
       style={{ background: theme.colors.background }}
     >
+      <CartDrawer />
       <div className="shrink-0">
         <Header />
       </div>

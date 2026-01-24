@@ -1,19 +1,21 @@
 import { NavLink } from "react-router-dom";
 import { theme } from "../../theme";
-import { FiUser, FiMapPin, FiPackage, FiLogOut } from "react-icons/fi";
-import { authService } from "../../services/authService";
+import { FiUser, FiMapPin, FiPackage, FiLogOut, FiHeart } from "react-icons/fi";
+import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
 import { userService } from "../../services/userService";
 import type { UserResponse } from "../../types/auth";
 
 const navItems = [
   { path: "/profile", end: true, label: "Personal Info", icon: FiUser },
+  { path: "/profile/wishlist", label: "My Wishlist", icon: FiHeart },
   { path: "/profile/orders", label: "My Orders", icon: FiPackage },
   { path: "/profile/addresses", label: "Address Book", icon: FiMapPin },
 ];
 
 export default function ProfileSidebar() {
   const [user, setUser] = useState<UserResponse | null>(null);
+  const { logout } = useAuth();
 
   useEffect(() => {
     userService.getProfile().then(setUser).catch(console.error);
@@ -55,7 +57,7 @@ export default function ProfileSidebar() {
         ))}
 
         <button
-          onClick={authService.logout}
+          onClick={logout}
           className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 font-bold hover:translate-x-1 mt-6 text-left"
           style={{ color: theme.colors.error, background: theme.colors.error + "0D" }}
         >

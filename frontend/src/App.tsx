@@ -8,36 +8,46 @@ import CollectionPage from "./pages/CollectionPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ToastProvider } from "./context/ToastContext";
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
+
 
 function App() {
   return (
     <BrowserRouter>
-      <ToastProvider>
-      <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route
-          path="/*"
-          element={
-            <MainLayout>
+      <AuthProvider>
+        <ToastProvider>
+          <CartProvider>
+            <WishlistProvider>
               <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/shop" element={<ShopPage />} />
-                <Route path="/collection" element={<CollectionPage />} />
-                <Route path="/artwork/:slug" element={<ProductDetailsPage />} />
+                <Route path="/auth" element={<AuthPage />} />
                 <Route
-                  path="/profile/*"
+                  path="/*"
                   element={
-                    <ProtectedRoute>
-                      <ProfilePage />
-                    </ProtectedRoute>
+                    <MainLayout>
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/shop" element={<ShopPage />} />
+                        <Route path="/collection" element={<CollectionPage />} />
+                        <Route path="/artwork/:slug" element={<ProductDetailsPage />} />
+                        <Route
+                          path="/profile/*"
+                          element={
+                            <ProtectedRoute>
+                              <ProfilePage />
+                            </ProtectedRoute>
+                          }
+                        />
+                      </Routes>
+                    </MainLayout>
                   }
                 />
               </Routes>
-            </MainLayout>
-          }
-        />
-      </Routes>
-      </ToastProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </ToastProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

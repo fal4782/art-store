@@ -6,7 +6,9 @@ import { artworkService } from "../services/artworkService";
 import type { Artwork } from "../types/artwork";
 import { FiShoppingBag, FiHeart, FiMaximize2, FiInfo, FiCheckCircle, FiChevronRight } from "react-icons/fi";
 import { useToast } from "../context/ToastContext";
-import { GoHeartFill } from "react-icons/go";
+
+import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 
 export default function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -16,8 +18,9 @@ export default function ProductDetailsPage() {
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
-  const [addingToCart, setAddingToCart] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  
+  const { addToCart, loading: cartLoading } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
     if (slug) {
@@ -43,16 +46,13 @@ export default function ProductDetailsPage() {
   };
 
   const handleAddToCart = () => {
-    setAddingToCart(true);
-    setTimeout(() => {
-      showToast(`${artwork?.name} added to cart!`, "success");
-      setAddingToCart(false);
-    }, 800);
+    if (!artwork) return;
+    addToCart(artwork.id, 1);
   };
 
-  const toggleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
-    showToast(isWishlisted ? "Removed from wishlist" : "Added to wishlist", "success");
+  const handleToggleWishlist = () => {
+    if (!artwork) return;
+    toggleWishlist(artwork.id);
   };
 
   if (loading || !artwork) {
@@ -212,12 +212,6 @@ export default function ProductDetailsPage() {
 
                     <div className="flex items-center gap-4 pt-2">
                         <div className="h-px flex-1 opacity-20" style={{ backgroundColor: theme.colors.primary }} />
-                        <div 
-                          className="px-4 py-1.5 rounded-full border shadow-sm"
-                          style={{ borderColor: `${theme.colors.secondary}30`, color: theme.colors.secondary, backgroundColor: `${theme.colors.surface}` }}
-                        >
-                            <GoHeartFill className="text-base md:text-lg" />
-                        </div>
                     </div>
                 </div>
             </div>
@@ -261,16 +255,16 @@ export default function ProductDetailsPage() {
             <div className="pt-4 md:pt-6 flex flex-row gap-3 md:gap-5">
                 <button 
                   onClick={handleAddToCart}
-                  disabled={addingToCart || !artwork.isAvailable}
-                  className="group relative flex-3 md:flex-4 flex items-center justify-center gap-3 md:gap-4 py-4 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-xl font-black tracking-wide transition-all overflow-hidden shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={cartLoading || !artwork.isAvailable}
+                  className="group relative flex-4 flex items-center justify-center gap-3 md:gap-4 py-4 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-xl font-black tracking-wide transition-all overflow-hidden shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ 
-                    backgroundColor: theme.colors.primary, 
+                    backgroundColor: theme.colors.secondary, 
                     color: theme.colors.background,
-                    boxShadow: `0 20px 40px -10px ${theme.colors.primary}40`
+                    boxShadow: `0 20px 40px -10px ${theme.colors.secondary}40`
                   }}
                 >
                     <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                    {addingToCart ? (
+                    {cartLoading ? (
                       <div className="flex items-center gap-2">
                         <div className="w-5 h-5 border-4 border-t-transparent border-white rounded-full animate-spin" />
                         <span>Securing...</span>
@@ -284,16 +278,16 @@ export default function ProductDetailsPage() {
                 </button>
                 
                 <button 
-                  onClick={toggleWishlist}
+                  onClick={handleToggleWishlist}
                   className="flex-1 flex items-center justify-center py-4 md:py-6 rounded-2xl md:rounded-3xl border-2 transition-all active:scale-95 group"
                   style={{ 
                     borderColor: `${theme.colors.primary}15`, 
-                    backgroundColor: isWishlisted ? `${theme.colors.error}10` : 'transparent',
-                    color: isWishlisted ? theme.colors.error : theme.colors.primary
+                    backgroundColor: isInWishlist(artwork.id) ? `${theme.colors.secondary}15` : 'transparent',
+                    color: isInWishlist(artwork.id) ? theme.colors.error : theme.colors.primary
                   }}
                 >
                     <FiHeart 
-                      className={`text-lg md:text-2xl transition-all ${isWishlisted ? 'fill-current scale-110' : 'group-hover:scale-110'}`} 
+                      className={`text-lg md:text-2xl transition-all ${isInWishlist(artwork.id) ? 'fill-current scale-110' : 'group-hover:scale-110'}`} 
                     />
                 </button>
             </div>

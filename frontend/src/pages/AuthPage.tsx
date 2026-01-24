@@ -10,11 +10,13 @@ import {
 } from "react-icons/fa";
 import { FiMail, FiLock, FiUser, FiArrowRight } from "react-icons/fi";
 import { authService } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 import type { LoginInput, SignupInput } from "../types/auth";
 import { FcGoogle } from "react-icons/fc";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +58,7 @@ export default function AuthPage() {
     setError("");
     try {
       const response = await authService.login(loginData);
-      authService.setToken(response.token);
+      login(response.token);
       navigate("/");
     } catch (err: any) {
       setError(
@@ -73,7 +75,7 @@ export default function AuthPage() {
     setError("");
     try {
       const response = await authService.signup(signupData);
-      authService.setToken(response.token);
+      login(response.token);
       navigate("/");
     } catch (err: any) {
       setError(err.response?.data?.message || "Signup failed. Try again.");

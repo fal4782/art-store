@@ -13,6 +13,7 @@ router.get("/", authMiddleware, async (req, res) => {
       include: {
         artwork: {
           include: {
+            category: true,
             tags: { include: { tag: true } },
           },
         },

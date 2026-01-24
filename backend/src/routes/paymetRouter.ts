@@ -78,4 +78,56 @@ router.post(
     res.status(200).json({ status: "ok" });
   }
 );
+router.post("/verify", async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const secret = process.env.RAZORPAY_TEST_SECRET!;
+
+  const expectedSignature = crypto
+    .createHmac("sha256", secret)
+    .update(razorpay_order_id + "|" + razorpay_payment_id)
+    .digest("hex");
+
+  if (razorpay_signature !== expectedSignature) {
+    return res.status(400).json({ message: "Invalid signature" });
+  }
+
+  try {
+    const order = await prisma.order.findFirst({
+      where: { paymentIntentId: razorpay_order_id },
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.paymentStatus === "COMPLETED") {
+      return res.json({ message: "Payment already verified", order });
+    }
+
+    // Update order status
+    const updatedOrder = await prisma.order.update({
+      where: { id: order.id },
+      data: { paymentStatus: "COMPLETED", status: "CONFIRMED" },
+    });
+
+    // Capture payment details
+    // Note: In verify, we might not have all the details the webhook has, but we can store the basics
+    await prisma.payment.create({
+      data: {
+        orderId: order.id,
+        amountInPaise: updatedOrder.totalPriceInPaise,
+        currency: "INR",
+        status: "COMPLETED",
+        paymentGateway: "razorpay",
+        gatewayPaymentId: razorpay_payment_id,
+      },
+    });
+
+    return res.json({ message: "Payment verified successfully", order: updatedOrder });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export { router as paymentRouter };

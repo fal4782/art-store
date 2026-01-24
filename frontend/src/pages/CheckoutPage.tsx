@@ -106,17 +106,35 @@ export default function CheckoutPage() {
 
       const { razorpayOrder, order } = await orderService.placeOrder(payload);
 
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      
+      if (!razorpayKey) {
+        showToast("Razorpay key is not configured. Please check your environment variables.", "error");
+        setPlacingOrder(false);
+        return;
+      }
+
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         name: "ArtStore",
         description: `Order #${order.id.slice(0, 8)}`,
         order_id: razorpayOrder.id,
-        handler: async function (_response: any) {
-          showToast("Payment Successful!", "success");
-          clearCart();
-          navigate("/profile/orders");
+        handler: async function (response: any) {
+          try {
+            await orderService.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            showToast("Payment Successful!", "success");
+            clearCart();
+            navigate("/profile/orders");
+          } catch (err) {
+            console.error("Verification failed", err);
+            showToast("Payment was successful but verification failed. Please contact support.", "error");
+          }
         },
         prefill: {
           name: `${user?.firstName} ${user?.lastName || ""}`,

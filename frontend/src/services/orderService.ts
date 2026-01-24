@@ -11,6 +11,12 @@ export interface PlaceOrderInput {
   discountCode?: string;
 }
 
+export interface VerifyPaymentInput {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
 export const orderService = {
   getUserOrders: async (): Promise<Order[]> => {
     const response = await apiClient.get("/orders");
@@ -26,4 +32,10 @@ export const orderService = {
     const response = await apiClient.post("/orders", data);
     return response.data;
   },
+
+  verifyPayment: async (data: VerifyPaymentInput): Promise<{ message: string; order: Order }> => {
+    const response = await apiClient.post("/payments/verify", data);
+    return response.data;
+  },
 };
+

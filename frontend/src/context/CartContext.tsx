@@ -77,13 +77,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [isAuthenticated, refreshCart, showToast]);
 
   const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
+    if (quantity < 1) return;
+
     try {
       await cartService.updateQuantity(itemId, { quantity });
       setCart(prev => prev.map(item => item.id === itemId ? { ...item, quantity } : item));
-    } catch (err) {
-      showToast("Failed to update quantity", "error");
+    } catch (err: any) {
+      console.error("Failed to update quantity", err);
+      const errorMsg = err.response?.data?.message || "Failed to update quantity";
+      showToast(errorMsg, "error");
+      await refreshCart();
     }
-  }, [showToast]);
+  }, [showToast, refreshCart]);
 
   const removeFromCart = useCallback(async (itemId: string) => {
     try {

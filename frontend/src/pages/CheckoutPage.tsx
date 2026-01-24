@@ -5,9 +5,10 @@ import { useAuth } from "../context/AuthContext";
 import { addressService } from "../services/addressService";
 import { orderService } from "../services/orderService";
 import type { Address, AddressInput } from "../types/user";
-import { FiMapPin, FiPlus, FiCheck, FiShoppingBag, FiArrowLeft, FiCreditCard, FiMinus, FiTrash2, FiUser, FiPhone, FiHash, FiX } from "react-icons/fi";
+import { FiMapPin, FiPlus, FiCheck, FiShoppingBag, FiArrowLeft, FiCreditCard, FiTrash2, FiUser, FiPhone, FiHash, FiX } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
+import QuantitySelector from "../components/shop/QuantitySelector";
 
 declare global {
   interface Window {
@@ -324,23 +325,12 @@ export default function CheckoutPage() {
                                       
                                       {/* Quantity Controls */}
                                       <div className="flex items-center justify-center sm:justify-start gap-4">
-                                          <div className="flex items-center gap-3 p-1.5 rounded-full border-2 border-stone-100 shadow-inner">
-                                              <button 
-                                                onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                                                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-stone-50 transition-colors"
-                                                style={{ color: theme.colors.primary }}
-                                              >
-                                                  <FiMinus size={14} />
-                                              </button>
-                                              <span className="font-black text-sm w-4 text-center">{item.quantity}</span>
-                                              <button 
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-stone-50 transition-colors"
-                                                style={{ color: theme.colors.primary }}
-                                              >
-                                                  <FiPlus size={14} />
-                                              </button>
-                                          </div>
+                                          <QuantitySelector 
+                                            size="sm"
+                                            quantity={item.quantity}
+                                            onIncrease={() => updateQuantity(item.id, item.quantity + 1)}
+                                            onDecrease={() => updateQuantity(item.id, item.quantity - 1)}
+                                          />
                                           <button 
                                             onClick={() => removeFromCart(item.id)}
                                             className="p-3 rounded-full hover:bg-red-50 text-red-400 opacity-40 hover:opacity-100 transition-all"

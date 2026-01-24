@@ -2,8 +2,9 @@
 import { useRef, useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 import { theme } from "../../theme";
-import { FiX, FiMinus, FiPlus, FiTrash2, FiShoppingBag, FiArrowRight } from "react-icons/fi";
+import { FiX, FiTrash2, FiShoppingBag, FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import QuantitySelector from "./QuantitySelector";
 
 export default function CartDrawer() {
   const { 
@@ -12,6 +13,7 @@ export default function CartDrawer() {
     setIsCartOpen, 
     updateQuantity, 
     removeFromCart, 
+    cartCount,
     totalAmount,
     refreshCart
   } = useCart();
@@ -75,7 +77,7 @@ export default function CartDrawer() {
               <FiShoppingBag className="text-2xl" style={{ color: theme.colors.primary }} />
               <h2 className="text-xl font-black uppercase tracking-widest" style={{ color: theme.colors.primary }}>Your Cart</h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ backgroundColor: `${theme.colors.secondary}20`, color: theme.colors.secondary }}>
-                {cart.length}
+                {cartCount}
               </span>
             </div>
             <button 
@@ -134,21 +136,12 @@ export default function CartDrawer() {
 
                     <div className="flex items-center justify-between">
                       {/* Quantity Selector */}
-                      <div className="flex items-center gap-3 bg-black/5 rounded-full px-3 py-1">
-                        <button 
-                          onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                          className="hover:text-secondary transition-colors"
-                        >
-                          <FiMinus size={14} />
-                        </button>
-                        <span className="text-xs font-black min-w-4 text-center">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="hover:text-secondary transition-colors"
-                        >
-                          <FiPlus size={14} />
-                        </button>
-                      </div>
+                      <QuantitySelector 
+                        size="sm"
+                        quantity={item.quantity}
+                        onIncrease={() => updateQuantity(item.id, item.quantity + 1)}
+                        onDecrease={() => updateQuantity(item.id, item.quantity - 1)}
+                      />
                       <p className="font-black text-sm" style={{ color: theme.colors.primary }}>
                         {formatPrice(item.artwork.priceInPaise * item.quantity)}
                       </p>

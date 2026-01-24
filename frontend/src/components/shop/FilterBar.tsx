@@ -19,29 +19,68 @@ const TYPES: { label: string; value: ArtworkType }[] = [
 export default function FilterBar({ filters, onChange, className = "" }: FilterBarProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [localSearch, setLocalSearch] = useState(filters.search || "");
 
   useEffect(() => {
     categoryService.getCategories().then(setCategories).catch(console.error);
     tagService.getTags().then(setTags).catch(console.error);
   }, []);
+
+  // Sync local search when filters.search changes from outside (e.g., Reset)
+  useEffect(() => {
+    setLocalSearch(filters.search || "");
+  }, [filters.search]);
+
+  // Debounced search trigger
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only trigger if character count is 3+ or empty
+      if (localSearch.length >= 3 || localSearch.length === 0) {
+        // Only update if it actually changed to avoid infinite loops
+        if (localSearch !== (filters.search || "")) {
+          updateFilter("search", localSearch || undefined);
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localSearch]);
   
   const updateFilter = (key: keyof GetArtworksQuery, value: any) => {
     onChange({ ...filters, [key]: value, page: 1 }); // Reset to page 1 on filter change
   };
 
+  const handleSearchChange = (value: string) => {
+    setLocalSearch(value);
+  };
+
   return (
     <div className={`space-y-8 ${className}`}>
         {/* Search */}
-        <div className="relative">
-             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-40" />
-             <input 
-                type="text" 
-                placeholder="Search artworks..." 
-                value={filters.search || ""}
-                onChange={(e) => updateFilter("search", e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border focus:border-stone-400 outline-none font-bold transition-all shadow-sm"
-                style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}20` }}
-             />
+        <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">Search Gallery</h3>
+                 {(filters.categoryId || filters.type || filters.search || filters.tag) && (
+                     <button
+                        onClick={() => onChange({})}
+                        className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest transition-opacity hover:opacity-60"
+                        style={{ color: `${theme.colors.error}90` }}
+                     >
+                         <FiX size={12} /> Clear Filters
+                     </button>
+                 )}
+            </div>
+            <div className="relative">
+                <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-40" />
+                <input 
+                    type="text" 
+                    placeholder="Search artworks..." 
+                    value={localSearch}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border focus:border-stone-400 outline-none font-bold transition-all shadow-sm"
+                    style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}20` }}
+                />
+            </div>
         </div>
 
         {/* Categories */}
@@ -104,22 +143,22 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
 
         {/* Format */}
         <div className="space-y-4">
-             <h3 className="text-sm font-black uppercase tracking-widest opacity-40">Medium</h3>
+             <h3 className="text-sm font-black uppercase tracking-widest opacity-40">FORMAT</h3>
              <div className="flex gap-2 flex-wrap">
-                 {TYPES.map(type => (
-                     <button
-                        key={type.value}
-                        onClick={() => updateFilter("type", filters.type === type.value ? undefined : type.value)}
-                         className="px-4 py-2 rounded-lg text-sm font-bold border-2 transition-all"
-                         style={{ 
-                             backgroundColor: filters.type === type.value ? `${theme.colors.secondary}10` : 'white',
-                             borderColor: filters.type === type.value ? theme.colors.secondary : `${theme.colors.primary}10`,
-                             color: filters.type === type.value ? theme.colors.secondary : theme.colors.primary 
-                         }}
-                     >
-                         {type.label}
-                     </button>
-                 ))}
+                  {TYPES.map(type => (
+                      <button
+                         key={type.value}
+                         onClick={() => updateFilter("type", filters.type === type.value ? undefined : type.value)}
+                          className="px-4 py-2 rounded-lg text-sm font-bold border-2 transition-all"
+                          style={{ 
+                              backgroundColor: filters.type === type.value ? `${theme.colors.secondary}10` : 'white',
+                              borderColor: filters.type === type.value ? theme.colors.secondary : `${theme.colors.primary}10`,
+                              color: filters.type === type.value ? theme.colors.secondary : theme.colors.primary 
+                          }}
+                      >
+                          {type.label}
+                      </button>
+                  ))}
              </div>
         </div>
 
@@ -152,15 +191,6 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
              </div>
          </div>
          
-         {/* Clear Filters */}
-         {(filters.categoryId || filters.type || filters.search || filters.tag) && (
-             <button
-                onClick={() => onChange({})}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 border-dashed border-stone-200 text-stone-400 hover:border-stone-400 hover:text-stone-600 transition-all"
-             >
-                 <FiX /> Reset Filters
-             </button>
-         )}
-    </div>
+     </div>
   );
 }

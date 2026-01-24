@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { cartService } from "../services/cartService";
 import type { CartItem } from "../types/cart";
 import { useToast } from "./ToastContext";
@@ -28,15 +28,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { showToast } = useToast();
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      refreshCart();
-    } else {
-      setCart([]);
-    }
-  }, [isAuthenticated]);
-
-  const refreshCart = async () => {
+  const refreshCart = useCallback(async () => {
     try {
       setLoading(true);
       const data = await cartService.getCart();
@@ -46,13 +38,21 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const clearCart = () => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshCart();
+    } else {
+      setCart([]);
+    }
+  }, [isAuthenticated, refreshCart]);
+
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  const addToCart = async (artworkId: string, quantity: number = 1) => {
+  const addToCart = useCallback(async (artworkId: string, quantity: number = 1) => {
     if (!isAuthenticated) {
       showToast("Please login to add items to cart", "error");
       return;
@@ -66,18 +66,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       showToast("Failed to add to cart", "error");
     }
-  };
+  }, [isAuthenticated, refreshCart, showToast]);
 
-  const updateQuantity = async (itemId: string, quantity: number) => {
+  const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
     try {
       await cartService.updateQuantity(itemId, { quantity });
       setCart(prev => prev.map(item => item.id === itemId ? { ...item, quantity } : item));
     } catch (err) {
       showToast("Failed to update quantity", "error");
     }
-  };
+  }, [showToast]);
 
-  const removeFromCart = async (itemId: string) => {
+  const removeFromCart = useCallback(async (itemId: string) => {
     try {
       await cartService.removeFromCart(itemId);
       setCart(prev => prev.filter(item => item.id !== itemId));
@@ -85,7 +85,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       showToast("Failed to remove item", "error");
     }
-  };
+  }, [showToast]);
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const totalAmount = cart.reduce((total, item) => total + (item.artwork.priceInPaise * item.quantity), 0);

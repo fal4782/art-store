@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { wishlistService } from "../services/wishlistService";
 import type { WishlistItem } from "../types/wishlist";
 import { useToast } from "./ToastContext";
@@ -21,15 +21,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const { showToast } = useToast();
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      refreshWishlist();
-    } else {
-      setWishlist([]);
-    }
-  }, [isAuthenticated]);
-
-  const refreshWishlist = async () => {
+  const refreshWishlist = useCallback(async () => {
     try {
       setLoading(true);
       const data = await wishlistService.getWishlist();
@@ -39,9 +31,17 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const toggleWishlist = async (artworkId: string) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshWishlist();
+    } else {
+      setWishlist([]);
+    }
+  }, [isAuthenticated, refreshWishlist]);
+
+  const toggleWishlist = useCallback(async (artworkId: string) => {
     if (!isAuthenticated) {
       showToast("Please login to manage wishlist", "error");
       return;
@@ -62,11 +62,11 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       showToast("Failed to update wishlist", "error");
     }
-  };
+  }, [isAuthenticated, wishlist, showToast]);
 
-  const isInWishlist = (artworkId: string) => {
+  const isInWishlist = useCallback((artworkId: string) => {
     return wishlist.some(item => item.artworkId === artworkId);
-  };
+  }, [wishlist]);
 
   return (
     <WishlistContext.Provider value={{

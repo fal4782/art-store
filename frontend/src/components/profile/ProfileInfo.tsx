@@ -71,7 +71,26 @@ export default function PersonalInfo() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="max-w-2xl space-y-12 animate-pulse">
+      <div className="space-y-4">
+        <div className="h-10 w-48 rounded-xl bg-stone-200" />
+        <div className="h-4 w-64 rounded-lg bg-stone-100" />
+      </div>
+      <div className="space-y-10">
+        {[1, 2].map(i => (
+          <div key={i} className="space-y-6">
+            <div className="h-4 w-32 mx-auto rounded-lg bg-stone-100" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="h-16 rounded-xl bg-stone-100" />
+              <div className="h-16 rounded-xl bg-stone-100" />
+            </div>
+            <div className="h-16 rounded-xl bg-stone-100" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-2xl space-y-12 animate-fade-in">

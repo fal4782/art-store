@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { addressService } from "../../services/addressService";
 import { theme } from "../../theme";
 import type { Address, AddressInput } from "../../types/user";
-import { FiPlus, FiTrash2, FiEdit2, FiMapPin, FiUser, FiPhone, FiHash, FiCheck } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit2, FiMapPin, FiUser, FiPhone, FiHash } from "react-icons/fi";
 import { useToast } from "../../context/ToastContext";
 
 export default function AddressBook() {
@@ -94,7 +94,21 @@ export default function AddressBook() {
     setShowForm(true);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="max-w-3xl space-y-8 animate-pulse">
+      <div className="flex items-center justify-between">
+        <div className="space-y-3">
+          <div className="h-10 w-48 rounded-xl bg-stone-200" />
+          <div className="h-4 w-64 rounded-lg bg-stone-100" />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[1, 2].map(i => (
+          <div key={i} className="h-64 rounded-[32px] bg-stone-50 border border-stone-100" />
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-3xl space-y-8 animate-fade-in">

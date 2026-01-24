@@ -16,7 +16,7 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
   refreshCart: () => Promise<void>;
-  clearCart: () => void;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -48,9 +48,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isAuthenticated, refreshCart]);
 
-  const clearCart = useCallback(() => {
-    setCart([]);
-  }, []);
+  const clearCart = useCallback(async () => {
+    try {
+      await cartService.clearCart();
+      setCart([]);
+    } catch (err) {
+      console.error("Failed to clear cart on server", err);
+      showToast("Order placed but failed to clear cart. Please refresh.", "error");
+      // Optionally refresh from server to ensure UI matches reality
+      await refreshCart();
+    }
+  }, [refreshCart, showToast]);
 
   const addToCart = useCallback(async (artworkId: string, quantity: number = 1) => {
     if (!isAuthenticated) {

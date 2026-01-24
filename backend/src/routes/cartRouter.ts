@@ -94,6 +94,19 @@ router.patch("/:itemId", authMiddleware, async (req, res) => {
   }
 });
 
+router.delete("/", authMiddleware, async (req, res) => {
+  const userId = req.userId;
+  try {
+    await prisma.cartItem.deleteMany({
+      where: { userId },
+    });
+    return res.json({ message: "Cart cleared" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.delete("/:itemId", authMiddleware, async (req, res) => {
   const userId = req.userId;
   const { itemId } = req.params;

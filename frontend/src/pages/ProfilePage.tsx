@@ -17,6 +17,7 @@ const MobileProfileMenu = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const [user, setUser] = useState<UserResponse | null>(null);
+    const [loggingOut, setLoggingOut] = useState(false);
 
     useEffect(() => {
         userService.getProfile().then(setUser).catch(console.error);
@@ -57,15 +58,23 @@ const MobileProfileMenu = () => {
              </div>
 
              <button
-                onClick={logout}
-                className="w-full p-4 rounded-2xl font-bold flex items-center justify-between mt-8 active:scale-95 transition-all shadow-sm hover:shadow-md"
+                onClick={() => {
+                    setLoggingOut(true);
+                    setTimeout(logout, 500);
+                }}
+                disabled={loggingOut}
+                className="w-full p-4 rounded-2xl font-bold flex items-center justify-between mt-8 active:scale-95 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
                 style={{ background: theme.colors.error + '1A', color: theme.colors.error }}
              >
                 <div className="flex items-center gap-4">
                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white">
-                        <FiLogOut /> 
+                        {loggingOut ? (
+                            <div className="w-5 h-5 border-3 border-stone-200 border-t-stone-800 rounded-full animate-spin" />
+                        ) : (
+                            <FiLogOut /> 
+                        )}
                      </div>
-                     <span className="text-lg">Sign Out</span>
+                     <span className="text-lg">{loggingOut ? "Signing out..." : "Sign Out"}</span>
                 </div>
              </button>
         </div>

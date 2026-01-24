@@ -181,7 +181,7 @@ export default function PersonalInfo() {
                     onChange={e => setPasswordData({...passwordData, oldPassword: e.target.value})}
                     className="w-full p-4 rounded-xl bg-white border border-stone-200 focus:border-stone-400 outline-none font-bold transition-all"
                     style={{ color: theme.colors.primary }}
-                    placeholder="••••••••"
+                    placeholder="••••••"
                   />
               </div>
                <div className="space-y-2">
@@ -194,7 +194,7 @@ export default function PersonalInfo() {
                     onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})}
                     className="w-full p-4 rounded-xl bg-white border border-stone-200 focus:border-stone-400 outline-none font-bold transition-all"
                     style={{ color: theme.colors.primary }}
-                    placeholder="••••••••"
+                    placeholder="••••••"
                   />
               </div>
 
@@ -203,7 +203,7 @@ export default function PersonalInfo() {
                   type="submit"
                   disabled={saving}
                   className="px-6 py-3 rounded-xl text-white font-bold hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-lg"
-                  style={{ background: theme.colors.primary }}
+                  style={{ background: theme.colors.secondary }}
                 >
                   {saving ? "Updating..." : "Update Password"}
                 </button>

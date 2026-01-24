@@ -98,18 +98,32 @@ export default function ShopPage() {
         </aside>
 
         {/* Mobile Filters Drawer */}
-        {showMobileFilter && (
-            <div className="fixed inset-0 z-50 flex md:hidden">
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMobileFilter(false)} />
-                <div className="relative w-4/5 max-w-sm bg-white h-full p-6 shadow-2xl overflow-y-auto animate-slide-in-right">
-                    <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-2xl font-black" style={{ color: theme.colors.primary }}>Filters</h2>
-                        <button onClick={() => setShowMobileFilter(false)} className="text-2xl opacity-50"><FiX /></button>
-                    </div>
-                    <FilterBar filters={filters} onChange={(f) => { updateFilters(f); setShowMobileFilter(false); }} />
+        <div 
+          className={`fixed inset-0 z-50 flex md:hidden transition-all duration-300 ${
+            showMobileFilter ? "visible" : "invisible"
+          }`}
+        >
+            {/* Overlay */}
+            <div 
+              className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+                showMobileFilter ? "opacity-100" : "opacity-0"
+              }`} 
+              onClick={() => setShowMobileFilter(false)} 
+            />
+            
+            {/* Drawer */}
+            <div 
+              className={`relative w-4/5 max-w-sm bg-white h-full p-6 shadow-2xl overflow-y-auto transition-transform duration-300 ease-out transform ${
+                showMobileFilter ? "translate-x-0" : "-translate-x-full"
+              }`}
+            >
+                <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-black" style={{ color: theme.colors.primary }}>Filters</h2>
+                    <button onClick={() => setShowMobileFilter(false)} className="text-2xl opacity-50"><FiX /></button>
                 </div>
+                <FilterBar filters={filters} onChange={(f) => { updateFilters(f); setShowMobileFilter(false); }} />
             </div>
-        )}
+        </div>
 
         {/* Product Grid */}
         <main className="flex-1 min-w-0">

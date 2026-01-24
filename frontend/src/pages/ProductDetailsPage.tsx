@@ -178,6 +178,47 @@ export default function ProductDetailsPage() {
                     <p className="text-[10px] md:text-xs font-bold opacity-40">Tax included. Secure Checkout.</p>
                   </div>
               </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-row gap-3 md:gap-5">
+                  <button 
+                    onClick={handleAddToCart}
+                    disabled={cartLoading || !artwork.isAvailable}
+                    className="group relative flex-4 flex items-center justify-center gap-3 md:gap-4 py-4 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-xl font-black tracking-wide transition-all overflow-hidden shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale"
+                    style={{ 
+                      backgroundColor: theme.colors.secondary, 
+                      color: theme.colors.background,
+                      boxShadow: `0 20px 40px -10px ${theme.colors.secondary}40`
+                    }}
+                  >
+                      <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                      {cartLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 border-4 border-t-transparent border-white rounded-full animate-spin" />
+                          <span>Adding...</span>
+                        </div>
+                      ) : (
+                        <>
+                            <FiShoppingBag className="text-lg md:text-2xl group-hover:rotate-12 transition-transform" /> 
+                            {artwork.isAvailable ? "Add to Cart" : "Sold Out"}
+                        </>
+                      )}
+                  </button>
+                  
+                  <button 
+                    onClick={handleToggleWishlist}
+                    className="flex-1 flex items-center justify-center py-4 md:py-6 rounded-2xl md:rounded-3xl border-2 transition-all active:scale-95 group"
+                    style={{ 
+                      borderColor: `${theme.colors.primary}15`, 
+                      backgroundColor: isInWishlist(artwork.id) ? `${theme.colors.secondary}15` : 'transparent',
+                      color: isInWishlist(artwork.id) ? theme.colors.error : theme.colors.primary
+                    }}
+                  >
+                      <FiHeart 
+                        className={`text-lg md:text-2xl transition-all ${isInWishlist(artwork.id) ? 'fill-current scale-110' : 'group-hover:scale-110'}`} 
+                      />
+                  </button>
+              </div>
             </div>
 
             {/* Artist Notes */}
@@ -249,47 +290,6 @@ export default function ProductDetailsPage() {
                         </button>
                     ))}
                 </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="pt-4 md:pt-6 flex flex-row gap-3 md:gap-5">
-                <button 
-                  onClick={handleAddToCart}
-                  disabled={cartLoading || !artwork.isAvailable}
-                  className="group relative flex-4 flex items-center justify-center gap-3 md:gap-4 py-4 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-xl font-black tracking-wide transition-all overflow-hidden shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{ 
-                    backgroundColor: theme.colors.secondary, 
-                    color: theme.colors.background,
-                    boxShadow: `0 20px 40px -10px ${theme.colors.secondary}40`
-                  }}
-                >
-                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                    {cartLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-4 border-t-transparent border-white rounded-full animate-spin" />
-                        <span>Securing...</span>
-                      </div>
-                    ) : (
-                      <>
-                          <FiShoppingBag className="text-lg md:text-2xl group-hover:rotate-12 transition-transform" /> 
-                          {artwork.isAvailable ? "Acquire Artwork" : "Join Waitlist"}
-                      </>
-                    )}
-                </button>
-                
-                <button 
-                  onClick={handleToggleWishlist}
-                  className="flex-1 flex items-center justify-center py-4 md:py-6 rounded-2xl md:rounded-3xl border-2 transition-all active:scale-95 group"
-                  style={{ 
-                    borderColor: `${theme.colors.primary}15`, 
-                    backgroundColor: isInWishlist(artwork.id) ? `${theme.colors.secondary}15` : 'transparent',
-                    color: isInWishlist(artwork.id) ? theme.colors.error : theme.colors.primary
-                  }}
-                >
-                    <FiHeart 
-                      className={`text-lg md:text-2xl transition-all ${isInWishlist(artwork.id) ? 'fill-current scale-110' : 'group-hover:scale-110'}`} 
-                    />
-                </button>
             </div>
 
             {/* Trust Badges */}

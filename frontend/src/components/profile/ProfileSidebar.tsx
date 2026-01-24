@@ -16,6 +16,7 @@ const navItems = [
 export default function ProfileSidebar() {
   const [user, setUser] = useState<UserResponse | null>(null);
   const { logout } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     userService.getProfile().then(setUser).catch(console.error);
@@ -57,12 +58,20 @@ export default function ProfileSidebar() {
         ))}
 
         <button
-          onClick={logout}
-          className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 font-bold hover:translate-x-1 mt-6 text-left"
+          onClick={() => {
+            setLoggingOut(true);
+            setTimeout(logout, 500);
+          }}
+          disabled={loggingOut}
+          className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 font-bold hover:translate-x-1 mt-6 text-left disabled:opacity-50"
           style={{ color: theme.colors.error, background: theme.colors.error + "0D" }}
         >
-          <FiLogOut className="text-xl" />
-          Sign Out
+          {loggingOut ? (
+              <div className="w-5 h-5 border-3 border-stone-200 border-t-stone-800 rounded-full animate-spin" />
+          ) : (
+              <FiLogOut className="text-xl" />
+          )}
+          {loggingOut ? "Signing out..." : "Sign Out"}
         </button>
       </nav>
     </div>

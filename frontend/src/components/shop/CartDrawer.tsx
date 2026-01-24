@@ -55,7 +55,7 @@ export default function CartDrawer() {
     <>
       {/* Overlay */}
       <div 
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] transition-opacity duration-500 ${
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-100 transition-opacity duration-500 ${
           isCartOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
@@ -63,7 +63,7 @@ export default function CartDrawer() {
       {/* Drawer */}
       <div 
         ref={drawerRef}
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white z-[101] shadow-2xl transition-transform duration-500 ease-out transform ${
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white z-101 shadow-2xl transition-transform duration-500 ease-out transform ${
           isCartOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{ backgroundColor: theme.colors.background }}
@@ -124,7 +124,7 @@ export default function CartDrawer() {
                         </h3>
                         <button 
                           onClick={() => removeFromCart(item.id)}
-                          className="opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity"
+                          className="opacity-0 group-hover:opacity-40 hover:opacity-100! transition-opacity"
                         >
                           <FiTrash2 size={16} />
                         </button>
@@ -141,7 +141,7 @@ export default function CartDrawer() {
                         >
                           <FiMinus size={14} />
                         </button>
-                        <span className="text-xs font-black min-w-[1rem] text-center">{item.quantity}</span>
+                        <span className="text-xs font-black min-w-4 text-center">{item.quantity}</span>
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="hover:text-secondary transition-colors"
@@ -173,7 +173,7 @@ export default function CartDrawer() {
                 to="/checkout"
                 onClick={() => setIsCartOpen(false)}
                 className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 font-black text-lg transition-all hover:scale-[1.02] active:scale-95 shadow-xl"
-                style={{ backgroundColor: theme.colors.primary, color: theme.colors.background }}
+                style={{ backgroundColor: theme.colors.secondary, color: theme.colors.background }}
               >
                 Checkout <FiArrowRight />
               </Link>

@@ -16,6 +16,7 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
   refreshCart: () => Promise<void>;
+  clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -45,6 +46,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearCart = () => {
+    setCart([]);
   };
 
   const addToCart = async (artworkId: string, quantity: number = 1) => {
@@ -96,7 +101,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       totalAmount,
       isCartOpen,
       setIsCartOpen,
-      refreshCart
+      refreshCart,
+      clearCart
     }}>
       {children}
     </CartContext.Provider>

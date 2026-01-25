@@ -79,6 +79,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
     if (quantity < 1) return;
 
+    // Check stock limit
+    const item = cart.find(i => i.id === itemId);
+    if (item && quantity > item.artwork.stockQuantity) {
+      showToast(`Only ${item.artwork.stockQuantity} units available`, "error");
+      return;
+    }
+
     try {
       await cartService.updateQuantity(itemId, { quantity });
       setCart(prev => prev.map(item => item.id === itemId ? { ...item, quantity } : item));
@@ -88,7 +95,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       showToast(errorMsg, "error");
       await refreshCart();
     }
-  }, [showToast, refreshCart]);
+  }, [cart, showToast, refreshCart]);
 
   const removeFromCart = useCallback(async (itemId: string) => {
     try {

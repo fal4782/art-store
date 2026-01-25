@@ -7,6 +7,7 @@ interface QuantitySelectorProps {
   onDecrease: () => void;
   loading?: boolean;
   size?: "sm" | "md";
+  max?: number;
 }
 
 export default function QuantitySelector({ 
@@ -14,7 +15,8 @@ export default function QuantitySelector({
   onIncrease, 
   onDecrease, 
   loading = false,
-  size = "md"
+  size = "md",
+  max
 }: QuantitySelectorProps) {
   const isSmall = size === "sm";
 
@@ -53,8 +55,8 @@ export default function QuantitySelector({
           e.stopPropagation();
           onIncrease();
         }}
-        disabled={loading}
-        className={`rounded-full flex items-center justify-center transition-all active:scale-90 ${
+        disabled={loading || (max !== undefined && quantity >= max)}
+        className={`rounded-full flex items-center justify-center transition-all active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed ${
           isSmall ? "w-7 h-7" : "w-10 h-10"
         }`}
         style={{ color: theme.colors.secondary, backgroundColor: `${theme.colors.secondary}10` }}

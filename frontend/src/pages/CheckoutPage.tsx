@@ -323,6 +323,7 @@ export default function CheckoutPage() {
                                           <QuantitySelector 
                                             size="sm"
                                             quantity={item.quantity}
+                                            max={item.artwork.stockQuantity}
                                             onIncrease={() => updateQuantity(item.id, item.quantity + 1)}
                                             onDecrease={() => updateQuantity(item.id, item.quantity - 1)}
                                           />

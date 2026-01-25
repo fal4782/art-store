@@ -13,7 +13,7 @@ interface FilterBarProps {
 
 const TYPES: { label: string; value: ArtworkType }[] = [
   { label: "Physical", value: "PHYSICAL" },
-  { label: "Digital Download", value: "DIGITAL" },
+  { label: "Digital", value: "DIGITAL" },
 ];
 
 export default function FilterBar({ filters, onChange, className = "" }: FilterBarProps) {
@@ -77,8 +77,8 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
                     placeholder="Search artworks..." 
                     value={localSearch}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border focus:border-stone-400 outline-none font-bold transition-all shadow-sm"
-                    style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}20` }}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border focus:border-stone-400 outline-none font-bold transition-all shadow-sm"
+                    style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}20`, backgroundColor:theme.colors.surface }}
                 />
             </div>
         </div>
@@ -95,7 +95,7 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
                     style={{ 
                         color: theme.colors.primary, 
                         boxShadow: !filters.categoryId ? `0 0 0 1px ${theme.colors.primary}15` : 'none',
-                        backgroundColor: !filters.categoryId ? 'white' : 'transparent'
+                        backgroundColor: !filters.categoryId ? theme.colors.surface : 'transparent'
                     }}
                 >
                     All Collections
@@ -104,10 +104,11 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
                     <button
                         key={cat.id}
                         onClick={() => updateFilter("categoryId", filters.categoryId === cat.id ? undefined : cat.id)}
-                        className={`text-left px-4 py-2.5 rounded-xl font-bold transition-all text-sm ${filters.categoryId === cat.id ? 'bg-white shadow-sm ring-1' : 'hover:bg-transparent'}`}
+                        className={`text-left px-4 py-2.5 rounded-xl font-bold transition-all text-sm ${filters.categoryId === cat.id ? 'shadow-sm ring-1' : 'hover:bg-transparent'}`}
                         style={{ 
                             color: filters.categoryId === cat.id ? theme.colors.secondary : `${theme.colors.primary}99`,
-                            boxShadow: filters.categoryId === cat.id ? `0 0 0 1px ${theme.colors.primary}15` : 'none'
+                            boxShadow: filters.categoryId === cat.id ? `0 0 0 1px ${theme.colors.primary}15` : 'none',
+                            backgroundColor: filters.categoryId === cat.id ? theme.colors.surface : 'transparent'
                         }}
                     >
                         {cat.name}
@@ -143,18 +144,29 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
 
         {/* Format */}
         <div className="space-y-4">
-             <h3 className="text-sm font-black uppercase tracking-widest opacity-40">FORMAT</h3>
-             <div className="flex gap-2 flex-wrap">
+             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">Format</h3>
+             <div className="flex gap-1 p-1 rounded-2xl border-2 transition-all" style={{ backgroundColor: `${theme.colors.accent}15`, borderColor: `${theme.colors.accent}40` }}>
+                  <button
+                     onClick={() => updateFilter("type", undefined)}
+                     className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:cursor-pointer`}
+                     style={{ 
+                         backgroundColor: !filters.type ? theme.colors.secondary : 'transparent',
+                         color: !filters.type ? 'white' : `${theme.colors.primary}a0`,
+                         boxShadow: !filters.type ? `0 4px 12px -4px ${theme.colors.secondary}60` : 'none'
+                     }}
+                  >
+                      All
+                  </button>
                   {TYPES.map(type => (
                       <button
                          key={type.value}
                          onClick={() => updateFilter("type", filters.type === type.value ? undefined : type.value)}
-                          className="px-4 py-2 rounded-lg text-sm font-bold border-2 transition-all"
-                          style={{ 
-                              backgroundColor: filters.type === type.value ? `${theme.colors.secondary}10` : 'white',
-                              borderColor: filters.type === type.value ? theme.colors.secondary : `${theme.colors.primary}10`,
-                              color: filters.type === type.value ? theme.colors.secondary : theme.colors.primary 
-                          }}
+                         className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:cursor-pointer`}
+                         style={{ 
+                             backgroundColor: filters.type === type.value ? theme.colors.secondary : 'transparent',
+                             color: filters.type === type.value ? 'white' : `${theme.colors.primary}a0`,
+                             boxShadow: filters.type === type.value ? `0 4px 12px -4px ${theme.colors.secondary}60` : 'none'
+                         }}
                       >
                           {type.label}
                       </button>
@@ -169,15 +181,15 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
                 <select 
                     value={filters.sortBy || "createdAt"}
                     onChange={(e) => updateFilter("sortBy", e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-stone-200 outline-none font-bold text-sm cursor-pointer hover:border-stone-300 transition-colors"
-                    style={{ color: theme.colors.primary }}
+                    className="w-full px-4 py-3 rounded-xl border border-stone-200 outline-none font-bold text-sm cursor-pointer hover:border-stone-300 transition-colors"
+                    style={{ color: theme.colors.primary ,backgroundColor:theme.colors.surface}}
                 >
                     <option value="createdAt">Newest First</option>
                     <option value="price">Price</option>
                     <option value="views">Most Popular</option>
                     <option value="name">Name (A-Z)</option>
                 </select>
-                {filters.sortBy === "price" && (
+             {filters.sortBy === "price" && (
                     <select 
                         value={filters.sortOrder || "asc"}
                         onChange={(e) => updateFilter("sortOrder", e.target.value)}
@@ -188,7 +200,7 @@ export default function FilterBar({ filters, onChange, className = "" }: FilterB
                         <option value="desc">High to Low</option>
                     </select>
                 )}
-             </div>
+                </div>
          </div>
          
      </div>

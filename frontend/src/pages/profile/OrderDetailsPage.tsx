@@ -11,11 +11,10 @@ import {
   FiChevronLeft,
   FiLoader,
   FiExternalLink,
-  FiDownload,
 } from "react-icons/fi";
 import { orderService } from "../../services/orderService";
-import { downloadService } from "../../services/downloadService";
-import { useToast } from "../../context/ToastContext";
+// import { downloadService } from "../../services/downloadService";
+// import { useToast } from "../../context/ToastContext";
 import type { Order, OrderStatus } from "../../types/order";
 
 export default function OrderDetailsPage() {
@@ -23,8 +22,8 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const { showToast } = useToast();
+  // const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  // const { showToast } = useToast();
 
   useEffect(() => {
     if (id) {
@@ -181,31 +180,6 @@ export default function OrderDetailsPage() {
                         </div>
                         
                         <div className="flex items-center gap-3">
-                            {(item.artworkType === "DIGITAL" || item.artworkType === "BOTH") && order.paymentStatus === "COMPLETED" && (
-                                <button
-                                    onClick={async () => {
-                                        if (downloadingId) return;
-                                        setDownloadingId(item.artworkId);
-                                        try {
-                                            const url = await downloadService.getDownloadUrl(order.id, item.artworkId);
-                                            window.open(url, "_blank");
-                                            showToast("Download started", "success");
-                                        } catch (err) {
-                                            console.error(err);
-                                            showToast("Download failed. Please try again.", "error");
-                                        } finally {
-                                            setDownloadingId(null);
-                                        }
-                                    }}
-                                    disabled={!!downloadingId}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    style={{ backgroundColor: theme.colors.secondary, color: "white" }}
-                                >
-                                    {downloadingId === item.artworkId ? <FiLoader className="animate-spin" /> : <FiDownload />}
-                                    Download
-                                </button>
-                            )}
-
                             <Link 
                             to={`/artwork/${item.artworkId}`} 
                             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:underline opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300"

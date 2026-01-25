@@ -127,8 +127,12 @@ export default function CartDrawer() {
                         </h3>
                         <button 
                           onClick={() => removeFromCart(item.id)}
-                          className="opacity-0 group-hover:opacity-40 hover:opacity-100! transition-opacity"
-                        >
+                          className="p-2 rounded-full hover:bg-(--hover-bg) opacity-70 hover:opacity-100 transition-all"
+                          style={{ 
+                            color: theme.colors.error,
+                            '--hover-bg': `${theme.colors.error}15`
+                          } as React.CSSProperties}
+                        >   
                           <FiTrash2 size={16} />
                         </button>
                       </div>

@@ -288,7 +288,11 @@ export default function CheckoutPage() {
                                           />
                                           <button 
                                             onClick={() => removeFromCart(item.id)}
-                                            className="p-3 rounded-full hover:bg-red-50 text-red-400 opacity-40 hover:opacity-100 transition-all"
+                                            className="p-2 rounded-full hover:bg-(--hover-bg) opacity-70 hover:opacity-100 transition-all"
+                                            style={{ 
+                                              color: theme.colors.error,
+                                              '--hover-bg': `${theme.colors.error}15`
+                                            } as React.CSSProperties}
                                           >
                                               <FiTrash2 size={18} />
                                           </button>

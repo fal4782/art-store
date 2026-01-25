@@ -65,12 +65,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   </div>
                   <span className="text-lg md:text-2xl font-bold truncate" style={{ color: theme.colors.primary }}>Dashboard</span>
                </Link>
-               <button onClick={() => setIsSidebarOpen(false)} className="text-2xl opacity-50"><FiX /></button>
             </div>
           )}
           <button 
             onClick={toggleSidebar}
-            className={`p-2 rounded-lg transition-all hidden md:flex items-center justify-center ${!isSidebarOpen ? "scale-110" : ""}`}
+            className={`p-2 rounded-lg transition-all flex items-center justify-center ${!isSidebarOpen ? "scale-110" : ""}`}
             style={{ color: theme.colors.primary, backgroundColor: `${theme.colors.primary}08` }}
           >
             {isSidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}

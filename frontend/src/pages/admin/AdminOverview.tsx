@@ -8,21 +8,45 @@ import {
   FiTruck,
   FiClock,
   FiPackage,
-  FiXCircle
+  FiXCircle,
+  FiTrendingUp,
+  FiUsers
 } from "react-icons/fi";
 import { orderService } from "../../services/orderService";
+import { adminService, type DashboardStats } from "../../services/adminService";
 import type { Order, OrderStatus } from "../../types/order";
 import { Link } from "react-router-dom";
 
+const StatCard = ({ title, value, icon: Icon, color }: any) => (
+  <div className="p-8 rounded-4xl border shadow-sm hover:shadow-xl transition-all group overflow-hidden relative" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
+    <div className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-700" style={{ color }}>
+      <Icon size={160} />
+    </div>
+    <div className="flex items-start justify-between relative z-10">
+      <div className="space-y-4">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{title}</h3>
+        <p className="text-2xl md:text-4xl font-black tracking-tight" style={{ color: theme.colors.primary }}>{value}</p>
+      </div>
+      <div className="p-4 rounded-2xl" style={{ backgroundColor: `${color}15`, color }}>
+        <Icon size={24} />
+      </div>
+    </div>
+  </div>
+);
+
 export default function AdminOverview() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    orderService.getUserOrders({ limit: 5 })
-      .then(setRecentOrders)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    Promise.all([
+      adminService.getStats(),
+      orderService.getUserOrders({ limit: 5 })
+    ]).then(([statsData, ordersData]) => {
+      setStats(statsData);
+      setRecentOrders(ordersData);
+    }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
   const getStatusConfig = (status: OrderStatus) => {
@@ -58,11 +82,18 @@ export default function AdminOverview() {
         <p className="font-bold opacity-40">Welcome back to your administration command center.</p>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard title="Total Revenue" value={formatPrice(stats?.totalRevenueInPaise || 0)} icon={FiTrendingUp} color={theme.colors.secondary} />
+        <StatCard title="Active Orders" value={stats?.activeOrders || 0} icon={FiShoppingBag} color={theme.colors.info} />
+        <StatCard title="Total Artworks" value={stats?.totalArtworks || 0} icon={FiPackage} color={theme.colors.primary} />
+        <StatCard title="Customers" value={stats?.totalUsers || 0} icon={FiUsers} color={theme.colors.warning} />
+      </div>
+
       {/* Recent Orders Table */}
-      <div className="rounded-[2.5rem] p-10 border shadow-sm" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
+      <div className="rounded-[2.5rem] p-6 md:p-10 border shadow-sm" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-black" style={{ color: theme.colors.primary }}>Recent Orders</h2>
-          <Link to="/admin/orders" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity" style={{ color: theme.colors.secondary }}>
+          <h2 className="text-xl md:text-2xl font-black" style={{ color: theme.colors.primary }}>Recent Orders</h2>
+          <Link to="/admin/orders" className="flex items-center gap-2 text-xs font-black uppercase tracking-wider md:tracking-widest opacity-60 hover:opacity-100 transition-opacity" style={{ color: theme.colors.secondary }}>
             View All Orders <FiChevronRight />
           </Link>
         </div>
@@ -76,8 +107,8 @@ export default function AdminOverview() {
             <p className="max-w-xs text-sm">Once a customer makes a purchase, it will appear here for processing.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto -mx-6 md:-mx-10 px-6 md:px-10 custom-scrollbar">
+            <table className="w-full text-left min-w-[800px]">
               <thead>
                 <tr className="border-b" style={{ borderColor: `${theme.colors.primary}08` }}>
                   <th className="pb-6 text-[10px] font-black uppercase tracking-widest opacity-40">Order ID</th>
@@ -88,7 +119,7 @@ export default function AdminOverview() {
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map(order => {
+                {recentOrders.map((order: Order) => {
                   const status = getStatusConfig(order.status);
                   return (
                     <tr key={order.id} className="group hover:bg-stone-50/50 transition-colors">
@@ -134,5 +165,6 @@ function formatPrice(paise: number) {
   return (paise / 100).toLocaleString("en-IN", {
     style: "currency",
     currency: "INR",
+    maximumFractionDigits: 0
   });
 }

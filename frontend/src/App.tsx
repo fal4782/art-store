@@ -12,6 +12,11 @@ import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
+import AdminLayout from "./layout/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminArtworks from "./pages/admin/AdminArtworks";
+import AdminArtworkAdd from "./pages/admin/AdminArtworkAdd";
+import AdminArtworkEdit from "./pages/admin/AdminArtworkEdit";
 
 
 function App() {
@@ -23,6 +28,22 @@ function App() {
             <WishlistProvider>
               <Routes>
                 <Route path="/auth" element={<AuthPage />} />
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                      <AdminLayout>
+                        <Routes>
+                          <Route index element={<AdminOverview />} />
+                          <Route path="/artworks" element={<AdminArtworks />} />
+                          <Route path="/artworks/add" element={<AdminArtworkAdd />} />
+                          <Route path="/artworks/edit/:id" element={<AdminArtworkEdit />} />
+                          <Route path="*" element={<AdminOverview />} />
+                        </Routes>
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/*"
                   element={

@@ -1,0 +1,421 @@
+import { useState, useEffect } from "react";
+import { theme } from "../../theme";
+import { 
+  FiImage, 
+  FiLink, 
+  FiLayers, 
+  FiTag, 
+  FiInfo,
+  FiBox,
+  FiX,
+  FiPlus,
+  FiSave,
+  FiArrowLeft,
+  FiStar
+} from "react-icons/fi";
+import { categoryService } from "../../services/categoryService";
+import { tagService } from "../../services/tagService";
+import type { Artwork, Category, Tag, ArtworkType } from "../../types/artwork";
+import { FaIndianRupeeSign } from "react-icons/fa6";
+
+interface ArtworkFormProps {
+  initialData?: Partial<Artwork>;
+  onSubmit: (data: any) => Promise<void>;
+  onCancel: () => void;
+  title: string;
+  isLoading?: boolean;
+}
+
+export default function ArtworkForm({ initialData, onSubmit, onCancel, title, isLoading }: ArtworkFormProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  
+  const [formData, setFormData] = useState({
+    name: initialData?.name || "",
+    slug: initialData?.slug || "",
+    description: initialData?.description || "",
+    categoryId: initialData?.categoryId || "",
+    type: initialData?.type || "PHYSICAL" as ArtworkType,
+    priceInINR: initialData?.priceInPaise ? initialData.priceInPaise / 100 : 0,
+    dimensions: initialData?.dimensions || "",
+    medium: initialData?.medium || "",
+    stockQuantity: initialData?.stockQuantity || 1,
+    isAvailable: initialData?.isAvailable ?? true,
+    isFeatured: initialData?.isFeatured ?? false,
+    isMadeToOrder: initialData?.isMadeToOrder ?? false,
+    images: initialData?.images || [] as string[],
+    tags: initialData?.tags?.map(t => t.id) || [] as string[]
+  });
+
+  const [newImageUrl, setNewImageUrl] = useState("");
+
+  useEffect(() => {
+    categoryService.getCategories().then(setCategories).catch(console.error);
+    tagService.getTags().then(setTags).catch(console.error);
+  }, []);
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+  };
+
+  const handleNameChange = (name: string) => {
+    setFormData(prev => ({
+      ...prev,
+      name,
+      slug: initialData ? prev.slug : generateSlug(name) // Only auto-generate slug for new items
+    }));
+  };
+
+  const handleAddImage = () => {
+    if (newImageUrl && !formData.images.includes(newImageUrl)) {
+      setFormData(prev => ({ ...prev, images: [...prev.images, newImageUrl] }));
+      setNewImageUrl("");
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const toggleTag = (tagId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.includes(tagId)
+        ? prev.tags.filter(id => id !== tagId)
+        : [...prev.tags, tagId]
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const submissionData = {
+      ...formData,
+      priceInPaise: Math.round(formData.priceInINR * 100)
+    };
+    // @ts-ignore
+    delete submissionData.priceInINR;
+    onSubmit(submissionData);
+  };
+
+  const inputClass = "w-full pl-12 pr-4 py-4 rounded-2xl bg-stone-50 border border-stone-100 focus:bg-white outline-none font-bold transition-all";
+  const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4 mb-2 block";
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-12">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <button 
+            type="button" 
+            onClick={onCancel}
+            className="p-3 rounded-2xl hover:bg-stone-100 transition-colors"
+          >
+            <FiArrowLeft size={24} />
+          </button>
+          <h1 className="text-2xl md:text-3xl font-black" style={{ color: theme.colors.primary }}>{title}</h1>
+        </div>
+        <button 
+          type="submit"
+          disabled={isLoading}
+          className="px-10 py-4 rounded-2xl text-white font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-secondary/30 disabled:opacity-50"
+          style={{ backgroundColor: theme.colors.secondary }}
+        >
+          {isLoading ? <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" /> : <><FiSave size={20} /> Save Artwork</>}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        {/* Left Column: Media & Primary Details */}
+        <div className="lg:col-span-2 space-y-10">
+          {/* Images Section */}
+          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-6">
+            <h3 className="text-xl font-bold flex items-center gap-3" style={{ color: theme.colors.primary }}>
+              <FiImage /> Artwork Images
+            </h3>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {formData.images.map((url, index) => (
+                <div key={index} className="aspect-square rounded-2xl overflow-hidden bg-stone-50 relative group border border-stone-100">
+                  <img src={url} alt="Artwork" className="w-full h-full object-cover" />
+                  <button 
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-2 right-2 p-1.5 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ backgroundColor: theme.colors.error }}
+                  >
+                    <FiX size={14} />
+                  </button>
+                </div>
+              ))}
+              <div className="aspect-square rounded-2xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center text-stone-300 gap-2">
+                <FiPlus size={24} />
+                <span className="text-[10px] font-black uppercase">Add Image</span>
+              </div>
+            </div>
+
+            <div className="relative">
+              <FiLink className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+              <input 
+                type="text"
+                placeholder="Paste image URL here..."
+                value={newImageUrl}
+                onChange={e => setNewImageUrl(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
+                className={inputClass}
+              />
+              <button 
+                type="button"
+                onClick={handleAddImage}
+                className="absolute right-3 top-1/2 -translate-y-1/2 px-4 py-2 text-white rounded-xl text-xs font-black shadow-lg"
+                style={{ backgroundColor: theme.colors.secondary }}
+              >
+                Add
+              </button>
+            </div>
+          </section>
+
+          {/* Basic Info */}
+          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-8">
+             <h3 className="text-xl font-black flex items-center gap-3" style={{ color: theme.colors.primary }}>
+              <FiInfo /> Basic Information
+            </h3>
+
+            <div className="space-y-6">
+              <div>
+                <label className={labelClass}>Artwork Name</label>
+                <div className="relative">
+                  <FiImage className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <input 
+                    required
+                    type="text" 
+                    value={formData.name}
+                    onChange={e => handleNameChange(e.target.value)}
+                    className={inputClass}
+                    placeholder="Enter masterpiece title"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>URL Slug</label>
+                <div className="relative">
+                  <FiLink className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <input 
+                    required
+                    type="text" 
+                    value={formData.slug}
+                    onChange={e => setFormData({ ...formData, slug: generateSlug(e.target.value) })}
+                    className={inputClass}
+                    placeholder="artwork-slug-name"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Description</label>
+                <textarea 
+                  rows={6}
+                  value={formData.description}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full p-6 rounded-2xl bg-stone-50 border border-stone-100 focus:bg-white focus:border-primary/30 outline-none font-bold transition-all resize-none"
+                  placeholder="Tell the story behind this piece..."
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Right Column: Settings & Organization */}
+        <div className="space-y-10">
+          {/* Organization */}
+          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-8">
+            <h3 className="text-xl font-black flex items-center gap-3" style={{ color: theme.colors.primary }}>
+              <FiLayers /> Organization
+            </h3>
+
+            <div className="space-y-6">
+               <div>
+                <label className={labelClass}>Category</label>
+                <div className="relative">
+                  <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <select 
+                    required
+                    value={formData.categoryId}
+                    onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
+                    className={`${inputClass} appearance-none cursor-pointer`}
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Tags</label>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map(t => (
+                    <button 
+                      key={t.id}
+                      type="button"
+                      onClick={() => toggleTag(t.id)}
+                      className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all`}
+                      style={{
+                        backgroundColor: formData.tags.includes(t.id) ? theme.colors.secondary : 'transparent',
+                        borderColor: formData.tags.includes(t.id) ? theme.colors.secondary : '#f5f5f4',
+                        color: formData.tags.includes(t.id) ? 'white' : `${theme.colors.primary}a0`
+                      }}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Pricing & Type */}
+          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-8">
+            <h3 className="text-xl font-black flex items-center gap-3" style={{ color: theme.colors.primary }}>
+              <FaIndianRupeeSign /> Pricing & Logistics
+            </h3>
+
+            <div className="space-y-6">
+              <div>
+                <label className={labelClass}>Price</label>
+                <div className="relative">
+                  <FaIndianRupeeSign className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <input 
+                    required
+                    type="number" 
+                    value={formData.priceInINR}
+                    onChange={e => setFormData({ ...formData, priceInINR: parseFloat(e.target.value) || 0 })}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Artwork Type</label>
+                <div className="flex gap-2 p-1 bg-stone-50 rounded-2xl border border-stone-100">
+                  {['PHYSICAL', 'DIGITAL', 'BOTH'].map(type => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, type: type as ArtworkType })}
+                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all`}
+                      style={{
+                        backgroundColor: formData.type === type ? 'white' : 'transparent',
+                        color: formData.type === type ? theme.colors.primary : `${theme.colors.primary}a0`,
+                        boxShadow: formData.type === type ? '0 1px 2px 0 rgba(0, 0, 0, 0.05)' : 'none'
+                      }}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                   <label className={labelClass}>Stock</label>
+                   <div className="relative">
+                    <FiBox className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                    <input 
+                      type="number" 
+                      value={formData.stockQuantity}
+                      onChange={e => setFormData({ ...formData, stockQuantity: parseInt(e.target.value) || 0 })}
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <div>
+                   <label className={labelClass}>Medium</label>
+                   <div className="relative">
+                    <FiTag className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                    <input 
+                      type="text" 
+                      value={formData.medium}
+                      onChange={e => setFormData({ ...formData, medium: e.target.value })}
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Visibility & Status */}
+          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-6">
+             <div className="flex items-center justify-between group cursor-pointer" onClick={() => setFormData({ ...formData, isAvailable: !formData.isAvailable })}>
+                <div className="flex items-center gap-4">
+                  <div 
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all`}
+                    style={{
+                      backgroundColor: formData.isAvailable ? `${theme.colors.success}15` : '#f5f5f4',
+                      color: formData.isAvailable ? theme.colors.success : `${theme.colors.primary}a0`
+                    }}
+                  >
+                    <FiSave size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-black" style={{ color: theme.colors.primary }}>Publish Artwork</h4>
+                    <p className="text-[10px] font-bold opacity-40 uppercase">Make it visible to customers</p>
+                  </div>
+                </div>
+                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isAvailable ? theme.colors.success : '#e5e7eb' }}>
+                   <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isAvailable ? "left-7" : "left-1"}`} />
+                </div>
+             </div>
+
+             <div className="flex items-center justify-between group cursor-pointer" onClick={() => setFormData({ ...formData, isFeatured: !formData.isFeatured })}>
+                <div className="flex items-center gap-4">
+                  <div 
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all`}
+                    style={{
+                      backgroundColor: formData.isFeatured ? `${theme.colors.warning}15` : '#f5f5f4',
+                      color: formData.isFeatured ? theme.colors.warning : `${theme.colors.primary}a0`
+                    }}
+                  >
+                    <FiStar size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-black" style={{ color: theme.colors.primary }}>Feature on Home</h4>
+                    <p className="text-[10px] font-bold opacity-40 uppercase">Showcase in hero sections</p>
+                  </div>
+                </div>
+                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isFeatured ? theme.colors.warning : '#e5e7eb' }}>
+                   <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isFeatured ? "left-7" : "left-1"}`} />
+                </div>
+             </div>
+
+             <div className="flex items-center justify-between group cursor-pointer" onClick={() => setFormData({ ...formData, isMadeToOrder: !formData.isMadeToOrder })}>
+                <div className="flex items-center gap-4">
+                  <div 
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all`}
+                    style={{
+                      backgroundColor: formData.isMadeToOrder ? `${theme.colors.info}15` : '#f5f5f4',
+                      color: formData.isMadeToOrder ? theme.colors.info : `${theme.colors.primary}a0`
+                    }}
+                  >
+                    <FiBox size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-black" style={{ color: theme.colors.primary }}>Made to Order</h4>
+                    <p className="text-[10px] font-bold opacity-40 uppercase">Crafted after purchase</p>
+                  </div>
+                </div>
+                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isMadeToOrder ? theme.colors.info : '#e5e7eb' }}>
+                   <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isMadeToOrder ? "left-7" : "left-1"}`} />
+                </div>
+             </div>
+          </section>
+        </div>
+      </div>
+    </form>
+  );
+}

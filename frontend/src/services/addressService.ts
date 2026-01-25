@@ -18,7 +18,9 @@ export const addressService = {
   },
 
   async deleteAddress(id: string): Promise<{ message: string }> {
-    const response = await apiClient.delete<{ message: string }>(`/addresses/${id}`);
+    const response = await apiClient.delete<{ message: string }>(
+      `/addresses/${id}`,
+    );
     return response.data;
   },
 };

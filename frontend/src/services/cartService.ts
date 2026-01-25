@@ -1,5 +1,9 @@
 import { apiClient } from "../lib/apiClient";
-import type { CartItem, AddToCartInput, UpdateCartItemInput } from "../types/cart";
+import type {
+  CartItem,
+  AddToCartInput,
+  UpdateCartItemInput,
+} from "../types/cart";
 
 export const cartService = {
   async getCart(): Promise<CartItem[]> {
@@ -12,7 +16,10 @@ export const cartService = {
     return response.data;
   },
 
-  async updateQuantity(itemId: string, data: UpdateCartItemInput): Promise<CartItem> {
+  async updateQuantity(
+    itemId: string,
+    data: UpdateCartItemInput,
+  ): Promise<CartItem> {
     const response = await apiClient.patch(`/cart/${itemId}`, data);
     return response.data;
   },

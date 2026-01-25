@@ -13,8 +13,13 @@ export const userService = {
     return response.data;
   },
 
-  async changePassword(data: ChangePasswordInput): Promise<{ message: string }> {
-    const response = await apiClient.patch<{ message: string }>("/users/me/password", data);
+  async changePassword(
+    data: ChangePasswordInput,
+  ): Promise<{ message: string }> {
+    const response = await apiClient.patch<{ message: string }>(
+      "/users/me/password",
+      data,
+    );
     return response.data;
   },
 };

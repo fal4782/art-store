@@ -42,7 +42,8 @@ export default function Footer() {
                 className="text-sm leading-relaxed mt-4"
                 style={{ color: `${theme.colors.primary}aa` }}
               >
-                Discover exceptional art curated for collectors and enthusiasts worldwide.
+                Discover exceptional art curated for collectors and enthusiasts
+                worldwide.
               </p>
             </div>
 
@@ -147,7 +148,8 @@ export default function Footer() {
                           color: theme.colors.secondary,
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = theme.colors.secondary;
+                          e.currentTarget.style.background =
+                            theme.colors.secondary;
                           e.currentTarget.style.color = theme.colors.surface;
                         }}
                         onMouseLeave={(e) => {
@@ -177,11 +179,21 @@ export default function Footer() {
       >
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-center gap-6">
-            <span>© {new Date().getFullYear()} ArtStore. All rights reserved.</span>
-            <span className="text-xs" style={{ color: `${theme.colors.accent}cc` }}>•</span>
+            <span>
+              © {new Date().getFullYear()} ArtStore. All rights reserved.
+            </span>
+            <span
+              className="text-xs"
+              style={{ color: `${theme.colors.accent}cc` }}
+            >
+              •
+            </span>
             <div className="inline-flex items-center gap-1.5">
               Made with
-              <FaHeart className="text-xs" style={{ color: theme.colors.secondary }} />
+              <FaHeart
+                className="text-xs"
+                style={{ color: theme.colors.secondary }}
+              />
               for art lovers
             </div>
           </div>

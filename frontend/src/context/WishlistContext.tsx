@@ -1,5 +1,11 @@
-
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react";
 import { wishlistService } from "../services/wishlistService";
 import type { WishlistItem } from "../types/wishlist";
 import { useToast } from "./ToastContext";
@@ -13,7 +19,9 @@ interface WishlistContextType {
   refreshWishlist: () => Promise<void>;
 }
 
-const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
+const WishlistContext = createContext<WishlistContextType | undefined>(
+  undefined,
+);
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
@@ -41,41 +49,53 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isAuthenticated, refreshWishlist]);
 
-  const toggleWishlist = useCallback(async (artworkId: string) => {
-    if (!isAuthenticated) {
-      showToast("Please login to manage wishlist", "error");
-      return;
-    }
-
-    const existingItem = wishlist.find(item => item.artworkId === artworkId);
-
-    try {
-      if (existingItem) {
-        await wishlistService.removeFromWishlist(existingItem.id);
-        setWishlist(prev => prev.filter(item => item.id !== existingItem.id));
-        showToast("Removed from wishlist", "success");
-      } else {
-        const newItem = await wishlistService.addToWishlist({ artworkId });
-        setWishlist(prev => [...prev, newItem]);
-        showToast("Added to wishlist!", "success");
+  const toggleWishlist = useCallback(
+    async (artworkId: string) => {
+      if (!isAuthenticated) {
+        showToast("Please login to manage wishlist", "error");
+        return;
       }
-    } catch (err) {
-      showToast("Failed to update wishlist", "error");
-    }
-  }, [isAuthenticated, wishlist, showToast]);
 
-  const isInWishlist = useCallback((artworkId: string) => {
-    return wishlist.some(item => item.artworkId === artworkId);
-  }, [wishlist]);
+      const existingItem = wishlist.find(
+        (item) => item.artworkId === artworkId,
+      );
+
+      try {
+        if (existingItem) {
+          await wishlistService.removeFromWishlist(existingItem.id);
+          setWishlist((prev) =>
+            prev.filter((item) => item.id !== existingItem.id),
+          );
+          showToast("Removed from wishlist", "success");
+        } else {
+          const newItem = await wishlistService.addToWishlist({ artworkId });
+          setWishlist((prev) => [...prev, newItem]);
+          showToast("Added to wishlist!", "success");
+        }
+      } catch (err) {
+        showToast("Failed to update wishlist", "error");
+      }
+    },
+    [isAuthenticated, wishlist, showToast],
+  );
+
+  const isInWishlist = useCallback(
+    (artworkId: string) => {
+      return wishlist.some((item) => item.artworkId === artworkId);
+    },
+    [wishlist],
+  );
 
   return (
-    <WishlistContext.Provider value={{
-      wishlist,
-      loading,
-      toggleWishlist,
-      isInWishlist,
-      refreshWishlist
-    }}>
+    <WishlistContext.Provider
+      value={{
+        wishlist,
+        loading,
+        toggleWishlist,
+        isInWishlist,
+        refreshWishlist,
+      }}
+    >
       {children}
     </WishlistContext.Provider>
   );

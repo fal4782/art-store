@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { authService } from "../services/authService";
 import { userService } from "../services/userService";
 import type { UserResponse } from "../types/auth";
@@ -14,7 +20,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(authService.isAuthenticated());
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    authService.isAuthenticated(),
+  );
   const [user, setUser] = useState<UserResponse | null>(null);
 
   useEffect(() => {
@@ -46,7 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, login, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

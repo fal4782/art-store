@@ -47,10 +47,11 @@ export default function AuthPage() {
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
-    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    const { left, top, width, height } =
+      containerRef.current.getBoundingClientRect();
     const x = (e.clientX - left) / width - 0.5;
     const y = (e.clientY - top) / height - 0.5;
-    
+
     // Set CSS variables for performant animation without re-renders
     containerRef.current.style.setProperty("--mouse-x", x.toString());
     containerRef.current.style.setProperty("--mouse-y", y.toString());
@@ -65,7 +66,10 @@ export default function AuthPage() {
       showToast("Welcome back!", "success");
       navigate("/");
     } catch (err: any) {
-      showToast(err.response?.data?.message || "Login failed. Check your credentials.", "error");
+      showToast(
+        err.response?.data?.message || "Login failed. Check your credentials.",
+        "error",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +84,10 @@ export default function AuthPage() {
       showToast("Account created successfully!", "success");
       navigate("/");
     } catch (err: any) {
-      showToast(err.response?.data?.message || "Signup failed. Try again.", "error");
+      showToast(
+        err.response?.data?.message || "Signup failed. Try again.",
+        "error",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -102,32 +109,32 @@ export default function AuthPage() {
       >
         {/* DYNAMIC BACKGROUND SPOTLIGHT */}
         <div
-            className="absolute inset-0 pointer-events-none transition-opacity duration-500"
-            style={{
-              background: `radial-gradient(circle 600px at calc(var(--mouse-x, 0.5) * 100% + 50%) calc(var(--mouse-y, 0.5) * 100% + 50%), ${theme.colors.accent}66, transparent 100%)`,
-              opacity: isMounted ? 1 : 0
-            }}
+          className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(circle 600px at calc(var(--mouse-x, 0.5) * 100% + 50%) calc(var(--mouse-y, 0.5) * 100% + 50%), ${theme.colors.accent}66, transparent 100%)`,
+            opacity: isMounted ? 1 : 0,
+          }}
         />
 
         {/* Background blobs */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-        >
+        <div className="absolute inset-0 pointer-events-none">
           <div
             className="absolute top-[-5%] left-[-5%] w-[45%] h-[45%] rounded-full opacity-20 blur-3xl animate-float-organic transition-transform duration-700 ease-out"
-            style={{ 
+            style={{
               background: theme.colors.secondary,
               // Move slightly AWAY from mouse for depth
-              transform: 'translate(calc(var(--mouse-x, 0) * -40px), calc(var(--mouse-y, 0) * -40px))'
+              transform:
+                "translate(calc(var(--mouse-x, 0) * -40px), calc(var(--mouse-y, 0) * -40px))",
             }}
           />
           <div
             className="absolute bottom-[5%] right-[-5%] w-[35%] h-[35%] rounded-full opacity-10 blur-3xl animate-float-organic-re transition-transform duration-700 ease-out"
-            style={{ 
-              background: theme.colors.primary, 
+            style={{
+              background: theme.colors.primary,
               animationDelay: "1s",
               // Move slightly AWAY from mouse for depth
-              transform: 'translate(calc(var(--mouse-x, 0) * -30px), calc(var(--mouse-y, 0) * -30px))'
+              transform:
+                "translate(calc(var(--mouse-x, 0) * -30px), calc(var(--mouse-y, 0) * -30px))",
             }}
           />
         </div>
@@ -136,26 +143,24 @@ export default function AuthPage() {
           className={`relative z-10 w-full max-w-2xl transition-all duration-1000 ease-out ${isMounted ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
         >
           <div className="flex flex-col gap-6 ">
-            
-             {/* Main Card */}
-            <div 
-               className="relative"
-            >
-              <div 
+            {/* Main Card */}
+            <div className="relative">
+              <div
                 className="backdrop-blur-2xl border border-white/60 p-12 rounded-[3rem] shadow-2xl relative overflow-hidden"
                 style={{ background: `${theme.colors.surface}CC` }}
               >
-                <div 
-                  className="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-10 translate-x-10 blur-2xl" 
-                  style={{ background: `${theme.colors.secondary}0D` }} 
+                <div
+                  className="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-10 translate-x-10 blur-2xl"
+                  style={{ background: `${theme.colors.secondary}0D` }}
                 />
 
-                <div 
+                <div
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest mb-6 border border-white/20 shadow-sm transition-transform duration-200 ease-out will-change-transform"
-                  style={{ 
-                    background: `${theme.colors.secondary}1A`, 
+                  style={{
+                    background: `${theme.colors.secondary}1A`,
                     color: theme.colors.secondary,
-                    transform: 'translate(calc(var(--mouse-x, 0) * 10px), calc(var(--mouse-y, 0) * 10px))' // Magnetic badge
+                    transform:
+                      "translate(calc(var(--mouse-x, 0) * 10px), calc(var(--mouse-y, 0) * 10px))", // Magnetic badge
                   }}
                 >
                   <FaHeart className="animate-pulse" /> Artist Owned & Operated
@@ -166,17 +171,21 @@ export default function AuthPage() {
                   style={{ color: theme.colors.primary }}
                 >
                   From{" "}
-                  <span style={{ color: theme.colors.secondary }}>Stitches</span>{" "}
+                  <span style={{ color: theme.colors.secondary }}>
+                    Stitches
+                  </span>{" "}
                   <br />
                   to{" "}
-                  <span style={{ color: theme.colors.secondary }}>Strokes</span>.
+                  <span style={{ color: theme.colors.secondary }}>Strokes</span>
+                  .
                 </h2>
 
                 <p
                   className="text-lg font-medium opacity-70 mb-10 leading-relaxed max-w-md"
                   style={{ color: theme.colors.primary }}
                 >
-                  Every piece tells a story. From my studio to your home, discover art that speaks to you.
+                  Every piece tells a story. From my studio to your home,
+                  discover art that speaks to you.
                 </p>
 
                 {/* Tags/Categories */}
@@ -192,7 +201,7 @@ export default function AuthPage() {
                       className="px-5 py-2.5 rounded-2xl bg-white/80 border shadow-sm text-sm font-bold hover:scale-105 transition-transform cursor-default"
                       style={{
                         borderColor: `${theme.colors.accent}4D`,
-                        color: `${theme.colors.primary}99`
+                        color: `${theme.colors.primary}99`,
                       }}
                     >
                       {cat}
@@ -205,65 +214,67 @@ export default function AuthPage() {
             {/* Bottom floating elements */}
             <div className="flex gap-6">
               {/* Card 1 */}
-              <div 
+              <div
                 className="flex-1 animate-float"
-                style={{ animationDuration: '6s' }}
+                style={{ animationDuration: "6s" }}
               >
-                  <div 
-                    className="p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 transition-transform duration-100 ease-out h-full border border-white/20 backdrop-blur-md"
-                    style={{ 
-                      background: theme.colors.secondary, 
-                      color: theme.colors.surface,
-                      boxShadow: `0 20px 40px -10px ${theme.colors.secondary}40`,
-                      // Removed translate
+                <div
+                  className="p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 transition-transform duration-100 ease-out h-full border border-white/20 backdrop-blur-md"
+                  style={{
+                    background: theme.colors.secondary,
+                    color: theme.colors.surface,
+                    boxShadow: `0 20px 40px -10px ${theme.colors.secondary}40`,
+                    // Removed translate
+                  }}
+                >
+                  <div
+                    className="p-3 bg-white/20 rounded-2xl shadow-inner transition-transform duration-200 ease-out will-change-transform"
+                    style={{
+                      transform:
+                        "translate(calc(var(--mouse-x, 0) * 15px), calc(var(--mouse-y, 0) * 15px))", // Magnetic Icon
                     }}
                   >
-                    <div 
-                        className="p-3 bg-white/20 rounded-2xl shadow-inner transition-transform duration-200 ease-out will-change-transform"
-                        style={{
-                             transform: 'translate(calc(var(--mouse-x, 0) * 15px), calc(var(--mouse-y, 0) * 15px))' // Magnetic Icon
-                        }}
-                    >
-                      <FaPaintBrush className="text-xl" />
-                    </div>
-                    <h3 className="font-black text-xl leading-none">
-                      Direct from <br /> Studio
-                    </h3>
-                    <p className="text-sm opacity-90 font-medium">
-                      Created, signed, and shipped by the artist.
-                    </p>
+                    <FaPaintBrush className="text-xl" />
                   </div>
+                  <h3 className="font-black text-xl leading-none">
+                    Direct from <br /> Studio
+                  </h3>
+                  <p className="text-sm opacity-90 font-medium">
+                    Created, signed, and shipped by the artist.
+                  </p>
+                </div>
               </div>
 
               {/* Card 2 */}
               <div
                 className="flex-1 animate-float"
-                style={{ animationDelay: "1.5s", animationDuration: '7s' }}
+                style={{ animationDelay: "1.5s", animationDuration: "7s" }}
               >
-                 <div 
-                    className="p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 transition-transform duration-100 ease-out h-full border border-white/20 backdrop-blur-md"
-                    style={{ 
-                      background: theme.colors.primary, 
-                      color: theme.colors.surface,
-                      boxShadow: `0 20px 40px -10px ${theme.colors.primary}40`,
+                <div
+                  className="p-8 rounded-[2.5rem] shadow-xl flex flex-col items-start gap-3 transition-transform duration-100 ease-out h-full border border-white/20 backdrop-blur-md"
+                  style={{
+                    background: theme.colors.primary,
+                    color: theme.colors.surface,
+                    boxShadow: `0 20px 40px -10px ${theme.colors.primary}40`,
+                  }}
+                >
+                  <div
+                    className="p-3 bg-white/10 rounded-2xl shadow-inner transition-transform duration-200 ease-out will-change-transform"
+                    style={{
+                      transform:
+                        "translate(calc(var(--mouse-x, 0) * 15px), calc(var(--mouse-y, 0) * 15px))", // Magnetic Icon
                     }}
                   >
-                    <div 
-                        className="p-3 bg-white/10 rounded-2xl shadow-inner transition-transform duration-200 ease-out will-change-transform"
-                        style={{
-                             transform: 'translate(calc(var(--mouse-x, 0) * 15px), calc(var(--mouse-y, 0) * 15px))' // Magnetic Icon
-                        }}
-                    >
-                      <FaLayerGroup className="text-xl" />
-                    </div>
-                    <h3 className="font-black text-xl leading-none">
-                      Unique <br />
-                      Creations
-                    </h3>
-                    <p className="text-sm opacity-90 font-medium">
-                      No mass production. Just authentic creativity.
-                    </p>
+                    <FaLayerGroup className="text-xl" />
                   </div>
+                  <h3 className="font-black text-xl leading-none">
+                    Unique <br />
+                    Creations
+                  </h3>
+                  <p className="text-sm opacity-90 font-medium">
+                    No mass production. Just authentic creativity.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -304,7 +315,6 @@ export default function AuthPage() {
                 : "Sign in to continue your journey."}
             </p>
           </div>
-
 
           {/* Auth Form */}
           <div className="space-y-6">

@@ -4,20 +4,26 @@ import { authMiddleware, adminMiddleware } from "../middleware";
 
 const router = Router();
 
-import { CreateDiscountSchema, UpdateDiscountSchema, VerifyDiscountSchema } from "../lib/types";
+import {
+  CreateDiscountSchema,
+  UpdateDiscountSchema,
+  VerifyDiscountSchema,
+} from "../lib/types";
 
 // Admin Endpoints
 
 router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const parseResult = CreateDiscountSchema.safeParse(req.body);
-    if(!parseResult.success){
-      return res.status(400).json({ message: "Invalid request", errors: parseResult.error.issues });
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request", errors: parseResult.error.issues });
     }
     const data = parseResult.data;
     // Check if code exists
     const existing = await prisma.discountCode.findUnique({
-      where: { code: data.code.toUpperCase() } // Ensure code is uppercase for uniqueness check
+      where: { code: data.code.toUpperCase() }, // Ensure code is uppercase for uniqueness check
     });
 
     if (existing) {
@@ -29,18 +35,20 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
         ...data,
         code: data.code.toUpperCase(), // Store code in uppercase
         discountValue: Number(data.discountValue),
-        minPurchaseInPaise: data.minPurchaseInPaise ? Number(data.minPurchaseInPaise) : null,
+        minPurchaseInPaise: data.minPurchaseInPaise
+          ? Number(data.minPurchaseInPaise)
+          : null,
         maxUses: data.maxUses ? Number(data.maxUses) : null,
         validFrom: data.validFrom ? new Date(data.validFrom) : new Date(),
         validUntil: data.validUntil ? new Date(data.validUntil) : null,
-        isActive: data.isActive !== undefined ? data.isActive : true
-      }
+        isActive: data.isActive !== undefined ? data.isActive : true,
+      },
     });
 
     res.status(201).json(discount);
   } catch (error: any) {
     if (error.errors) {
-       return res.status(400).json({ message: error.errors[0].message });
+      return res.status(400).json({ message: error.errors[0].message });
     }
     console.error("Create discount error:", error);
     res.status(500).json({ message: "Failed to create discount" });
@@ -52,8 +60,10 @@ router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const parseResult = UpdateDiscountSchema.safeParse(req.body);
-    if(!parseResult.success){
-      return res.status(400).json({ message: "Invalid request", errors: parseResult.error.issues });
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request", errors: parseResult.error.issues });
     }
     const data = parseResult.data;
 
@@ -66,16 +76,22 @@ router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
       updateData.discountValue = Number(data.discountValue);
     }
     if (data.minPurchaseInPaise !== undefined) {
-      updateData.minPurchaseInPaise = data.minPurchaseInPaise ? Number(data.minPurchaseInPaise) : null;
+      updateData.minPurchaseInPaise = data.minPurchaseInPaise
+        ? Number(data.minPurchaseInPaise)
+        : null;
     }
     if (data.maxUses !== undefined) {
       updateData.maxUses = data.maxUses ? Number(data.maxUses) : null;
     }
     if (data.validFrom !== undefined) {
-      updateData.validFrom = data.validFrom ? new Date(data.validFrom) : new Date();
+      updateData.validFrom = data.validFrom
+        ? new Date(data.validFrom)
+        : new Date();
     }
     if (data.validUntil !== undefined) {
-      updateData.validUntil = data.validUntil ? new Date(data.validUntil) : null;
+      updateData.validUntil = data.validUntil
+        ? new Date(data.validUntil)
+        : null;
     }
     if (data.isActive !== undefined) {
       updateData.isActive = data.isActive;
@@ -83,13 +99,13 @@ router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 
     const discount = await prisma.discountCode.update({
       where: { id },
-      data: updateData
+      data: updateData,
     });
 
     res.json(discount);
   } catch (error: any) {
     if (error.errors) {
-       return res.status(400).json({ message: error.errors[0].message });
+      return res.status(400).json({ message: error.errors[0].message });
     }
     console.error("Update discount error:", error);
     res.status(500).json({ message: "Failed to update discount" });
@@ -99,7 +115,7 @@ router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 router.get("/", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const discounts = await prisma.discountCode.findMany({
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
     res.json(discounts);
   } catch (error) {
@@ -112,7 +128,7 @@ router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.discountCode.delete({
-      where: { id }
+      where: { id },
     });
     res.json({ message: "Discount deleted successfully" });
   } catch (error) {
@@ -130,19 +146,16 @@ router.get("/public", async (req, res) => {
       where: {
         isActive: true,
         validFrom: { lte: now },
-        OR: [
-          { validUntil: null },
-          { validUntil: { gte: now } }
-        ],
+        OR: [{ validUntil: null }, { validUntil: { gte: now } }],
         // TODO: Filter by maxUses to show only those with remaining uses
       },
       select: {
         code: true,
         description: true,
         discountType: true,
-        discountValue: true
+        discountValue: true,
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
     res.json(discounts);
   } catch (error) {
@@ -154,11 +167,13 @@ router.get("/public", async (req, res) => {
 router.post("/verify", async (req, res) => {
   try {
     const parseResult = VerifyDiscountSchema.safeParse(req.body);
-    if(!parseResult.success){
-      return res.status(400).json({ message: "Invalid request", errors: parseResult.error.issues });
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request", errors: parseResult.error.issues });
     }
     const { code, cartTotalInPaise } = parseResult.data;
-    
+
     if (!code) {
       return res.status(400).json({ message: "Code is required" });
     }
@@ -168,7 +183,7 @@ router.post("/verify", async (req, res) => {
     }
 
     const discount = await prisma.discountCode.findUnique({
-      where: { code: code.toUpperCase() }
+      where: { code: code.toUpperCase() },
     });
 
     if (!discount) {
@@ -181,7 +196,9 @@ router.post("/verify", async (req, res) => {
 
     const now = new Date();
     if (discount.validFrom > now) {
-      return res.status(400).json({ message: "Discount code is not yet valid" });
+      return res
+        .status(400)
+        .json({ message: "Discount code is not yet valid" });
     }
 
     if (discount.validUntil && discount.validUntil < now) {
@@ -192,9 +209,12 @@ router.post("/verify", async (req, res) => {
       return res.status(400).json({ message: "Discount usage limit reached" });
     }
 
-    if (discount.minPurchaseInPaise && cartTotalInPaise < discount.minPurchaseInPaise) {
-      return res.status(400).json({ 
-        message: `Minimum purchase amount of ₹${discount.minPurchaseInPaise / 100} required` 
+    if (
+      discount.minPurchaseInPaise &&
+      cartTotalInPaise < discount.minPurchaseInPaise
+    ) {
+      return res.status(400).json({
+        message: `Minimum purchase amount of ₹${discount.minPurchaseInPaise / 100} required`,
       });
     }
 
@@ -204,7 +224,7 @@ router.post("/verify", async (req, res) => {
       discountType: discount.discountType,
       discountValue: discount.discountValue,
       description: discount.description,
-      minPurchaseInPaise: discount.minPurchaseInPaise
+      minPurchaseInPaise: discount.minPurchaseInPaise,
     });
   } catch (error) {
     console.error("Verify discount error:", error);

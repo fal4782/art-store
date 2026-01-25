@@ -132,7 +132,7 @@ export const PlaceOrderSchema = z.object({
     z.object({
       artworkId: z.string().min(1),
       quantity: z.number().int().min(1),
-    })
+    }),
   ),
   notes: z.string().optional(),
   discountCode: z.string().optional(),
@@ -156,23 +156,32 @@ export const CreateReviewSchema = z.object({
 export type CreateReviewInput = z.infer<typeof CreateReviewSchema>;
 
 export const CreateCategorySchema = z.object({
-    name: z.string().min(1),
-    slug: z.string().min(1),
-    description: z.string().optional(),
-    image: z.string().optional(),
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  description: z.string().optional(),
+  image: z.string().optional(),
 });
 export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;
 
 export const CreateDiscountSchema = z.object({
-  code: z.string().min(3, "Code must be at least 3 characters").transform(val => val.toUpperCase().trim()),
+  code: z
+    .string()
+    .min(3, "Code must be at least 3 characters")
+    .transform((val) => val.toUpperCase().trim()),
   description: z.string().optional(),
   discountType: z.enum(["PERCENTAGE", "FIXED"]),
   discountValue: z.number().min(1, "Value must be positive"),
   minPurchaseInPaise: z.number().optional(),
   maxUses: z.number().optional(),
   isActive: z.boolean().optional(),
-  validFrom: z.string().optional().transform(val => val ? new Date(val) : undefined),
-  validUntil: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  validFrom: z
+    .string()
+    .optional()
+    .transform((val) => (val ? new Date(val) : undefined)),
+  validUntil: z
+    .string()
+    .optional()
+    .transform((val) => (val ? new Date(val) : undefined)),
 });
 
 export type CreateDiscountInput = z.infer<typeof CreateDiscountSchema>;

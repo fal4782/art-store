@@ -10,7 +10,7 @@ interface AuthJwtPayload {
 export async function authMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -24,7 +24,7 @@ export async function authMiddleware(
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
     ) as AuthJwtPayload;
     req.userId = decoded.userId as string;
 
@@ -45,7 +45,7 @@ export async function authMiddleware(
 export async function optionalAuthMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -59,9 +59,9 @@ export async function optionalAuthMiddleware(
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
     ) as AuthJwtPayload;
-    
+
     const userId = decoded.userId as string;
 
     // Check if user is admin
@@ -69,7 +69,7 @@ export async function optionalAuthMiddleware(
       where: { id: userId },
       select: { role: true },
     });
-    
+
     // We only attach to the request if it exists
     if (user) {
       (req as any).userId = userId;
@@ -86,7 +86,7 @@ export async function optionalAuthMiddleware(
 export async function adminMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const isAdmin = await prisma.user.findFirst({

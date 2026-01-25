@@ -28,15 +28,17 @@ export const orderService = {
     return response.data;
   },
 
-
-  placeOrder: async (data: PlaceOrderInput): Promise<{ order: Order; razorpayOrder: any }> => {
+  placeOrder: async (
+    data: PlaceOrderInput,
+  ): Promise<{ order: Order; razorpayOrder: any }> => {
     const response = await apiClient.post("/orders", data);
     return response.data;
   },
 
-  verifyPayment: async (data: VerifyPaymentInput): Promise<{ message: string; order: Order }> => {
+  verifyPayment: async (
+    data: VerifyPaymentInput,
+  ): Promise<{ message: string; order: Order }> => {
     const response = await apiClient.post("/payments/verify", data);
     return response.data;
   },
 };
-

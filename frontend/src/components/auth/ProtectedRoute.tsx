@@ -6,7 +6,10 @@ interface ProtectedRouteProps {
   allowedRoles?: ("ADMIN" | "CUSTOMER")[];
 }
 
-export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+export default function ProtectedRoute({
+  children,
+  allowedRoles,
+}: ProtectedRouteProps) {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
 

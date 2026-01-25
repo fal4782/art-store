@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { adminMiddleware, authMiddleware } from "../middleware";
@@ -10,7 +9,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const categories = await prisma.category.findMany({
-      orderBy: { createdAt: "asc" }
+      orderBy: { createdAt: "asc" },
     });
     return res.json(categories);
   } catch (error) {
@@ -23,12 +22,14 @@ router.get("/", async (req, res) => {
 router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   const parseResult = CreateCategorySchema.safeParse(req.body);
   if (!parseResult.success) {
-    return res.status(400).json({ message: "Invalid request", errors: parseResult.error.issues });
+    return res
+      .status(400)
+      .json({ message: "Invalid request", errors: parseResult.error.issues });
   }
 
   try {
     const category = await prisma.category.create({
-      data: parseResult.data
+      data: parseResult.data,
     });
     return res.status(201).json(category);
   } catch (error) {

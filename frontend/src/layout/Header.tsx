@@ -38,14 +38,17 @@ export default function Header() {
 
       {/* Right Actions */}
       <div className="flex items-center gap-4 md:gap-6">
-        <button aria-label="Search" className="hover:scale-110 transition-transform">
+        <button
+          aria-label="Search"
+          className="hover:scale-110 transition-transform"
+        >
           <FiSearch
             className="text-xl md:text-2xl"
             style={{ color: theme.colors.primary }}
           />
         </button>
-        <button 
-          aria-label="Cart" 
+        <button
+          aria-label="Cart"
           onClick={() => setIsCartOpen(true)}
           className="relative group hover:scale-110 transition-transform"
         >
@@ -54,7 +57,7 @@ export default function Header() {
             style={{ color: theme.colors.primary }}
           />
           {cartCount > 0 && (
-            <span 
+            <span
               className="absolute -top-2 -right-2 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white"
               style={{ background: theme.colors.secondary }}
             >

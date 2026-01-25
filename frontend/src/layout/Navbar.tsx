@@ -10,7 +10,6 @@ const navItems = [
   { label: "Me", icon: FiUser, href: "/profile" },
 ];
 
-
 export default function Navbar() {
   const { pathname } = useLocation();
 
@@ -28,7 +27,7 @@ export default function Navbar() {
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const count = 0;
-            
+
             return (
               <Link
                 key={item.label}
@@ -48,7 +47,7 @@ export default function Navbar() {
                     }}
                   />
                 )}
-                
+
                 <div className="relative">
                   <item.icon
                     className="text-xl transition-transform duration-200"
@@ -60,7 +59,7 @@ export default function Navbar() {
                     }}
                   />
                   {count > 0 && (
-                    <span 
+                    <span
                       className="absolute -top-1 -right-2 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-black text-white"
                       style={{ background: theme.colors.secondary }}
                     >

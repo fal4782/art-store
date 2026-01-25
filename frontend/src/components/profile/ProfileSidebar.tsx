@@ -15,16 +15,20 @@ export default function ProfileSidebar() {
   const { logout, user } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
 
-
   return (
     <div className="flex flex-col gap-2">
-      <div 
+      <div
         className="p-6 rounded-3xl mb-4"
         style={{ background: `${theme.colors.accent}33` }}
       >
-        <span className="text-xs font-bold uppercase tracking-widest opacity-60">Welcome Back</span>
-        <h2 className="text-2xl font-black mt-1" style={{ color: theme.colors.primary }}>
-            {user ? `Hi, ${user.firstName}` : 'Account'}
+        <span className="text-xs font-bold uppercase tracking-widest opacity-60">
+          Welcome Back
+        </span>
+        <h2
+          className="text-2xl font-black mt-1"
+          style={{ color: theme.colors.primary }}
+        >
+          {user ? `Hi, ${user.firstName}` : "Account"}
         </h2>
       </div>
 
@@ -43,7 +47,9 @@ export default function ProfileSidebar() {
             }
             style={({ isActive }) => ({
               background: isActive ? "white" : "transparent",
-              color: isActive ? theme.colors.primary : theme.colors.primary + "99",
+              color: isActive
+                ? theme.colors.primary
+                : theme.colors.primary + "99",
             })}
           >
             <item.icon className="text-xl" />
@@ -58,12 +64,15 @@ export default function ProfileSidebar() {
           }}
           disabled={loggingOut}
           className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 font-bold hover:translate-x-1 mt-6 text-left disabled:opacity-50"
-          style={{ color: theme.colors.error, background: theme.colors.error + "0D" }}
+          style={{
+            color: theme.colors.error,
+            background: theme.colors.error + "0D",
+          }}
         >
           {loggingOut ? (
-              <div className="w-5 h-5 border-3 border-stone-200 border-t-stone-800 rounded-full animate-spin" />
+            <div className="w-5 h-5 border-3 border-stone-200 border-t-stone-800 rounded-full animate-spin" />
           ) : (
-              <FiLogOut className="text-xl" />
+            <FiLogOut className="text-xl" />
           )}
           {loggingOut ? "Signing out..." : "Sign Out"}
         </button>

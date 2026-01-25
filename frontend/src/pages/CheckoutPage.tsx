@@ -4,9 +4,21 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { addressService } from "../services/addressService";
 import { orderService } from "../services/orderService";
-import { discountService, type VerifyDiscountResponse } from "../services/discountService";
+import {
+  discountService,
+  type VerifyDiscountResponse,
+} from "../services/discountService";
 import type { Address, AddressInput } from "../types/user";
-import { FiMapPin, FiPlus, FiCheck, FiShoppingBag, FiArrowLeft, FiCreditCard, FiTrash2, FiLoader } from "react-icons/fi";
+import {
+  FiMapPin,
+  FiPlus,
+  FiCheck,
+  FiShoppingBag,
+  FiArrowLeft,
+  FiCreditCard,
+  FiTrash2,
+  FiLoader,
+} from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import QuantitySelector from "../components/shop/QuantitySelector";
@@ -19,7 +31,14 @@ declare global {
 }
 
 export default function CheckoutPage() {
-  const { cart, totalAmount, cartCount, clearCart, updateQuantity, removeFromCart } = useCart();
+  const {
+    cart,
+    totalAmount,
+    cartCount,
+    clearCart,
+    updateQuantity,
+    removeFromCart,
+  } = useCart();
   const { user } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -39,15 +58,17 @@ export default function CheckoutPage() {
     postalCode: "",
     country: "India",
     phone: "",
-    isDefault: false
+    isDefault: false,
   };
 
-  const [newAddress, setNewAddress] = useState<AddressInput>(initialAddressState);
+  const [newAddress, setNewAddress] =
+    useState<AddressInput>(initialAddressState);
   const [savingAddress, setSavingAddress] = useState(false);
 
   // Discount State
   const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<VerifyDiscountResponse | null>(null);
+  const [appliedDiscount, setAppliedDiscount] =
+    useState<VerifyDiscountResponse | null>(null);
   const [verifyingDiscount, setVerifyingDiscount] = useState(false);
 
   useEffect(() => {
@@ -58,11 +79,14 @@ export default function CheckoutPage() {
   // Re-verify discount when total changes
   useEffect(() => {
     if (appliedDiscount && appliedDiscount.minPurchaseInPaise) {
-        if (totalAmount < appliedDiscount.minPurchaseInPaise) {
-            setAppliedDiscount(null);
-            // setDiscountCode("");
-            showToast(`Discount removed: Minimum purchase of ₹${appliedDiscount.minPurchaseInPaise/100} required`, "error");
-        }
+      if (totalAmount < appliedDiscount.minPurchaseInPaise) {
+        setAppliedDiscount(null);
+        // setDiscountCode("");
+        showToast(
+          `Discount removed: Minimum purchase of ₹${appliedDiscount.minPurchaseInPaise / 100} required`,
+          "error",
+        );
+      }
     }
   }, [totalAmount, appliedDiscount, showToast]);
 
@@ -71,7 +95,7 @@ export default function CheckoutPage() {
       setLoading(true);
       const data = await addressService.getAddresses();
       setAddresses(data);
-      const defaultAddr = data.find(a => a.isDefault);
+      const defaultAddr = data.find((a) => a.isDefault);
       if (defaultAddr) setSelectedAddressId(defaultAddr.id);
       else if (data.length > 0) setSelectedAddressId(data[0].id);
     } catch (err) {
@@ -85,12 +109,18 @@ export default function CheckoutPage() {
     if (!discountCode.trim()) return;
     setVerifyingDiscount(true);
     try {
-      const result = await discountService.verifyDiscount(discountCode, totalAmount);
+      const result = await discountService.verifyDiscount(
+        discountCode,
+        totalAmount,
+      );
       setAppliedDiscount(result);
       showToast("Discount applied!", "success");
     } catch (err: any) {
       console.error(err);
-      showToast(err.response?.data?.message || "Invalid discount code", "error");
+      showToast(
+        err.response?.data?.message || "Invalid discount code",
+        "error",
+      );
       setAppliedDiscount(null);
       setDiscountCode("");
     } finally {
@@ -100,8 +130,10 @@ export default function CheckoutPage() {
 
   const calculatedTotal = appliedDiscount
     ? appliedDiscount.discountType === "PERCENTAGE"
-        ? Math.round(totalAmount - (totalAmount * appliedDiscount.discountValue / 100))
-        : Math.max(0, totalAmount - (appliedDiscount.discountValue)) // Value in paise
+      ? Math.round(
+          totalAmount - (totalAmount * appliedDiscount.discountValue) / 100,
+        )
+      : Math.max(0, totalAmount - appliedDiscount.discountValue) // Value in paise
     : totalAmount;
 
   const handleAddAddress = async (e: React.FormEvent) => {
@@ -109,7 +141,7 @@ export default function CheckoutPage() {
     try {
       setSavingAddress(true);
       const created = await addressService.createAddress(newAddress);
-      setAddresses(prev => [...prev, created]);
+      setAddresses((prev) => [...prev, created]);
       setSelectedAddressId(created.id);
       setShowAddressForm(false);
       setNewAddress(initialAddressState);
@@ -137,21 +169,24 @@ export default function CheckoutPage() {
 
     try {
       setPlacingOrder(true);
-      
+
       const payload = {
         addressId: selectedAddressId,
-        items: cart.map(item => ({
+        items: cart.map((item) => ({
           artworkId: item.artworkId,
-          quantity: item.quantity
-        }))
+          quantity: item.quantity,
+        })),
       };
 
       const { razorpayOrder, order } = await orderService.placeOrder(payload);
 
       const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
-      
+
       if (!razorpayKey) {
-        showToast("Razorpay key is not configured. Please check your environment variables.", "error");
+        showToast(
+          "Razorpay key is not configured. Please check your environment variables.",
+          "error",
+        );
         setPlacingOrder(false);
         return;
       }
@@ -175,7 +210,10 @@ export default function CheckoutPage() {
             navigate("/profile/orders");
           } catch (err) {
             console.error("Verification failed", err);
-            showToast("Payment was successful but verification failed. Please contact support.", "error");
+            showToast(
+              "Payment was successful but verification failed. Please contact support.",
+              "error",
+            );
           }
         },
         prefill: {
@@ -191,7 +229,10 @@ export default function CheckoutPage() {
       rzp.open();
     } catch (err: any) {
       console.error("Order failed", err);
-      showToast(err.response?.data?.message || "Failed to place order", "error");
+      showToast(
+        err.response?.data?.message || "Failed to place order",
+        "error",
+      );
     } finally {
       setPlacingOrder(false);
     }
@@ -205,258 +246,375 @@ export default function CheckoutPage() {
   };
 
   if (cartCount === 0 && !placingOrder) {
-      return (
-          <div className="min-h-screen flex flex-col items-center justify-center space-y-6" style={{ backgroundColor: theme.colors.background }}>
-              <h2 className="text-3xl font-black" style={{ color: theme.colors.primary }}>Your bag is empty</h2>
-              <Link to="/shop" className="px-8 py-3 rounded-xl text-white font-bold hover:scale-105 active:scale-95 transition-all shadow-lg"
-                style={{ background: theme.colors.secondary }}
-              >
-                  Return to Shop
-              </Link>
-          </div>
-      )
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center space-y-6"
+        style={{ backgroundColor: theme.colors.background }}
+      >
+        <h2
+          className="text-3xl font-black"
+          style={{ color: theme.colors.primary }}
+        >
+          Your bag is empty
+        </h2>
+        <Link
+          to="/shop"
+          className="px-8 py-3 rounded-xl text-white font-bold hover:scale-105 active:scale-95 transition-all shadow-lg"
+          style={{ background: theme.colors.secondary }}
+        >
+          Return to Shop
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen pt-6 md:pt-10 pb-20" style={{ backgroundColor: theme.colors.background }}>
+    <div
+      className="min-h-screen pt-6 md:pt-10 pb-20"
+      style={{ backgroundColor: theme.colors.background }}
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex items-center gap-4 mb-10">
-            <button 
-              onClick={() => navigate(-1)} 
-              className="p-3 rounded-full hover:bg-stone-200 transition-colors"
-              style={{ backgroundColor: `${theme.colors.primary}08` }}
-            >
-                <FiArrowLeft className="text-xl" style={{ color: theme.colors.primary }} />
-            </button>
-            <h1 className="text-3xl md:text-5xl font-black" style={{ color: theme.colors.primary }}>Checkout</h1>
+          <button
+            onClick={() => navigate(-1)}
+            className="p-3 rounded-full hover:bg-stone-200 transition-colors"
+            style={{ backgroundColor: `${theme.colors.primary}08` }}
+          >
+            <FiArrowLeft
+              className="text-xl"
+              style={{ color: theme.colors.primary }}
+            />
+          </button>
+          <h1
+            className="text-3xl md:text-5xl font-black"
+            style={{ color: theme.colors.primary }}
+          >
+            Checkout
+          </h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-12">
-                
-                {/* Address Selection */}
-                <section className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold flex items-center gap-3" style={{ color: theme.colors.primary }}>
-                            <FiMapPin style={{ color: theme.colors.secondary }} /> Shipping Address
-                        </h2>
-                    </div>
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-12">
+            {/* Address Selection */}
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2
+                  className="text-xl font-bold flex items-center gap-3"
+                  style={{ color: theme.colors.primary }}
+                >
+                  <FiMapPin style={{ color: theme.colors.secondary }} />{" "}
+                  Shipping Address
+                </h2>
+              </div>
 
-                    {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[1, 2].map(i => <div key={i} className="h-32 bg-white/50 rounded-2xl animate-pulse" />)}
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="h-32 bg-white/50 rounded-2xl animate-pulse"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {addresses.map((addr) => (
+                    <button
+                      key={addr.id}
+                      onClick={() => setSelectedAddressId(addr.id)}
+                      className={`p-6 rounded-2xl border-2 text-left transition-all relative group ${
+                        selectedAddressId === addr.id
+                          ? "shadow-lg"
+                          : "hover:border-stone-300"
+                      }`}
+                      style={{
+                        backgroundColor: theme.colors.surface,
+                        borderColor:
+                          selectedAddressId === addr.id
+                            ? theme.colors.secondary
+                            : `${theme.colors.primary}10`,
+                        boxShadow:
+                          selectedAddressId === addr.id
+                            ? `0 10px 30px -10px ${theme.colors.secondary}20`
+                            : "none",
+                      }}
+                    >
+                      {selectedAddressId === addr.id && (
+                        <div
+                          className="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center text-white"
+                          style={{ backgroundColor: theme.colors.secondary }}
+                        >
+                          <FiCheck size={14} />
                         </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           {addresses.map(addr => (
-                               <button
-                                  key={addr.id}
-                                  onClick={() => setSelectedAddressId(addr.id)}
-                                  className={`p-6 rounded-2xl border-2 text-left transition-all relative group ${
-                                      selectedAddressId === addr.id ? 'shadow-lg' : 'hover:border-stone-300'
-                                  }`}
-                                  style={{ 
-                                      backgroundColor: theme.colors.surface,
-                                      borderColor: selectedAddressId === addr.id ? theme.colors.secondary : `${theme.colors.primary}10`,
-                                      boxShadow: selectedAddressId === addr.id ? `0 10px 30px -10px ${theme.colors.secondary}20` : 'none'
-                                  }}
-                               >
-                                   {selectedAddressId === addr.id && (
-                                       <div className="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center text-white"
-                                            style={{ backgroundColor: theme.colors.secondary }}>
-                                           <FiCheck size={14} />
-                                       </div>
-                                   )}
-                                   <span className="block font-black text-sm mb-1" style={{ color: theme.colors.primary }}>{addr.name}</span>
-                                   <p className="text-xs opacity-60 font-medium leading-relaxed" style={{ color: theme.colors.primary }}>
-                                       {addr.line1}, {addr.line2 && `${addr.line2},`} <br />
-                                       {addr.city}, {addr.state} - {addr.postalCode}
-                                   </p>
-                               </button>
-                           ))}
-                           
-                           {!showAddressForm ? (
-                             <button 
-                                onClick={() => setShowAddressForm(true)}
-                                className="p-6 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 hover:bg-white transition-all group"
-                                style={{ borderColor: `${theme.colors.primary}20`, color: `${theme.colors.primary}60` }}
-                            >
-                                 <FiPlus className="text-xl group-hover:scale-125 transition-transform" />
-                                 <span className="text-xs font-bold uppercase tracking-widest">Add New Address</span>
-                             </button>
-                            ) : (
-                              <div className="md:col-span-2">
-                                <AddressForm 
-                                  title="New Shipping Address"
-                                  submitLabel="Save & Use Address"
-                                  formData={newAddress}
-                                  setFormData={setNewAddress}
-                                  onSubmit={handleAddAddress}
-                                  onCancel={() => setShowAddressForm(false)}
-                                  isLoading={savingAddress}
-                                />
-                              </div>
-                            )}
-                      </div>
-                    )}
-                </section>
+                      )}
+                      <span
+                        className="block font-black text-sm mb-1"
+                        style={{ color: theme.colors.primary }}
+                      >
+                        {addr.name}
+                      </span>
+                      <p
+                        className="text-xs opacity-60 font-medium leading-relaxed"
+                        style={{ color: theme.colors.primary }}
+                      >
+                        {addr.line1}, {addr.line2 && `${addr.line2},`} <br />
+                        {addr.city}, {addr.state} - {addr.postalCode}
+                      </p>
+                    </button>
+                  ))}
 
-                {/* Order Items Review */}
-                <section className="space-y-6">
-                     <h2 className="text-xl font-bold flex items-center gap-3" style={{ color: theme.colors.primary }}>
-                          <FiShoppingBag style={{ color: theme.colors.secondary }} /> Review Items ({cartCount})
-                     </h2>
-                     <div className="space-y-4">
-                          {cart.map(item => (
-                              <div key={item.id} className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl transition-all"
-                                style={{ backgroundColor: theme.colors.surface, border: `1px solid ${theme.colors.primary}08` }}>
-                                  <div className="w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0 shadow-sm">
-                                      <img src={item.artwork.images[0]} alt={item.artwork.name} className="w-full h-full object-cover" />
-                                  </div>
-                                  <div className="flex-1 min-w-0 text-center sm:text-left">
-                                      <h3 className="font-black text-lg" style={{ color: theme.colors.primary }}>{item.artwork.name}</h3>
-                                      <p className="text-xs font-black uppercase tracking-widest opacity-40 mb-3">{item.artwork.type}</p>
-                                      
-                                      {/* Quantity Controls */}
-                                      <div className="flex items-center justify-center sm:justify-start gap-4">
-                                          <QuantitySelector 
-                                            size="sm"
-                                            quantity={item.quantity}
-                                            max={item.artwork.stockQuantity}
-                                            onIncrease={() => updateQuantity(item.id, item.quantity + 1)}
-                                            onDecrease={() => updateQuantity(item.id, item.quantity - 1)}
-                                          />
-                                          <button 
-                                            onClick={() => removeFromCart(item.id)}
-                                            className="p-2 rounded-full hover:bg-(--hover-bg) opacity-70 hover:opacity-100 transition-all"
-                                            style={{ 
-                                              color: theme.colors.error,
-                                              '--hover-bg': `${theme.colors.error}15`
-                                            } as React.CSSProperties}
-                                          >
-                                              <FiTrash2 size={18} />
-                                          </button>
-                                      </div>
-                                  </div>
-                                  <div className="text-center sm:text-right">
-                                      <span className="block font-black text-xl" style={{ color: theme.colors.primary }}>{formatPrice(item.artwork.priceInPaise * item.quantity)}</span>
-                                      <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{formatPrice(item.artwork.priceInPaise)} each</span>
-                                  </div>
-                              </div>
-                        ))}
-                   </div>
-              </section>
+                  {!showAddressForm ? (
+                    <button
+                      onClick={() => setShowAddressForm(true)}
+                      className="p-6 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 hover:bg-white transition-all group"
+                      style={{
+                        borderColor: `${theme.colors.primary}20`,
+                        color: `${theme.colors.primary}60`,
+                      }}
+                    >
+                      <FiPlus className="text-xl group-hover:scale-125 transition-transform" />
+                      <span className="text-xs font-bold uppercase tracking-widest">
+                        Add New Address
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="md:col-span-2">
+                      <AddressForm
+                        title="New Shipping Address"
+                        submitLabel="Save & Use Address"
+                        formData={newAddress}
+                        setFormData={setNewAddress}
+                        onSubmit={handleAddAddress}
+                        onCancel={() => setShowAddressForm(false)}
+                        isLoading={savingAddress}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* Order Items Review */}
+            <section className="space-y-6">
+              <h2
+                className="text-xl font-bold flex items-center gap-3"
+                style={{ color: theme.colors.primary }}
+              >
+                <FiShoppingBag style={{ color: theme.colors.secondary }} />{" "}
+                Review Items ({cartCount})
+              </h2>
+              <div className="space-y-4">
+                {cart.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl transition-all"
+                    style={{
+                      backgroundColor: theme.colors.surface,
+                      border: `1px solid ${theme.colors.primary}08`,
+                    }}
+                  >
+                    <div className="w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0 shadow-sm">
+                      <img
+                        src={item.artwork.images[0]}
+                        alt={item.artwork.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0 text-center sm:text-left">
+                      <h3
+                        className="font-black text-lg"
+                        style={{ color: theme.colors.primary }}
+                      >
+                        {item.artwork.name}
+                      </h3>
+                      <p className="text-xs font-black uppercase tracking-widest opacity-40 mb-3">
+                        {item.artwork.type}
+                      </p>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center justify-center sm:justify-start gap-4">
+                        <QuantitySelector
+                          size="sm"
+                          quantity={item.quantity}
+                          max={item.artwork.stockQuantity}
+                          onIncrease={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          onDecrease={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                        />
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="p-2 rounded-full hover:bg-(--hover-bg) opacity-70 hover:opacity-100 transition-all"
+                          style={
+                            {
+                              color: theme.colors.error,
+                              "--hover-bg": `${theme.colors.error}15`,
+                            } as React.CSSProperties
+                          }
+                        >
+                          <FiTrash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-center sm:text-right">
+                      <span
+                        className="block font-black text-xl"
+                        style={{ color: theme.colors.primary }}
+                      >
+                        {formatPrice(item.artwork.priceInPaise * item.quantity)}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                        {formatPrice(item.artwork.priceInPaise)} each
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
 
           {/* Sticky Summary */}
           <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-6">
-                  <div className="p-8 rounded-[40px] shadow-2xl overflow-hidden relative"
-                    style={{ backgroundColor: theme.colors.secondary, color: theme.colors.surface }}>
-                      
-                      {/* Decorative Background Element */}
-                      <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full opacity-10"
-                        style={{ backgroundColor: theme.colors.surface }}></div>
-                      
-                      <h2 className="text-2xl font-black mb-8 relative">Summary</h2>
-                      
-                      {/* Discount Input */}
-                      <div className="mb-6 relative">
-                        <div className="flex gap-2">
-                           <input 
-                             placeholder="Promo Code"
-                             value={discountCode}
-                             onChange={e => setDiscountCode(e.target.value.toUpperCase())}
-                             disabled={!!appliedDiscount}
-                             className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 placeholder-white/50 text-white font-bold outline-none focus:bg-white/20 transition-all uppercase"
-                           />
-                           {appliedDiscount ? (
-                             <button
-                               onClick={() => {
-                                 setAppliedDiscount(null);
-                                 setDiscountCode("");
-                               }}
-                               className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black transition-all"
-                             >
-                                <FiTrash2 />
-                             </button>
-                           ) : (
-                             <button
-                               onClick={handleApplyDiscount}
-                               disabled={!discountCode || verifyingDiscount}
-                               className="px-6 py-2 rounded-xl bg-white text-secondary font-black hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                               style={{ color: theme.colors.secondary }}
-                             >
-                                {verifyingDiscount ? <FiLoader className="animate-spin" /> : "Apply"}
-                             </button>
-                           )}
-                        </div>
-                    </div>
+            <div className="sticky top-24 space-y-6">
+              <div
+                className="p-8 rounded-[40px] shadow-2xl overflow-hidden relative"
+                style={{
+                  backgroundColor: theme.colors.secondary,
+                  color: theme.colors.surface,
+                }}
+              >
+                {/* Decorative Background Element */}
+                <div
+                  className="absolute -top-24 -right-24 w-64 h-64 rounded-full opacity-10"
+                  style={{ backgroundColor: theme.colors.surface }}
+                ></div>
 
-                      <div className="space-y-4 mb-8 relative">
-                          <div className="flex justify-between text-sm font-bold opacity-80">
-                              <span>Subtotal</span>
-                              <span>{formatPrice(totalAmount)}</span>
-                          </div>
-                          
-                          {appliedDiscount && (
-                            <div className="flex justify-between text-sm font-bold text-white">
-                                <span>Discount ({appliedDiscount.code})</span>
-                                <span>- {formatPrice(totalAmount - calculatedTotal)}</span>
-                            </div>
-                          )}
+                <h2 className="text-2xl font-black mb-8 relative">Summary</h2>
 
-                          <div className="flex justify-between text-sm font-bold opacity-80">
-                              <span>Shipping</span>
-                              <span className="font-black">FREE</span>
-                          </div>
-                          <div className="h-px bg-white/20 my-6" />
-                          <div className="flex justify-between text-2xl font-black tracking-tight">
-                              <span>Total</span>
-                              <span>{formatPrice(calculatedTotal)}</span>
-                          </div>
-                      </div>
-
-                      <button 
-                        onClick={handlePlaceOrder}
-                        disabled={placingOrder || !selectedAddressId || cartCount === 0}
-                        className="w-full py-5 rounded-[24px] font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group shadow-xl"
-                        style={{ backgroundColor: theme.colors.surface, color: theme.colors.primary }}
+                {/* Discount Input */}
+                <div className="mb-6 relative">
+                  <div className="flex gap-2">
+                    <input
+                      placeholder="Promo Code"
+                      value={discountCode}
+                      onChange={(e) =>
+                        setDiscountCode(e.target.value.toUpperCase())
+                      }
+                      disabled={!!appliedDiscount}
+                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 placeholder-white/50 text-white font-bold outline-none focus:bg-white/20 transition-all uppercase"
+                    />
+                    {appliedDiscount ? (
+                      <button
+                        onClick={() => {
+                          setAppliedDiscount(null);
+                          setDiscountCode("");
+                        }}
+                        className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black transition-all"
                       >
-                          {placingOrder ? (
-                            <>
-                                <div className="w-5 h-5 border-3 border-stone-200 border-t-stone-800 rounded-full animate-spin" />
-                                <span>Securing Order...</span>
-                            </>
-                          ) : (
-                            <>
-                                <FiCreditCard className="text-xl group-hover:rotate-12 transition-transform" />
-                                <span>Confirm & Pay</span>
-                            </>
-                          )}
+                        <FiTrash2 />
                       </button>
-                      
-                      <p className="text-[9px] text-center mt-6 opacity-40 font-black uppercase tracking-[0.2em] px-4">
-                        Secure SSL Encryption • Razorpay Payment
-                      </p>
+                    ) : (
+                      <button
+                        onClick={handleApplyDiscount}
+                        disabled={!discountCode || verifyingDiscount}
+                        className="px-6 py-2 rounded-xl bg-white text-secondary font-black hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ color: theme.colors.secondary }}
+                      >
+                        {verifyingDiscount ? (
+                          <FiLoader className="animate-spin" />
+                        ) : (
+                          "Apply"
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4 mb-8 relative">
+                  <div className="flex justify-between text-sm font-bold opacity-80">
+                    <span>Subtotal</span>
+                    <span>{formatPrice(totalAmount)}</span>
                   </div>
 
-                  {/* Trust Badge */}
-                  <div className="p-6 rounded-3xl border-2 border-stone-100 flex items-center gap-4 bg-white/50">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0" 
-                        style={{ backgroundColor: `${theme.colors.secondary}15`, color: theme.colors.secondary }}>
-                          <FiCheck />
-                      </div>
-                      <div>
-                          <p className="text-xs font-black uppercase tracking-tight" style={{ color: theme.colors.primary }}>Buyer Protection</p>
-                          <p className="text-[10px] opacity-60 font-medium">Originality and safe delivery guaranteed.</p>
-                      </div>
+                  {appliedDiscount && (
+                    <div className="flex justify-between text-sm font-bold text-white">
+                      <span>Discount ({appliedDiscount.code})</span>
+                      <span>
+                        - {formatPrice(totalAmount - calculatedTotal)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-sm font-bold opacity-80">
+                    <span>Shipping</span>
+                    <span className="font-black">FREE</span>
                   </div>
+                  <div className="h-px bg-white/20 my-6" />
+                  <div className="flex justify-between text-2xl font-black tracking-tight">
+                    <span>Total</span>
+                    <span>{formatPrice(calculatedTotal)}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={
+                    placingOrder || !selectedAddressId || cartCount === 0
+                  }
+                  className="w-full py-5 rounded-[24px] font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group shadow-xl"
+                  style={{
+                    backgroundColor: theme.colors.surface,
+                    color: theme.colors.primary,
+                  }}
+                >
+                  {placingOrder ? (
+                    <>
+                      <div className="w-5 h-5 border-3 border-stone-200 border-t-stone-800 rounded-full animate-spin" />
+                      <span>Securing Order...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiCreditCard className="text-xl group-hover:rotate-12 transition-transform" />
+                      <span>Confirm & Pay</span>
+                    </>
+                  )}
+                </button>
+
+                <p className="text-[9px] text-center mt-6 opacity-40 font-black uppercase tracking-[0.2em] px-4">
+                  Secure SSL Encryption • Razorpay Payment
+                </p>
               </div>
+
+              {/* Trust Badge */}
+              <div className="p-6 rounded-3xl border-2 border-stone-100 flex items-center gap-4 bg-white/50">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0"
+                  style={{
+                    backgroundColor: `${theme.colors.secondary}15`,
+                    color: theme.colors.secondary,
+                  }}
+                >
+                  <FiCheck />
+                </div>
+                <div>
+                  <p
+                    className="text-xs font-black uppercase tracking-tight"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    Buyer Protection
+                  </p>
+                  <p className="text-[10px] opacity-60 font-medium">
+                    Originality and safe delivery guaranteed.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
       </div>
     </div>
-  </div>
   );
 }

@@ -5,7 +5,11 @@ import {
   GetArtworksQuerySchema,
   UpdateArtworkSchema,
 } from "../lib/types";
-import { adminMiddleware, authMiddleware, optionalAuthMiddleware } from "../middleware";
+import {
+  adminMiddleware,
+  authMiddleware,
+  optionalAuthMiddleware,
+} from "../middleware";
 
 const router = Router();
 
@@ -121,7 +125,6 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
       prisma.artwork.count({ where }),
     ]);
 
-
     // Transform tags to simpler format
     const artworksWithTags = artworks.map((artwork: any) => ({
       ...artwork,
@@ -154,10 +157,10 @@ router.get("/slug/:slug", optionalAuthMiddleware, async (req, res) => {
         category: true,
         tags: {
           include: {
-            tag: true
-          }
-        }
-      }
+            tag: true,
+          },
+        },
+      },
     });
 
     if (!artwork || artwork.deletedAt) {
@@ -190,10 +193,10 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
         category: true,
         tags: {
           include: {
-            tag: true
-          }
-        }
-      }
+            tag: true,
+          },
+        },
+      },
     });
     if (!artwork || artwork.deletedAt) {
       return res.status(404).json({ message: "Artwork not found" });

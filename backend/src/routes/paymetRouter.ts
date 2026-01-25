@@ -52,7 +52,7 @@ router.post(
       if (!order) {
         console.warn(
           "No matching order found for Razorpay order ID:",
-          razorpayOrderId
+          razorpayOrderId,
         );
         return res.status(200).json({ status: "ok" });
       }
@@ -76,10 +76,11 @@ router.post(
 
     // Always return 200 to acknowledge receipt
     res.status(200).json({ status: "ok" });
-  }
+  },
 );
 router.post("/verify", async (req, res) => {
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+    req.body;
   const secret = process.env.RAZORPAY_TEST_SECRET!;
 
   const expectedSignature = crypto
@@ -123,7 +124,10 @@ router.post("/verify", async (req, res) => {
       },
     });
 
-    return res.json({ message: "Payment verified successfully", order: updatedOrder });
+    return res.json({
+      message: "Payment verified successfully",
+      order: updatedOrder,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });

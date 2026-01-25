@@ -17,9 +17,10 @@ export default function AdminArtworkEdit() {
 
   useEffect(() => {
     if (id) {
-      artworkService.getArtwork(id)
+      artworkService
+        .getArtwork(id)
         .then(setArtwork)
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           showToast("Failed to load artwork", "error");
           navigate("/admin/artworks");
@@ -37,7 +38,10 @@ export default function AdminArtworkEdit() {
       navigate("/admin/artworks");
     } catch (err: any) {
       console.error(err);
-      showToast(err.response?.data?.message || "Failed to update artwork", "error");
+      showToast(
+        err.response?.data?.message || "Failed to update artwork",
+        "error",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +50,10 @@ export default function AdminArtworkEdit() {
   if (fetching) {
     return (
       <div className="h-96 flex flex-col items-center justify-center space-y-4">
-        <FiLoader className="animate-spin text-4xl" style={{ color: theme.colors.secondary }} />
+        <FiLoader
+          className="animate-spin text-4xl"
+          style={{ color: theme.colors.secondary }}
+        />
         <p className="font-bold opacity-40">Fetching artwork details...</p>
       </div>
     );
@@ -55,7 +62,7 @@ export default function AdminArtworkEdit() {
   if (!artwork) return null;
 
   return (
-    <ArtworkForm 
+    <ArtworkForm
       title="Edit Artwork"
       initialData={artwork}
       onSubmit={handleSubmit}

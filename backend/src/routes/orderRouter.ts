@@ -8,8 +8,10 @@ const router = Router();
 
 router.get("/", optionalAuthMiddleware, async (req, res) => {
   try {
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
-    
+    const limit = req.query.limit
+      ? parseInt(req.query.limit as string)
+      : undefined;
+
     const where: any = {};
     if (!req.isAdmin) {
       if (!req.userId) return res.status(401).json({ message: "Unauthorized" });
@@ -19,19 +21,21 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
     const orders = await prisma.order.findMany({
       where,
       include: {
-        user: req.isAdmin ? {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true
-          }
-        } : false,
+        user: req.isAdmin
+          ? {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            }
+          : false,
         orderItems: {
           include: {
             artwork: {
-              select: { slug: true }
-            }
-          }
+              select: { slug: true },
+            },
+          },
         },
         payment: true,
         address: true,

@@ -6,18 +6,19 @@ const router = Router();
 
 router.get("/stats", authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const [totalArtworks, totalOrders, totalUsers, revenueResult] = await Promise.all([
-      prisma.artwork.count({ where: { deletedAt: null } }),
-      prisma.order.count({ where: { status: { not: "CANCELLED" } } }),
-      prisma.user.count(),
-      prisma.order.aggregate({
-        where: { paymentStatus: "COMPLETED" },
-        _sum: { totalPriceInPaise: true }
-      })
-    ]);
+    const [totalArtworks, totalOrders, totalUsers, revenueResult] =
+      await Promise.all([
+        prisma.artwork.count({ where: { deletedAt: null } }),
+        prisma.order.count({ where: { status: { not: "CANCELLED" } } }),
+        prisma.user.count(),
+        prisma.order.aggregate({
+          where: { paymentStatus: "COMPLETED" },
+          _sum: { totalPriceInPaise: true },
+        }),
+      ]);
 
     const activeOrders = await prisma.order.count({
-      where: { status: { in: ["PENDING", "CONFIRMED", "SHIPPED"] } }
+      where: { status: { in: ["PENDING", "CONFIRMED", "SHIPPED"] } },
     });
 
     return res.json({
@@ -25,7 +26,7 @@ router.get("/stats", authMiddleware, adminMiddleware, async (req, res) => {
       totalOrders,
       totalUsers,
       totalRevenueInPaise: revenueResult._sum.totalPriceInPaise || 0,
-      activeOrders
+      activeOrders,
     });
   } catch (error) {
     console.error(error);

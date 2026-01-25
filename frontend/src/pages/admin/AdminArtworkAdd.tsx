@@ -17,14 +17,17 @@ export default function AdminArtworkAdd() {
       navigate("/admin/artworks");
     } catch (err: any) {
       console.error(err);
-      showToast(err.response?.data?.message || "Failed to create artwork", "error");
+      showToast(
+        err.response?.data?.message || "Failed to create artwork",
+        "error",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <ArtworkForm 
+    <ArtworkForm
       title="Add New Artwork"
       onSubmit={handleSubmit}
       onCancel={() => navigate("/admin/artworks")}

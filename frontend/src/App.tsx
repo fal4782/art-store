@@ -20,7 +20,6 @@ import AdminArtworkAdd from "./pages/admin/AdminArtworkAdd";
 import AdminArtworkEdit from "./pages/admin/AdminArtworkEdit";
 import AdminDiscounts from "./pages/admin/AdminDiscounts";
 
-
 function App() {
   return (
     <BrowserRouter>
@@ -38,9 +37,18 @@ function App() {
                         <Routes>
                           <Route index element={<AdminOverview />} />
                           <Route path="/artworks" element={<AdminArtworks />} />
-                          <Route path="/artworks/add" element={<AdminArtworkAdd />} />
-                          <Route path="/artworks/edit/:id" element={<AdminArtworkEdit />} />
-                          <Route path="/discounts" element={<AdminDiscounts />} />
+                          <Route
+                            path="/artworks/add"
+                            element={<AdminArtworkAdd />}
+                          />
+                          <Route
+                            path="/artworks/edit/:id"
+                            element={<AdminArtworkEdit />}
+                          />
+                          <Route
+                            path="/discounts"
+                            element={<AdminDiscounts />}
+                          />
                           <Route path="*" element={<AdminOverview />} />
                         </Routes>
                       </AdminLayout>
@@ -54,8 +62,14 @@ function App() {
                       <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/shop" element={<ShopPage />} />
-                        <Route path="/collection" element={<CollectionPage />} />
-                        <Route path="/artwork/:slug" element={<ProductDetailsPage />} />
+                        <Route
+                          path="/collection"
+                          element={<CollectionPage />}
+                        />
+                        <Route
+                          path="/artwork/:slug"
+                          element={<ProductDetailsPage />}
+                        />
                         <Route
                           path="/checkout"
                           element={
@@ -70,7 +84,10 @@ function App() {
                             <ProtectedRoute>
                               <Routes>
                                 <Route path="/" element={<ProfilePage />} />
-                                <Route path="/orders/:id" element={<OrderDetailsPage />} />
+                                <Route
+                                  path="/orders/:id"
+                                  element={<OrderDetailsPage />}
+                                />
                                 <Route path="*" element={<ProfilePage />} />
                               </Routes>
                             </ProtectedRoute>
@@ -90,4 +107,3 @@ function App() {
 }
 
 export default App;
-

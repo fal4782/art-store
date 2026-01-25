@@ -1,4 +1,4 @@
-import { Artwork } from "./artwork";
+import type { Artwork } from "./artwork";
 
 export interface WishlistItem {
   id: string;

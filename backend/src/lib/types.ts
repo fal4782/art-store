@@ -162,3 +162,26 @@ export const CreateCategorySchema = z.object({
     image: z.string().optional(),
 });
 export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;
+
+export const CreateDiscountSchema = z.object({
+  code: z.string().min(3, "Code must be at least 3 characters").transform(val => val.toUpperCase().trim()),
+  description: z.string().optional(),
+  discountType: z.enum(["PERCENTAGE", "FIXED"]),
+  discountValue: z.number().min(1, "Value must be positive"),
+  minPurchaseInPaise: z.number().optional(),
+  maxUses: z.number().optional(),
+  isActive: z.boolean().optional(),
+  validFrom: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  validUntil: z.string().optional().transform(val => val ? new Date(val) : undefined),
+});
+
+export type CreateDiscountInput = z.infer<typeof CreateDiscountSchema>;
+
+export const UpdateDiscountSchema = CreateDiscountSchema.partial();
+export type UpdateDiscountInput = z.infer<typeof UpdateDiscountSchema>;
+
+export const VerifyDiscountSchema = z.object({
+  code: z.string().min(1),
+  cartTotalInPaise: z.number().min(1),
+});
+export type VerifyDiscountInput = z.infer<typeof VerifyDiscountSchema>;

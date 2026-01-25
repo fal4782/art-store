@@ -12,6 +12,7 @@ import { addressRouter } from "./routes/addressRouter";
 import { reviewRouter } from "./routes/reviewRouter";
 import { categoryRouter } from "./routes/categoryRouter";
 import { adminRouter } from "./routes/adminRouter";
+import { discountRouter } from "./routes/discountRouter";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/orders", orderRouter);
 app.use("/api/v1/payments", paymentRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/discounts", discountRouter);
 app.use("/api/v1", reviewRouter);
 
 const PORT = process.env.PORT || 8000;

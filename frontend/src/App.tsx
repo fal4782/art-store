@@ -18,6 +18,7 @@ import AdminOverview from "./pages/admin/AdminOverview";
 import AdminArtworks from "./pages/admin/AdminArtworks";
 import AdminArtworkAdd from "./pages/admin/AdminArtworkAdd";
 import AdminArtworkEdit from "./pages/admin/AdminArtworkEdit";
+import AdminDiscounts from "./pages/admin/AdminDiscounts";
 
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
                           <Route path="/artworks" element={<AdminArtworks />} />
                           <Route path="/artworks/add" element={<AdminArtworkAdd />} />
                           <Route path="/artworks/edit/:id" element={<AdminArtworkEdit />} />
+                          <Route path="/discounts" element={<AdminDiscounts />} />
                           <Route path="*" element={<AdminOverview />} />
                         </Routes>
                       </AdminLayout>

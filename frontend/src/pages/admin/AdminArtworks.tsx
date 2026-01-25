@@ -110,7 +110,7 @@ export default function AdminArtworks() {
 
   return (
     <div className="space-y-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2">
           <h1 className="text-4xl font-black tracking-tight" style={{ color: theme.colors.primary }}>Artworks</h1>
           <p className="font-bold opacity-40">Manage your gallery collection.</p>

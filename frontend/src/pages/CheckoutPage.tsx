@@ -4,8 +4,9 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { addressService } from "../services/addressService";
 import { orderService } from "../services/orderService";
+import { discountService, type VerifyDiscountResponse } from "../services/discountService";
 import type { Address, AddressInput } from "../types/user";
-import { FiMapPin, FiPlus, FiCheck, FiShoppingBag, FiArrowLeft, FiCreditCard, FiTrash2 } from "react-icons/fi";
+import { FiMapPin, FiPlus, FiCheck, FiShoppingBag, FiArrowLeft, FiCreditCard, FiTrash2, FiLoader } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import QuantitySelector from "../components/shop/QuantitySelector";
@@ -44,10 +45,26 @@ export default function CheckoutPage() {
   const [newAddress, setNewAddress] = useState<AddressInput>(initialAddressState);
   const [savingAddress, setSavingAddress] = useState(false);
 
+  // Discount State
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<VerifyDiscountResponse | null>(null);
+  const [verifyingDiscount, setVerifyingDiscount] = useState(false);
+
   useEffect(() => {
     loadAddresses();
     loadRazorpayScript();
   }, []);
+
+  // Re-verify discount when total changes
+  useEffect(() => {
+    if (appliedDiscount && appliedDiscount.minPurchaseInPaise) {
+        if (totalAmount < appliedDiscount.minPurchaseInPaise) {
+            setAppliedDiscount(null);
+            // setDiscountCode("");
+            showToast(`Discount removed: Minimum purchase of ₹${appliedDiscount.minPurchaseInPaise/100} required`, "error");
+        }
+    }
+  }, [totalAmount, appliedDiscount, showToast]);
 
   const loadAddresses = async () => {
     try {
@@ -63,6 +80,29 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    setVerifyingDiscount(true);
+    try {
+      const result = await discountService.verifyDiscount(discountCode, totalAmount);
+      setAppliedDiscount(result);
+      showToast("Discount applied!", "success");
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.response?.data?.message || "Invalid discount code", "error");
+      setAppliedDiscount(null);
+      setDiscountCode("");
+    } finally {
+      setVerifyingDiscount(false);
+    }
+  };
+
+  const calculatedTotal = appliedDiscount
+    ? appliedDiscount.discountType === "PERCENTAGE"
+        ? Math.round(totalAmount - (totalAmount * appliedDiscount.discountValue / 100))
+        : Math.max(0, totalAmount - (appliedDiscount.discountValue)) // Value in paise
+    : totalAmount;
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -320,11 +360,52 @@ export default function CheckoutPage() {
                       
                       <h2 className="text-2xl font-black mb-8 relative">Summary</h2>
                       
+                      {/* Discount Input */}
+                      <div className="mb-6 relative">
+                        <div className="flex gap-2">
+                           <input 
+                             placeholder="Promo Code"
+                             value={discountCode}
+                             onChange={e => setDiscountCode(e.target.value.toUpperCase())}
+                             disabled={!!appliedDiscount}
+                             className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 placeholder-white/50 text-white font-bold outline-none focus:bg-white/20 transition-all uppercase"
+                           />
+                           {appliedDiscount ? (
+                             <button
+                               onClick={() => {
+                                 setAppliedDiscount(null);
+                                 setDiscountCode("");
+                               }}
+                               className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black transition-all"
+                             >
+                                <FiTrash2 />
+                             </button>
+                           ) : (
+                             <button
+                               onClick={handleApplyDiscount}
+                               disabled={!discountCode || verifyingDiscount}
+                               className="px-6 py-2 rounded-xl bg-white text-secondary font-black hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                               style={{ color: theme.colors.secondary }}
+                             >
+                                {verifyingDiscount ? <FiLoader className="animate-spin" /> : "Apply"}
+                             </button>
+                           )}
+                        </div>
+                    </div>
+
                       <div className="space-y-4 mb-8 relative">
                           <div className="flex justify-between text-sm font-bold opacity-80">
                               <span>Subtotal</span>
                               <span>{formatPrice(totalAmount)}</span>
                           </div>
+                          
+                          {appliedDiscount && (
+                            <div className="flex justify-between text-sm font-bold text-white">
+                                <span>Discount ({appliedDiscount.code})</span>
+                                <span>- {formatPrice(totalAmount - calculatedTotal)}</span>
+                            </div>
+                          )}
+
                           <div className="flex justify-between text-sm font-bold opacity-80">
                               <span>Shipping</span>
                               <span className="font-black">FREE</span>
@@ -332,7 +413,7 @@ export default function CheckoutPage() {
                           <div className="h-px bg-white/20 my-6" />
                           <div className="flex justify-between text-2xl font-black tracking-tight">
                               <span>Total</span>
-                              <span>{formatPrice(totalAmount)}</span>
+                              <span>{formatPrice(calculatedTotal)}</span>
                           </div>
                       </div>
 

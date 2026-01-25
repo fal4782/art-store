@@ -18,8 +18,8 @@ export interface VerifyPaymentInput {
 }
 
 export const orderService = {
-  getUserOrders: async (): Promise<Order[]> => {
-    const response = await apiClient.get("/orders");
+  getUserOrders: async (query?: { limit?: number }): Promise<Order[]> => {
+    const response = await apiClient.get("/orders", { params: query });
     return response.data;
   },
 

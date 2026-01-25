@@ -9,28 +9,57 @@ import {
   FiEye, 
   FiEyeOff, 
   FiStar,
-  FiLoader
+  FiLoader,
+  FiSearch,
+  FiFilter,
+  FiX
 } from "react-icons/fi";
 import { artworkService } from "../../services/artworkService";
+import { categoryService } from "../../services/categoryService";
 import { useToast } from "../../context/ToastContext";
-import type { Artwork } from "../../types/artwork";
+import type { Artwork, Category } from "../../types/artwork";
 
 export default function AdminArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    search: "",
+    categoryId: "",
+    status: "" // "PUBLISHED", "DRAFT", "SOLD_OUT"
+  });
+  
   const { showToast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadArtworks();
+    loadArtworks(true);
+    categoryService.getCategories().then(setCategories).catch(console.error);
   }, []);
 
-  const loadArtworks = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadArtworks(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filters.search, filters.categoryId, filters.status]);
+
+  const loadArtworks = async (showLoader = false) => {
+    if (showLoader) setLoading(true);
     try {
-      // Fetch all artworks (including unavailable ones since we are admin)
-      const data = await artworkService.getArtworks({ limit: 50 });
-      setArtworks(data.artworks);
+      const query: any = { limit: 50 };
+      if (filters.search) query.search = filters.search;
+      if (filters.categoryId) query.categoryId = filters.categoryId;
+      if (filters.status === "PUBLISHED") query.isAvailable = true;
+      if (filters.status === "DRAFT") query.isAvailable = false;
+
+      const data = await artworkService.getArtworks(query);
+      
+      let filteredArtworks = data.artworks;
+      if (filters.status === "SOLD_OUT") {
+        filteredArtworks = filteredArtworks.filter(a => a.stockQuantity === 0);
+      }
+      setArtworks(filteredArtworks);
     } catch (err) {
       console.error(err);
       showToast("Failed to load artworks", "error");
@@ -84,7 +113,7 @@ export default function AdminArtworks() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <h1 className="text-4xl font-black tracking-tight" style={{ color: theme.colors.primary }}>Artworks</h1>
-          <p className="font-bold opacity-40">Manage your gallery collection ({artworks.length}).</p>
+          <p className="font-bold opacity-40">Manage your gallery collection.</p>
         </div>
         <Link 
           to="/admin/artworks/add"
@@ -93,6 +122,71 @@ export default function AdminArtworks() {
         >
           <FiPlus size={20} /> Add Artwork
         </Link>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 items-center">
+        <div className="relative flex-1 w-full">
+          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+          <input 
+            type="text"
+            placeholder="Search by name, medium or description..."
+            value={filters.search}
+            onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
+            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none transition-all font-bold"
+            style={{ 
+              backgroundColor: theme.colors.surface, 
+              borderColor: `${theme.colors.primary}08`,
+              color: theme.colors.primary
+            }}
+          />
+          {filters.search && (
+            <button 
+              onClick={() => setFilters(prev => ({ ...prev, search: "" }))}
+              className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 hover:opacity-100"
+            >
+              <FiX />
+            </button>
+          )}
+        </div>
+
+        <div className="flex gap-4 w-full lg:w-auto">
+          <div className="relative flex-1 lg:w-48">
+            <FiFilter className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+            <select 
+              value={filters.categoryId}
+              onChange={e => setFilters(prev => ({ ...prev, categoryId: e.target.value }))}
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none appearance-none font-bold"
+              style={{ 
+                backgroundColor: theme.colors.surface, 
+                borderColor: `${theme.colors.primary}08`,
+                color: theme.colors.primary
+              }}
+            >
+              <option value="">All Categories</option>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+
+          <div className="relative flex-1 lg:w-48">
+            <FiStar className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+            <select 
+              value={filters.status}
+              onChange={e => setFilters(prev => ({ ...prev, status: e.target.value }))}
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none appearance-none font-bold"
+              style={{ 
+                backgroundColor: theme.colors.surface, 
+                borderColor: `${theme.colors.primary}08`,
+                color: theme.colors.primary
+              }}
+            >
+              <option value="">All Statuses</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">Draft</option>
+              <option value="SOLD_OUT">Sold Out</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-4xl border shadow-sm overflow-hidden" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>

@@ -37,4 +37,9 @@ export interface Order {
   shippingPostalCode: string | null;
   shippingCountry: string | null;
   shippingPhone: string | null;
+  user?: {
+    firstName: string;
+    lastName: string | null;
+    email: string;
+  };
 }

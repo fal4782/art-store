@@ -1,17 +1,31 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { authMiddleware } from "../middleware";
+import { authMiddleware, optionalAuthMiddleware } from "../middleware";
 import { OrderItemData, PlaceOrderSchema } from "../lib/types";
 import { razorpay } from "../lib/razorpay";
 
 const router = Router();
 
-router.get("/", authMiddleware, async (req, res) => {
-  const userId = req.userId;
+router.get("/", optionalAuthMiddleware, async (req, res) => {
   try {
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    
+    const where: any = {};
+    if (!req.isAdmin) {
+      if (!req.userId) return res.status(401).json({ message: "Unauthorized" });
+      where.userId = req.userId;
+    }
+
     const orders = await prisma.order.findMany({
-      where: { userId },
+      where,
       include: {
+        user: req.isAdmin ? {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        } : false,
         orderItems: {
           include: {
             artwork: {
@@ -23,6 +37,7 @@ router.get("/", authMiddleware, async (req, res) => {
         address: true,
       },
       orderBy: { createdAt: "desc" },
+      take: limit,
     });
     return res.json(orders);
   } catch (error) {

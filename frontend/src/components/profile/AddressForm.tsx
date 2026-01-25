@@ -1,7 +1,21 @@
 import { useState } from "react";
-import { FiMapPin, FiUser, FiPhone, FiHash, FiX, FiCheck } from "react-icons/fi";
+import { FiMapPin, FiUser, FiPhone, FiHash, FiX, FiCheck, FiLoader } from "react-icons/fi";
 import { theme } from "../../theme";
 import type { AddressInput } from "../../types/user";
+import { useToast } from "../../context/ToastContext";
+
+interface PostOffice {
+  Name: string;
+  District: string;
+  State: string;
+  Country: string;
+}
+
+interface PincodeApiResponse {
+  Status: "Success" | "Error";
+  Message: string;
+  PostOffice: PostOffice[] | null;
+}
 
 interface AddressFormProps {
   formData: AddressInput;
@@ -23,6 +37,8 @@ export default function AddressForm({
   isLoading = false
 }: AddressFormProps) {
   const [isFocused, setIsFocused] = useState<string | null>(null);
+  const [isFetchingPincode, setIsFetchingPincode] = useState(false);
+  const { showToast } = useToast();
 
   const inputClass = "w-full pl-12 pr-4 py-4 rounded-2xl transition-all outline-none font-bold border-2";
   const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-50";
@@ -33,6 +49,47 @@ export default function AddressForm({
     borderColor: isFocused === fieldName ? `${theme.colors.primary}40` : `${theme.colors.accent}40`,
     backgroundColor: isFocused === fieldName ? theme.colors.surface : `${theme.colors.accent}15`,
   });
+
+  const handlePincodeChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const value = e.target.value;
+    const newFormData = { ...formData, postalCode: value };
+    setFormData(newFormData);
+
+    if (value.length === 6 && /^\d+$/.test(value)) {
+      setIsFetchingPincode(true);
+      try {
+        const response = await fetch(
+          `https://api.postalpincode.in/pincode/${value}`,
+        );
+        const data: PincodeApiResponse[] = await response.json();
+
+        const result = data[0]; // Fetch the first result
+
+        if (
+          result.Status === "Success" &&
+          result.PostOffice &&
+          result.PostOffice.length > 0
+        ) {
+          const { District, State } = result.PostOffice[0];
+
+          setFormData({
+            ...newFormData,
+            city: District,
+            state: State,
+          });
+        } else {
+          showToast(result.Message, "error");
+        }
+      } catch (error) {
+        console.error("Error fetching pincode details:", error);
+        showToast("Failed to fetch pincode details", "error");
+      } finally {
+        setIsFetchingPincode(false);
+      }
+    }
+  };
 
   return (
     <div className="p-8 md:p-10 rounded-[2.5rem] bg-white border border-stone-100 shadow-sm animate-scale-in relative overflow-hidden group">
@@ -106,8 +163,38 @@ export default function AddressForm({
           </div>
         </div>
 
-        {/* Grid for City and Postal Code */}
+        {/* Grid for Postal Code and City */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className={labelClass} style={{ color: theme.colors.primary }}>Postal Code</label>
+            <div className="relative">
+              {isFetchingPincode ? (
+                <FiLoader
+                  className={`${iconClass} animate-spin`}
+                  style={{ color: theme.colors.secondary, opacity: 1 }}
+                />
+              ) : (
+                <FiHash
+                  className={iconClass}
+                  style={{
+                    color: theme.colors.primary,
+                    opacity: isFocused === "postalCode" ? 1 : 0.4,
+                  }}
+                />
+              )}
+              <input
+                required
+                maxLength={6}
+                value={formData.postalCode}
+                onFocus={() => setIsFocused("postalCode")}
+                onBlur={() => setIsFocused(null)}
+                onChange={handlePincodeChange}
+                className={inputClass}
+                style={getInputStyle("postalCode")}
+                placeholder="6 digits"
+              />
+            </div>
+          </div>
           <div className="space-y-2">
             <label className={labelClass} style={{ color: theme.colors.primary }}>City</label>
             <div className="relative">
@@ -121,22 +208,6 @@ export default function AddressForm({
                 className={inputClass}
                 style={getInputStyle('city')}
                 placeholder="City" 
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className={labelClass} style={{ color: theme.colors.primary }}>Postal Code</label>
-            <div className="relative">
-              <FiHash className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'postalCode' ? 1 : 0.4 }} />
-              <input 
-                required 
-                value={formData.postalCode} 
-                onFocus={() => setIsFocused('postalCode')}
-                onBlur={() => setIsFocused(null)}
-                onChange={e => setFormData({ ...formData, postalCode: e.target.value })} 
-                className={inputClass}
-                style={getInputStyle('postalCode')}
-                placeholder="6 digits" 
               />
             </div>
           </div>

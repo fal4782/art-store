@@ -11,7 +11,8 @@ import {
   FiPlus,
   FiSave,
   FiArrowLeft,
-  FiStar
+  FiStar,
+  FiMaximize
 } from "react-icons/fi";
 import { categoryService } from "../../services/categoryService";
 import { tagService } from "../../services/tagService";
@@ -108,9 +109,9 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
   const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-50";
   const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 text-lg transition-colors duration-300 opacity-40";
 
-  const getInputStyle = (fieldName: string) => ({ 
+  const getInputStyle = (fieldName: string, useSecondary?: boolean) => ({ 
     color: theme.colors.primary, 
-    borderColor: isFocused === fieldName ? `${theme.colors.primary}40` : `${theme.colors.accent}40`,
+    borderColor: isFocused === fieldName ? `${useSecondary ? theme.colors.secondary : theme.colors.primary}40` : `${theme.colors.accent}40`,
     backgroundColor: isFocused === fieldName ? theme.colors.surface : `${theme.colors.accent}15`,
   });
 
@@ -356,7 +357,7 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                    <label className={labelClass} style={{ color: theme.colors.primary }}>Stock</label>
                    <div className="relative">
@@ -372,7 +373,26 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
+                 <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>Dimensions</label>
+                <div className="relative">
+                  <FiMaximize className={iconClass} style={{ color: theme.colors.secondary, opacity: isFocused === 'dimensions' ? 1 : 0.4 }} />
+                  <input 
+                    type="text" 
+                    value={formData.dimensions}
+                    onFocus={() => setIsFocused('dimensions')}
+                    onBlur={() => setIsFocused(null)}
+                    onChange={e => setFormData({ ...formData, dimensions: e.target.value })}
+                    className={inputClass}
+                    style={getInputStyle('dimensions', true)}
+                    placeholder="24 x 36 inches"
+                  />
+                </div>
+              </div>
+                
+              </div>
+
+             <div className="space-y-2">
                    <label className={labelClass} style={{ color: theme.colors.primary }}>Medium</label>
                    <div className="relative">
                     <FiTag className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'medium' ? 1 : 0.4 }} />
@@ -387,7 +407,6 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                     />
                   </div>
                 </div>
-              </div>
             </div>
           </section>
 

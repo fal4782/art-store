@@ -109,9 +109,10 @@ export default function AdminArtworks() {
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40">Artwork</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Category</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Price</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Inventory</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Featured</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Status</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-end">Actions</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -119,7 +120,7 @@ export default function AdminArtworks() {
                   <tr key={artwork.id} className="hover:bg-stone-50/50 transition-colors group">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden shrink-0 border border-stone-200">
+                        <div className={`w-12 h-12 rounded-xl bg-stone-100 overflow-hidden shrink-0 border border-stone-200 relative transition-all ${artwork.stockQuantity === 0 ? "grayscale opacity-50 scale-90" : ""}`}>
                           {artwork.images?.[0] ? (
                             <img src={artwork.images[0]} alt={artwork.name} className="w-full h-full object-cover" />
                           ) : (
@@ -127,8 +128,13 @@ export default function AdminArtworks() {
                               <FiImage size={20} />
                             </div>
                           )}
+                          {artwork.stockQuantity === 0 && (
+                            <div className="absolute inset-0 bg-error/10 flex items-center justify-center">
+                              <div className="w-full h-px bg-error/40 -rotate-45 absolute" />
+                            </div>
+                          )}
                         </div>
-                        <div>
+                        <div className={artwork.stockQuantity === 0 ? "opacity-40" : ""}>
                           <p className="font-black truncate max-w-[200px]" style={{ color: theme.colors.primary }}>{artwork.name}</p>
                           <p className="text-xs font-bold opacity-30 uppercase tracking-widest">{artwork.type}</p>
                         </div>
@@ -141,6 +147,14 @@ export default function AdminArtworks() {
                     </td>
                     <td className="px-8 py-6 text-center">
                       <p className="font-bold" style={{ color: theme.colors.primary }}>{formatPrice(artwork.priceInPaise)}</p>
+                    </td>
+                    <td className="px-8 py-6 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <p className={`font-black text-sm ${artwork.stockQuantity > 0 ? "" : "text-error"}`} style={{ color: artwork.stockQuantity > 0 ? theme.colors.primary : theme.colors.error }}>
+                              {artwork.stockQuantity}
+                            </p>
+                            <p className="text-[8px] font-bold uppercase opacity-30">Units</p>
+                      </div>
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex justify-center">
@@ -171,18 +185,18 @@ export default function AdminArtworks() {
                         </button>
                       </div>
                     </td>
-                    <td className="px-8 py-6 text-end">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center justify-end gap-1">
                         <button 
                           onClick={() => navigate(`/admin/artworks/edit/${artwork.id}`)}
-                          className="p-2.5 rounded-xl transition-all opacity-40 hover:opacity-100 hover:bg-stone-100"
+                          className="p-3 rounded-xl transition-all opacity-40 hover:opacity-100 hover:bg-stone-100"
                           style={{ color: theme.colors.primary }}
                         >
                           <FiEdit2 size={18} />
                         </button>
                         <button 
                           onClick={() => handleDelete(artwork)}
-                          className="p-2.5 rounded-xl transition-all opacity-40 hover:opacity-100 hover:bg-error/10"
+                          className="p-3 rounded-xl transition-all opacity-40 hover:opacity-100 hover:bg-error/10"
                           style={{ color: theme.colors.error }}
                         >
                           <FiTrash2 size={18} />

@@ -264,14 +264,14 @@ export default function ProductDetailsPage() {
                   style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}10` }}
                 >
                       <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.15em] opacity-30 mb-1 md:mb-2">Dimensions</span>
-                      <span className="text-sm md:text-lg font-bold truncate block" style={{ color: theme.colors.primary }}>{artwork.dimensions || "Custom Frame"}</span>
+                      <span className="text-sm md:text-lg font-bold truncate block" style={{ color: theme.colors.primary }}>{artwork.dimensions || "Custom"}</span>
                  </div>
                  <div 
                   className="p-4 md:p-6 rounded-2xl md:rounded-3xl border transition-all hover:shadow-lg"
                   style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}10` }}
                 >
-                      <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.15em] opacity-30 mb-1 md:mb-2">Technique</span>
-                      <span className="text-sm md:text-lg font-bold truncate block" style={{ color: theme.colors.primary }}>{artwork.medium || "Mixed Masterpiece"}</span>
+                      <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.15em] opacity-30 mb-1 md:mb-2">Medium</span>
+                      <span className="text-sm md:text-lg font-bold truncate block" style={{ color: theme.colors.primary }}>{artwork.medium || "Quality"}</span>
                  </div>
             </div>
 

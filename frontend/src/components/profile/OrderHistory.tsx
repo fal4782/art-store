@@ -168,12 +168,13 @@ export default function OrderHistory() {
                       <span>{order.orderItems.reduce((acc, item) => acc + item.quantity, 0)} Items Total</span>
                    </div>
                    
-                   <button 
+                   <Link 
+                    to={`/profile/orders/${order.id}`}
                     className="flex items-center gap-2 text-xs font-black uppercase tracking-widest hover:translate-x-1 transition-transform"
                     style={{ color: theme.colors.secondary }}
                    >
                        View Details <FiArrowRight />
-                   </button>
+                   </Link>
                 </div>
               </div>
             </div>

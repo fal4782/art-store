@@ -7,6 +7,7 @@ import ShopPage from "./pages/ShopPage";
 import CollectionPage from "./pages/CollectionPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import OrderDetailsPage from "./pages/profile/OrderDetailsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -65,7 +66,11 @@ function App() {
                           path="/profile/*"
                           element={
                             <ProtectedRoute>
-                              <ProfilePage />
+                              <Routes>
+                                <Route path="/" element={<ProfilePage />} />
+                                <Route path="/orders/:id" element={<OrderDetailsPage />} />
+                                <Route path="*" element={<ProfilePage />} />
+                              </Routes>
                             </ProtectedRoute>
                           }
                         />

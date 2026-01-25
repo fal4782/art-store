@@ -23,10 +23,11 @@ export const orderService = {
     return response.data;
   },
 
-  getOrderById: async (id: string): Promise<Order> => {
-    const response = await apiClient.get(`/orders/${id}`);
+  getOrder: async (id: string): Promise<Order> => {
+    const response = await apiClient.get<Order>(`/orders/${id}`);
     return response.data;
   },
+
 
   placeOrder: async (data: PlaceOrderInput): Promise<{ order: Order; razorpayOrder: any }> => {
     const response = await apiClient.post("/orders", data);

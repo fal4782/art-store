@@ -11,16 +11,17 @@ import {
 import { FiMail, FiLock, FiUser, FiArrowRight } from "react-icons/fi";
 import { authService } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import type { LoginInput, SignupInput } from "../types/auth";
 import { FcGoogle } from "react-icons/fc";
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showToast } = useToast();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -55,15 +56,13 @@ export default function AuthPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
     try {
       const response = await authService.login(loginData);
       login(response.token);
+      showToast("Welcome back!", "success");
       navigate("/");
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Login failed. Check your credentials.",
-      );
+      showToast(err.response?.data?.message || "Login failed. Check your credentials.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -72,13 +71,13 @@ export default function AuthPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
     try {
       const response = await authService.signup(signupData);
       login(response.token);
+      showToast("Account created successfully!", "success");
       navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Signup failed. Try again.");
+      showToast(err.response?.data?.message || "Signup failed. Try again.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -98,8 +97,7 @@ export default function AuthPage() {
           background: `linear-gradient(135deg, ${theme.colors.accent}40 0%, ${theme.colors.background} 100%)`,
         }}
       >
-        {/* --- DYNAMIC BACKGROUND SPOTLIGHT --- */}
-        {/* This creates a soft glow that follows the mouse */}
+        {/* DYNAMIC BACKGROUND SPOTLIGHT */}
         <div
             className="absolute inset-0 pointer-events-none transition-opacity duration-500"
             style={{
@@ -108,7 +106,7 @@ export default function AuthPage() {
             }}
         />
 
-        {/* Artistic Background blobs - Subtle Movement */}
+        {/* Background blobs */}
         <div 
           className="absolute inset-0 pointer-events-none"
         >
@@ -136,7 +134,7 @@ export default function AuthPage() {
         >
           <div className="flex flex-col gap-6 ">
             
-             {/* Main Creative Card - Static but Glassy */}
+             {/* Main Card */}
             <div 
                className="relative"
             >
@@ -201,7 +199,7 @@ export default function AuthPage() {
               </div>
             </div>
 
-            {/* Bottom floating elements - Parallax Layer (Front) */}
+            {/* Bottom floating elements */}
             <div className="flex gap-6">
               {/* Card 1 */}
               <div 
@@ -245,7 +243,6 @@ export default function AuthPage() {
                       background: theme.colors.primary, 
                       color: theme.colors.surface,
                       boxShadow: `0 20px 40px -10px ${theme.colors.primary}40`,
-                      // Removed translate
                     }}
                   >
                     <div 
@@ -270,7 +267,7 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* --- Right Side: Auth Container --- */}
+      {/* Right Side: Auth Container */}
       <div
         className="w-full lg:w-2/5 flex items-center justify-center p-6 relative"
         style={{ background: theme.colors.surface }}
@@ -305,23 +302,6 @@ export default function AuthPage() {
             </p>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div
-              className="mb-6 p-4 rounded-lg border text-sm font-bold flex items-center gap-3"
-              style={{
-                background: theme.colors.error + "15",
-                borderColor: theme.colors.error + "40",
-                color: theme.colors.error,
-              }}
-            >
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{ background: theme.colors.error }}
-              />
-              {error}
-            </div>
-          )}
 
           {/* Auth Form */}
           <div className="space-y-6">
@@ -542,7 +522,6 @@ export default function AuthPage() {
               <button
                 onClick={() => {
                   setIsSignUp(!isSignUp);
-                  setError("");
                 }}
                 className="hover:underline underline-offset-8"
                 style={{ color: theme.colors.secondary }}

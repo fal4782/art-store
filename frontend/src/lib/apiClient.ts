@@ -25,7 +25,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear token and redirect to auth
       localStorage.removeItem("authToken");
-      window.location.href = "/auth";
+      // Only redirect if not already on the auth page to prevent infinite reloads/weird behavior
+      if (window.location.pathname !== "/auth") {
+        window.location.href = "/auth";
+      }
     }
     return Promise.reject(error);
   }

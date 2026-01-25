@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { theme } from "../../theme";
-import { FiTag, FiTrash2, FiCalendar, FiLoader, FiPercent, FiEdit2, FiSearch, FiFilter, FiX } from "react-icons/fi";
+import { FiTag, FiTrash2, FiCalendar, FiLoader, FiPercent, FiEdit2, FiSearch, FiFilter, FiX, FiPlus } from "react-icons/fi";
 import { discountService } from "../../services/discountService";
 import type { DiscountCode } from "../../services/discountService";
 import { useToast } from "../../context/ToastContext";
@@ -80,6 +80,7 @@ export default function AdminDiscounts() {
             className="px-8 py-4 rounded-2xl text-white font-black flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-secondary/30"
             style={{ backgroundColor: theme.colors.secondary }}
           >
+            <FiPlus size={20} /> Add Discount
           </button>
         )}
       </div>

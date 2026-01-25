@@ -95,7 +95,7 @@ export default function AdminArtworks() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-4xl border border-stone-100 shadow-sm overflow-hidden">
+      <div className="rounded-4xl border shadow-sm overflow-hidden" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
         {artworks.length === 0 ? (
           <div className="py-40 flex flex-col items-center justify-center text-center space-y-4 opacity-30">
             <FiImage size={64} />
@@ -105,7 +105,7 @@ export default function AdminArtworks() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-stone-50 bg-stone-50/50">
+                <tr className="border-b" style={{ borderColor: `${theme.colors.primary}04`, backgroundColor: `${theme.colors.primary}04` }}>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40">Artwork</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Category</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Price</th>
@@ -114,9 +114,9 @@ export default function AdminArtworks() {
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-end">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-50">
+              <tbody>
                 {artworks.map((artwork) => (
-                  <tr key={artwork.id} className="hover:bg-stone-50 transition-colors group">
+                  <tr key={artwork.id} className="hover:bg-stone-50/50 transition-colors group">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden shrink-0 border border-stone-200">
@@ -135,7 +135,7 @@ export default function AdminArtworks() {
                       </div>
                     </td>
                     <td className="px-8 py-6 text-center">
-                      <span className="px-4 py-2 rounded-full text-[10px] font-black uppercase border-2 border-[#f5f5f4] tracking-widest bg-transparent" style={{ color: `${theme.colors.primary}a0` }}>
+                      <span className="px-4 py-2 rounded-full text-[10px] font-black uppercase border-2 tracking-widest bg-transparent" style={{ color: `${theme.colors.primary}a0`, borderColor: `${theme.colors.primary}08` }}>
                         {artwork.category?.name || "Uncategorized"}
                       </span>
                     </td>

@@ -33,16 +33,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen flex bg-stone-50 overflow-hidden">
+    <div className="min-h-screen flex overflow-hidden" style={{ backgroundColor: theme.colors.background }}>
       {/* Sidebar */}
       <aside 
         className={`fixed md:relative z-50 h-screen transition-all duration-300 ease-in-out border-r border-stone-200 flex flex-col ${
           isSidebarOpen ? "w-72" : "w-20"
         }`}
-        style={{ backgroundColor: theme.colors.surface }}
+        style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}15` }}
       >
         {/* Sidebar Header */}
-        <div className="h-24 flex items-center px-6 gap-4 border-b border-stone-100">
+        <div className="h-24 flex items-center px-6 gap-4 border-b" style={{ borderColor: `${theme.colors.primary}08` }}>
           <div className="flex-1 overflow-hidden transition-all duration-300">
              <Link to="/admin" className="flex items-center gap-3">
                 <div className="p-2 rounded-lg shrink-0"  style={{ background: `${theme.colors.accent}80` }}>
@@ -56,8 +56,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-lg hover:bg-stone-100 transition-colors hidden md:block"
-            style={{ color: theme.colors.primary }}
+            className="p-2 rounded-lg transition-colors hidden md:block"
+            style={{ color: theme.colors.primary, backgroundColor: `${theme.colors.primary}08` }}
           >
             {isSidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}
           </button>
@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-stone-100 space-y-2">
+        <div className="p-4 border-t space-y-2" style={{ borderColor: `${theme.colors.primary}08` }}>
             <Link 
               to="/" 
               className="flex items-center gap-4 px-4 py-4 rounded-2xl font-bold transition-all overflow-hidden"
@@ -117,11 +117,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Top Header (Mobile Toggle) */}
-        <header className="h-20 border-b border-stone-200 bg-white/80 backdrop-blur-md flex items-center px-8 md:hidden shrink-0">
+        <header className="h-20 border-b bg-white/80 backdrop-blur-md flex items-center px-8 md:hidden shrink-0" style={{ borderColor: `${theme.colors.primary}15` }}>
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg bg-stone-100"
-              style={{ color: theme.colors.primary }}
+              className="p-2 rounded-lg"
+              style={{ color: theme.colors.primary, backgroundColor: `${theme.colors.primary}08` }}
             >
               <FiMenu size={24} />
             </button>

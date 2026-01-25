@@ -7,7 +7,7 @@ import {
 } from "react-icons/fi";
 
 const StatCard = ({ title, value, icon: Icon, color }: any) => (
-  <div className="bg-white p-8 rounded-4xl border border-stone-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
+  <div className="p-8 rounded-4xl border shadow-sm hover:shadow-xl transition-all group overflow-hidden relative" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
     <div className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-700" style={{ color }}>
       <Icon size={160} />
     </div>
@@ -39,7 +39,7 @@ export default function AdminOverview() {
       </div>
 
       {/* Placeholder for Recent Orders Table */}
-      <div className="bg-white rounded-[2.5rem] p-10 border border-stone-100 shadow-sm">
+      <div className="rounded-[2.5rem] p-10 border shadow-sm" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
         <h2 className="text-2xl font-black mb-8" style={{ color: theme.colors.primary }}>Recent Orders</h2>
         <div className="h-60 flex flex-col items-center justify-center text-center space-y-4 opacity-30">
           <FiShoppingBag size={48} />

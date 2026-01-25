@@ -29,6 +29,7 @@ interface ArtworkFormProps {
 export default function ArtworkForm({ initialData, onSubmit, onCancel, title, isLoading }: ArtworkFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [isFocused, setIsFocused] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -103,8 +104,15 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
     onSubmit(submissionData);
   };
 
-  const inputClass = "w-full pl-12 pr-4 py-4 rounded-2xl bg-stone-50 border border-stone-100 focus:bg-white outline-none font-bold transition-all";
-  const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4 mb-2 block";
+  const inputClass = "w-full pl-12 pr-4 py-4 rounded-2xl transition-all outline-none font-bold border-2";
+  const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-50";
+  const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 text-lg transition-colors duration-300 opacity-40";
+
+  const getInputStyle = (fieldName: string) => ({ 
+    color: theme.colors.primary, 
+    borderColor: isFocused === fieldName ? `${theme.colors.primary}40` : `${theme.colors.accent}40`,
+    backgroundColor: isFocused === fieldName ? theme.colors.surface : `${theme.colors.accent}15`,
+  });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-12">
@@ -122,10 +130,20 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
         <button 
           type="submit"
           disabled={isLoading}
-          className="px-10 py-4 rounded-2xl text-white font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-secondary/30 disabled:opacity-50"
+          className="px-10 py-4 rounded-2xl text-white font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-secondary/30 disabled:opacity-50 min-w-[180px] justify-center"
           style={{ backgroundColor: theme.colors.secondary }}
         >
-          {isLoading ? <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" /> : <><FiSave size={20} /> Save Artwork</>}
+          {isLoading ? (
+            <>
+              <div className="w-5 h-5 border-2 border-stone-200 border-t-white rounded-full animate-spin" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <FiSave size={20} />
+              <span>Save Artwork</span>
+            </>
+          )}
         </button>
       </div>
 
@@ -133,9 +151,9 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
         {/* Left Column: Media & Primary Details */}
         <div className="lg:col-span-2 space-y-10">
           {/* Images Section */}
-          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-6">
+          <section className="p-8 rounded-4xl border shadow-sm space-y-6" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
             <h3 className="text-xl font-bold flex items-center gap-3" style={{ color: theme.colors.primary }}>
-              <FiImage /> Artwork Images
+              <FiImage style={{ color: theme.colors.secondary }} /> Artwork Images
             </h3>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -159,19 +177,22 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
             </div>
 
             <div className="relative">
-              <FiLink className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+              <FiLink className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'newImageUrl' ? 1 : 0.4 }} />
               <input 
                 type="text"
                 placeholder="Paste image URL here..."
                 value={newImageUrl}
+                onFocus={() => setIsFocused('newImageUrl')}
+                onBlur={() => setIsFocused(null)}
                 onChange={e => setNewImageUrl(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
                 className={inputClass}
+                style={getInputStyle('newImageUrl')}
               />
               <button 
                 type="button"
                 onClick={handleAddImage}
-                className="absolute right-3 top-1/2 -translate-y-1/2 px-4 py-2 text-white rounded-xl text-xs font-black shadow-lg"
+                className="absolute right-3 top-1/2 -translate-y-1/2 px-4 py-2 text-white rounded-xl text-xs font-black shadow-lg hover:scale-105 active:scale-95 transition-transform"
                 style={{ backgroundColor: theme.colors.secondary }}
               >
                 Add
@@ -180,49 +201,58 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
           </section>
 
           {/* Basic Info */}
-          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-8">
+          <section className="p-8 rounded-4xl border shadow-sm space-y-8" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
              <h3 className="text-xl font-black flex items-center gap-3" style={{ color: theme.colors.primary }}>
-              <FiInfo /> Basic Information
+              <FiInfo style={{ color: theme.colors.secondary }}/> Basic Information
             </h3>
 
             <div className="space-y-6">
-              <div>
-                <label className={labelClass}>Artwork Name</label>
+              <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>Artwork Name</label>
                 <div className="relative">
-                  <FiImage className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <FiImage className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'name' ? 1 : 0.4 }} />
                   <input 
                     required
                     type="text" 
                     value={formData.name}
+                    onFocus={() => setIsFocused('name')}
+                    onBlur={() => setIsFocused(null)}
                     onChange={e => handleNameChange(e.target.value)}
                     className={inputClass}
+                    style={getInputStyle('name')}
                     placeholder="Enter masterpiece title"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className={labelClass}>URL Slug</label>
+              <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>URL Slug</label>
                 <div className="relative">
-                  <FiLink className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <FiLink className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'slug' ? 1 : 0.4 }} />
                   <input 
                     required
                     type="text" 
                     value={formData.slug}
+                    onFocus={() => setIsFocused('slug')}
+                    onBlur={() => setIsFocused(null)}
                     onChange={e => setFormData({ ...formData, slug: generateSlug(e.target.value) })}
                     className={inputClass}
+                    style={getInputStyle('slug')}
                     placeholder="artwork-slug-name"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className={labelClass}>Description</label>
+              <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>Description</label>
                 <textarea 
                   rows={6}
                   value={formData.description}
+                  onFocus={() => setIsFocused('description')}
+                  onBlur={() => setIsFocused(null)}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full p-6 rounded-2xl bg-stone-50 border border-stone-100 focus:bg-white focus:border-primary/30 outline-none font-bold transition-all resize-none"
+                  className="w-full p-6 rounded-2xl transition-all outline-none font-bold border-2 resize-none"
+                  style={getInputStyle('description')}
                   placeholder="Tell the story behind this piece..."
                 />
               </div>
@@ -233,21 +263,24 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
         {/* Right Column: Settings & Organization */}
         <div className="space-y-10">
           {/* Organization */}
-          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-8">
+          <section className="p-8 rounded-4xl border shadow-sm space-y-8" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
             <h3 className="text-xl font-black flex items-center gap-3" style={{ color: theme.colors.primary }}>
-              <FiLayers /> Organization
+              <FiLayers style={{ color: theme.colors.secondary }} /> Organization
             </h3>
 
             <div className="space-y-6">
-               <div>
-                <label className={labelClass}>Category</label>
+               <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>Category</label>
                 <div className="relative">
-                  <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <FiLayers className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'categoryId' ? 1 : 0.4 }} />
                   <select 
                     required
                     value={formData.categoryId}
+                    onFocus={() => setIsFocused('categoryId')}
+                    onBlur={() => setIsFocused(null)}
                     onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
                     className={`${inputClass} appearance-none cursor-pointer`}
+                    style={getInputStyle('categoryId')}
                   >
                     <option value="">Select Category</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -255,18 +288,18 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                 </div>
               </div>
 
-              <div>
-                <label className={labelClass}>Tags</label>
+              <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>Tags</label>
                 <div className="flex flex-wrap gap-2">
                   {tags.map(t => (
                     <button 
                       key={t.id}
                       type="button"
                       onClick={() => toggleTag(t.id)}
-                      className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all`}
+                      className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:cursor-pointer`}
                       style={{
                         backgroundColor: formData.tags.includes(t.id) ? theme.colors.secondary : 'transparent',
-                        borderColor: formData.tags.includes(t.id) ? theme.colors.secondary : '#f5f5f4',
+                        borderColor: formData.tags.includes(t.id) ? theme.colors.secondary : `${theme.colors.accent}40`,
                         color: formData.tags.includes(t.id) ? 'white' : `${theme.colors.primary}a0`
                       }}
                     >
@@ -279,39 +312,42 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
           </section>
 
           {/* Pricing & Type */}
-          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-8">
+          <section className="p-8 rounded-4xl border shadow-sm space-y-8" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
             <h3 className="text-xl font-black flex items-center gap-3" style={{ color: theme.colors.primary }}>
-              <FaIndianRupeeSign /> Pricing & Logistics
+              <FaIndianRupeeSign style={{ color: theme.colors.secondary }} /> Pricing & Logistics
             </h3>
 
             <div className="space-y-6">
-              <div>
-                <label className={labelClass}>Price</label>
+              <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>Price (INR)</label>
                 <div className="relative">
-                  <FaIndianRupeeSign className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                  <FaIndianRupeeSign className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'price' ? 1 : 0.4 }} />
                   <input 
                     required
                     type="number" 
                     value={formData.priceInINR}
+                    onFocus={() => setIsFocused('price')}
+                    onBlur={() => setIsFocused(null)}
                     onChange={e => setFormData({ ...formData, priceInINR: parseFloat(e.target.value) || 0 })}
                     className={inputClass}
+                    style={getInputStyle('price')}
                   />
                 </div>
               </div>
 
-              <div>
-                <label className={labelClass}>Artwork Type</label>
-                <div className="flex gap-2 p-1 bg-stone-50 rounded-2xl border border-stone-100">
+              <div className="space-y-2">
+                <label className={labelClass} style={{ color: theme.colors.primary }}>Artwork Type</label>
+                <div className="flex gap-2 p-1 rounded-2xl border-2 transition-all" style={{ backgroundColor: `${theme.colors.accent}15`, borderColor: `${theme.colors.accent}40` }}>
                   {['PHYSICAL', 'DIGITAL', 'BOTH'].map(type => (
                     <button
                       key={type}
                       type="button"
                       onClick={() => setFormData({ ...formData, type: type as ArtworkType })}
-                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all`}
+                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:cursor-pointer`}
                       style={{
-                        backgroundColor: formData.type === type ? 'white' : 'transparent',
-                        color: formData.type === type ? theme.colors.primary : `${theme.colors.primary}a0`,
-                        boxShadow: formData.type === type ? '0 1px 2px 0 rgba(0, 0, 0, 0.05)' : 'none'
+                        backgroundColor: formData.type === type ? theme.colors.secondary : 'transparent',
+                        color: formData.type === type ? 'white' : `${theme.colors.primary}a0`,
+                        boxShadow: formData.type === type ? `0 4px 12px -4px ${theme.colors.secondary}60` : 'none'
                       }}
                     >
                       {type}
@@ -321,27 +357,33 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                   <label className={labelClass}>Stock</label>
+                <div className="space-y-2">
+                   <label className={labelClass} style={{ color: theme.colors.primary }}>Stock</label>
                    <div className="relative">
-                    <FiBox className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                    <FiBox className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'stock' ? 1 : 0.4 }} />
                     <input 
                       type="number" 
                       value={formData.stockQuantity}
+                      onFocus={() => setIsFocused('stock')}
+                      onBlur={() => setIsFocused(null)}
                       onChange={e => setFormData({ ...formData, stockQuantity: parseInt(e.target.value) || 0 })}
                       className={inputClass}
+                      style={getInputStyle('stock')}
                     />
                   </div>
                 </div>
-                <div>
-                   <label className={labelClass}>Medium</label>
+                <div className="space-y-2">
+                   <label className={labelClass} style={{ color: theme.colors.primary }}>Medium</label>
                    <div className="relative">
-                    <FiTag className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+                    <FiTag className={iconClass} style={{ color: theme.colors.primary, opacity: isFocused === 'medium' ? 1 : 0.4 }} />
                     <input 
                       type="text" 
                       value={formData.medium}
+                      onFocus={() => setIsFocused('medium')}
+                      onBlur={() => setIsFocused(null)}
                       onChange={e => setFormData({ ...formData, medium: e.target.value })}
                       className={inputClass}
+                      style={getInputStyle('medium')}
                     />
                   </div>
                 </div>
@@ -350,14 +392,14 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
           </section>
 
           {/* Visibility & Status */}
-          <section className="bg-white rounded-4xl p-8 border border-stone-100 shadow-sm space-y-6">
+          <section className="p-8 rounded-4xl border shadow-sm space-y-6" style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}08` }}>
              <div className="flex items-center justify-between group cursor-pointer" onClick={() => setFormData({ ...formData, isAvailable: !formData.isAvailable })}>
                 <div className="flex items-center gap-4">
                   <div 
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all`}
                     style={{
-                      backgroundColor: formData.isAvailable ? `${theme.colors.success}15` : '#f5f5f4',
-                      color: formData.isAvailable ? theme.colors.success : `${theme.colors.primary}a0`
+                      backgroundColor: formData.isAvailable ? `${theme.colors.success}15` : `${theme.colors.accent}15`,
+                      color: formData.isAvailable ? theme.colors.success : `${theme.colors.primary}40`
                     }}
                   >
                     <FiSave size={20} />
@@ -367,7 +409,7 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                     <p className="text-[10px] font-bold opacity-40 uppercase">Make it visible to customers</p>
                   </div>
                 </div>
-                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isAvailable ? theme.colors.success : '#e5e7eb' }}>
+                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isAvailable ? theme.colors.success : `${theme.colors.accent}40` }}>
                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isAvailable ? "left-7" : "left-1"}`} />
                 </div>
              </div>
@@ -377,8 +419,8 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                   <div 
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all`}
                     style={{
-                      backgroundColor: formData.isFeatured ? `${theme.colors.warning}15` : '#f5f5f4',
-                      color: formData.isFeatured ? theme.colors.warning : `${theme.colors.primary}a0`
+                      backgroundColor: formData.isFeatured ? `${theme.colors.warning}15` : `${theme.colors.accent}15`,
+                      color: formData.isFeatured ? theme.colors.warning : `${theme.colors.primary}40`
                     }}
                   >
                     <FiStar size={20} />
@@ -388,7 +430,7 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                     <p className="text-[10px] font-bold opacity-40 uppercase">Showcase in hero sections</p>
                   </div>
                 </div>
-                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isFeatured ? theme.colors.warning : '#e5e7eb' }}>
+                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isFeatured ? theme.colors.warning : `${theme.colors.accent}40` }}>
                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isFeatured ? "left-7" : "left-1"}`} />
                 </div>
              </div>
@@ -398,8 +440,8 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                   <div 
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all`}
                     style={{
-                      backgroundColor: formData.isMadeToOrder ? `${theme.colors.info}15` : '#f5f5f4',
-                      color: formData.isMadeToOrder ? theme.colors.info : `${theme.colors.primary}a0`
+                      backgroundColor: formData.isMadeToOrder ? `${theme.colors.info}15` : `${theme.colors.accent}15`,
+                      color: formData.isMadeToOrder ? theme.colors.info : `${theme.colors.primary}40`
                     }}
                   >
                     <FiBox size={20} />
@@ -409,7 +451,7 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                     <p className="text-[10px] font-bold opacity-40 uppercase">Crafted after purchase</p>
                   </div>
                 </div>
-                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isMadeToOrder ? theme.colors.info : '#e5e7eb' }}>
+                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isMadeToOrder ? theme.colors.info : `${theme.colors.accent}40` }}>
                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isMadeToOrder ? "left-7" : "left-1"}`} />
                 </div>
              </div>

@@ -17,7 +17,7 @@ import { FcGoogle } from "react-icons/fc";
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { isAuthenticated, login } = useAuth();
   const { showToast } = useToast();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,8 +25,11 @@ export default function AuthPage() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
     setIsMounted(true);
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   const [loginData, setLoginData] = useState<LoginInput>({
     email: "",

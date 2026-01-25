@@ -82,9 +82,10 @@ export default function CartDrawer() {
             </div>
             <button 
               onClick={() => setIsCartOpen(false)}
-              className="p-2 rounded-full hover:bg-black/5 transition-colors"
+              className="p-2 -mr-2 text-2xl rounded-full transition-all opacity-50 hover:opacity-100 active:scale-90"
+              style={{ color: theme.colors.primary }}
             >
-              <FiX size={24} />
+              <FiX />
             </button>
           </div>
 

@@ -47,8 +47,8 @@ export default function AddressForm({
           </div>
           <h3 className="text-2xl font-black tracking-tight" style={{ color: theme.colors.primary }}>{title}</h3>
         </div>
-        <button type="button" onClick={onCancel} className="p-2 rounded-full hover:bg-stone-100 transition-colors opacity-40 hover:opacity-100">
-          <FiX size={24} />
+        <button type="button" onClick={onCancel} className="p-2 -mr-2 text-2xl rounded-full transition-all opacity-50 hover:opacity-100 active:scale-90" style={{ color: theme.colors.primary }}>
+          <FiX />
         </button>
       </div>
 

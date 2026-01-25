@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { theme } from "../../theme";
-import { FiPlus, FiTag, FiTrash2, FiCalendar, FiLoader, FiPercent, FiEdit2, FiSearch, FiFilter, FiX } from "react-icons/fi";
+import { FiTag, FiTrash2, FiCalendar, FiLoader, FiPercent, FiEdit2, FiSearch, FiFilter, FiX } from "react-icons/fi";
 import { discountService } from "../../services/discountService";
 import type { DiscountCode } from "../../services/discountService";
 import { useToast } from "../../context/ToastContext";

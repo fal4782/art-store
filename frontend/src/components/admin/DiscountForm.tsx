@@ -73,13 +73,25 @@ export default function DiscountForm({ onSuccess, onCancel, initialData }: Disco
           </div>
           {initialData ? 'Edit Discount' : 'Create Discount'}
         </h2>
-        <button 
-          onClick={onCancel} 
-          className="p-2 rounded-lg transition-all flex items-center justify-center hover:scale-110 active:scale-95"
-          style={{ color: theme.colors.primary, backgroundColor: `${theme.colors.primary}08` }}
-        >
-          <FiX size={20} />
-        </button>
+        <div className="flex items-center gap-3">
+            <button
+               type="button"
+               onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+               className={`w-14 h-8 rounded-full transition-all relative outline-none`}
+               style={{ backgroundColor: formData.isActive ? theme.colors.success : `${theme.colors.accent}40` }}
+               title={formData.isActive ? "Deactivate Discount" : "Activate Discount"}
+             >
+               <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isActive ? "left-7" : "left-1"}`} />
+             </button>
+             
+            <button 
+              onClick={onCancel} 
+              className="p-2 rounded-lg transition-all flex items-center justify-center hover:scale-110 active:scale-95"
+              style={{ color: theme.colors.primary, backgroundColor: `${theme.colors.primary}08` }}
+            >
+              <FiX size={20} />
+            </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -224,30 +236,6 @@ export default function DiscountForm({ onSuccess, onCancel, initialData }: Disco
                    color: theme.colors.primary
                  }}
                />
-             </div>
-           </div>
-
-           {/* Active Status */}
-           <div className="md:col-span-2 p-6 rounded-3xl border border-stone-100 bg-stone-50/50">
-             <div className="flex items-center justify-between group cursor-pointer" onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}>
-                <div className="flex items-center gap-4">
-                  <div 
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all`}
-                    style={{
-                      backgroundColor: formData.isActive ? `${theme.colors.success}15` : `${theme.colors.accent}15`,
-                      color: formData.isActive ? theme.colors.success : `${theme.colors.primary}40`
-                    }}
-                  >
-                    <FiCheck size={20} />
-                  </div>
-                  <div>
-                    <h4 className="font-black" style={{ color: theme.colors.primary }}>Active Status</h4>
-                    <p className="text-[10px] font-bold opacity-40 uppercase">Enable this discount code</p>
-                  </div>
-                </div>
-                <div className={`w-14 h-8 rounded-full transition-all relative`} style={{ backgroundColor: formData.isActive ? theme.colors.success : `${theme.colors.accent}40` }}>
-                   <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all shadow-sm ${formData.isActive ? "left-7" : "left-1"}`} />
-                </div>
              </div>
            </div>
         </div>

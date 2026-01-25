@@ -109,9 +109,9 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
   const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-50";
   const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 text-lg transition-colors duration-300 opacity-40";
 
-  const getInputStyle = (fieldName: string, useSecondary?: boolean) => ({ 
+  const getInputStyle = (fieldName: string) => ({ 
     color: theme.colors.primary, 
-    borderColor: isFocused === fieldName ? `${useSecondary ? theme.colors.secondary : theme.colors.primary}40` : `${theme.colors.accent}40`,
+    borderColor: isFocused === fieldName ? `${theme.colors.secondary}40` : `${theme.colors.accent}40`,
     backgroundColor: isFocused === fieldName ? theme.colors.surface : `${theme.colors.accent}15`,
   });
 
@@ -384,7 +384,7 @@ export default function ArtworkForm({ initialData, onSubmit, onCancel, title, is
                     onBlur={() => setIsFocused(null)}
                     onChange={e => setFormData({ ...formData, dimensions: e.target.value })}
                     className={inputClass}
-                    style={getInputStyle('dimensions', true)}
+                    style={getInputStyle('dimensions')}
                     placeholder="24 x 36 inches"
                   />
                 </div>

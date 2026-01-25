@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         style={{ backgroundColor: theme.colors.surface, borderColor: `${theme.colors.primary}15` }}
       >
         {/* Sidebar Header */}
-        <div className={`h-24 flex items-center border-b transition-all duration-300 ${isSidebarOpen ? "px-6 gap-4" : "justify-center"}`} style={{ borderColor: `${theme.colors.primary}08` }}>
+        <div className={`h-22 flex items-center border-b transition-all duration-300 ${isSidebarOpen ? "px-6 gap-4" : "justify-center"}`} style={{ borderColor: `${theme.colors.primary}08` }}>
           {isSidebarOpen && (
             <div className="flex justify-between flex-1 overflow-hidden transition-all duration-300">
                <Link to="/admin" className="flex items-center gap-3" onClick={closeSidebarOnMobile}>
@@ -132,15 +132,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Top Header (Mobile Toggle) */}
-        <header className="h-20 border-b bg-white/80 backdrop-blur-md flex items-center px-4 md:hidden shrink-0" style={{ borderColor: `${theme.colors.primary}15` }}>
+        <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center px-4 md:hidden shrink-0" style={{ borderColor: `${theme.colors.primary}15` }}>
             <button 
               onClick={toggleSidebar}
               className="p-2 rounded-lg"
-              style={{ color: theme.colors.primary, backgroundColor: `${theme.colors.primary}08` }}
+              style={{ color: theme.colors.primary }}
             >
-              <FiMenu size={24} />
+              <FiMenu size={20} />
             </button>
-            <span className="ml-4 font-black text-xl" style={{ color: theme.colors.primary }}>Admin</span>
+            <span className="ml-2 font-black text-xl" style={{ color: theme.colors.primary }}>Admin</span>
         </header>
 
         {/* Dynamic Page Content */}

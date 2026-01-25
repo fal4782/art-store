@@ -201,12 +201,12 @@ export default function AdminArtworks() {
               <thead>
                 <tr className="border-b" style={{ borderColor: `${theme.colors.primary}04`, backgroundColor: `${theme.colors.primary}04` }}>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40">Artwork</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Category</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Price</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-left">Category</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-left">Price</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Inventory</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Featured</th>
                   <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Status</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-right">Actions</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest opacity-40 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -234,12 +234,12 @@ export default function AdminArtworks() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6 text-center">
-                      <span className="px-4 py-2 rounded-full text-[10px] font-black uppercase border-2 tracking-widest bg-transparent" style={{ color: `${theme.colors.primary}a0`, borderColor: `${theme.colors.primary}08` }}>
+                    <td className="px-8 py-6 text-left">
+                      <span className="px-4 py-2 rounded-full text-[10px] font-black uppercase border-2 tracking-widest bg-transparent" style={{ color: `${theme.colors.primary}a0`, borderColor: `${theme.colors.primary}15` }}>
                         {artwork.category?.name || "Uncategorized"}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-center">
+                    <td className="px-8 py-6 text-left">
                       <p className="font-bold" style={{ color: theme.colors.primary }}>{formatPrice(artwork.priceInPaise)}</p>
                     </td>
                     <td className="px-8 py-6 text-center">
@@ -280,7 +280,7 @@ export default function AdminArtworks() {
                       </div>
                     </td>
                     <td className="px-8 py-6">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-center gap-1">
                         <button 
                           onClick={() => navigate(`/admin/artworks/edit/${artwork.id}`)}
                           className="p-3 rounded-xl transition-all opacity-40 hover:opacity-100 hover:bg-stone-100"

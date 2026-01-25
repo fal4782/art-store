@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { addressService } from "../../services/addressService";
 import { theme } from "../../theme";
 import type { Address, AddressInput } from "../../types/user";
-import { FiPlus, FiTrash2, FiEdit2, FiMapPin, FiUser, FiPhone, FiHash } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit2, FiMapPin } from "react-icons/fi";
 import { useToast } from "../../context/ToastContext";
+import AddressForm from "./AddressForm";
 
 export default function AddressBook() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
   
   const initialFormState: AddressInput = {
@@ -54,6 +56,7 @@ export default function AddressBook() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setSaving(true);
       if (editingId) {
         const updated = await addressService.updateAddress(editingId, formData);
         setAddresses(addresses.map(a => a.id === editingId ? updated : a));
@@ -75,6 +78,8 @@ export default function AddressBook() {
     } catch (err) {
       console.error(err);
       showToast("Failed to save address", "error");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -130,98 +135,15 @@ export default function AddressBook() {
       </div>
 
       {showForm ? (
-         <div className="p-8 rounded-3xl bg-white border border-stone-100 shadow-sm animate-scale-in">
-             <h2 className="text-xl font-bold mb-6">{editingId ? "Edit Address" : "Add New Address"}</h2>
-             <form onSubmit={handleSubmit} className="space-y-4">
-                 <div className="space-y-2">
-                     <label className="text-xs font-black uppercase tracking-widest ml-1" style={{ color: theme.colors.primary }}>Full Name</label>
-                     <div className="relative group">
-                        <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-xl" style={{ color: theme.colors.primary }} />
-                        <input required className="w-full pl-12 pr-4 py-4 rounded-xl bg-stone-50 font-bold outline-none border-2 transition-all" 
-                            style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}1A`, background: 'white' }}
-                            value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="John Doe" />
-                     </div>
-                 </div>
-
-                 <div className="space-y-2">
-                     <label className="text-xs font-black uppercase tracking-widest ml-1" style={{ color: theme.colors.primary }}>Address Line 1</label>
-                     <div className="relative group">
-                        <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-xl" style={{ color: theme.colors.primary }} />
-                        <input required className="w-full pl-12 pr-4 py-4 rounded-xl bg-stone-50 font-bold outline-none border-2 transition-all" 
-                            style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}1A`, background: 'white' }}
-                            value={formData.line1} onChange={e => setFormData({...formData, line1: e.target.value})} placeholder="House No, Street" />
-                     </div>
-                 </div>
-
-                 <div className="space-y-2">
-                     <label className="text-xs font-black uppercase tracking-widest ml-1" style={{ color: theme.colors.primary }}>Address Line 2 (Optional)</label>
-                     <div className="relative group">
-                        <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50" style={{ color: theme.colors.primary }} />
-                        <input className="w-full pl-12 pr-4 py-4 rounded-xl bg-stone-50 font-bold outline-none border-2 transition-all" 
-                            style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}1A`, background: 'white' }}
-                            value={formData.line2} onChange={e => setFormData({...formData, line2: e.target.value})} placeholder="Landmark, Area" />
-                     </div>
-                 </div>
-
-                 <div className="grid grid-cols-2 gap-4">
-                     <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest ml-1" style={{ color: theme.colors.primary }}>City</label>
-                        <div className="relative group">
-                            <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50" style={{ color: theme.colors.primary }} />
-                            <input required className="w-full pl-12 pr-4 py-4 rounded-xl bg-stone-50 font-bold outline-none border-2 transition-all" 
-                                style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}1A`, background: 'white' }}
-                                value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} placeholder="City" />
-                        </div>
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest ml-1" style={{ color: theme.colors.primary }}>Postal Code</label>
-                        <div className="relative group">
-                            <FiHash className="absolute left-4 top-1/2 -translate-y-1/2 text-xl" style={{ color: theme.colors.primary }} />
-                            <input required className="w-full pl-12 pr-4 py-4 rounded-xl bg-stone-50 font-bold outline-none border-2 transition-all" 
-                                style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}1A`, background: 'white' }}
-                                value={formData.postalCode} onChange={e => setFormData({...formData, postalCode: e.target.value})} placeholder="123456" />
-                        </div>
-                     </div>
-                 </div>
-
-                 <div className="grid grid-cols-2 gap-4">
-                     <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest ml-1" style={{ color: theme.colors.primary }}>State</label>
-                        <div className="relative group">
-                            <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50" style={{ color: theme.colors.primary }} />
-                            <input className="w-full pl-12 pr-4 py-4 rounded-xl bg-stone-50 font-bold outline-none border-2 transition-all" 
-                                style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}1A`, background: 'white' }}
-                                value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} placeholder="State" />
-                        </div>
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest ml-1" style={{ color: theme.colors.primary }}>Phone (Optional)</label>
-                        <div className="relative group">
-                            <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-xl" style={{ color: theme.colors.primary }} />
-                            <input className="w-full pl-12 pr-4 py-4 rounded-xl bg-stone-50 font-bold outline-none border-2 transition-all" 
-                                style={{ color: theme.colors.primary, borderColor: `${theme.colors.primary}1A`, background: 'white' }}
-                                value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 98765 43210" />
-                        </div>
-                     </div>
-                 </div>
-
-                 <div className="flex items-center gap-3 py-4">
-                     <input type="checkbox" id="isDefault" 
-                        checked={formData.isDefault} onChange={e => setFormData({...formData, isDefault: e.target.checked})} 
-                        className="w-5 h-5 cursor-pointer"
-                        style={{ accentColor: theme.colors.secondary }} 
-                     />
-                     <label htmlFor="isDefault" className="font-bold cursor-pointer text-sm" style={{ color: theme.colors.primary }}>Set as default address</label>
-                 </div>
-
-                 <div className="flex justify-end gap-3 pt-4">
-                     <button type="button" onClick={() => setShowForm(false)} className="px-6 py-4 font-bold opacity-60 hover:opacity-100 transition-opacity" style={{ color: theme.colors.primary }}>Cancel</button>
-                     <button type="submit" className="px-8 py-4 rounded-xl text-white font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-xl"
-                        style={{ background: theme.colors.primary }}
-                     >Save Address</button>
-                 </div>
-             </form>
-         </div>
+          <AddressForm 
+            title={editingId ? "Edit Address" : "New Address"}
+            submitLabel={editingId ? "Update Address" : "Save Address"}
+            formData={formData}
+            setFormData={setFormData}
+            onSubmit={handleSubmit}
+            onCancel={() => setShowForm(false)}
+            isLoading={saving}
+          />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {addresses.map(address => (

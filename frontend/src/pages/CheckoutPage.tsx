@@ -5,10 +5,11 @@ import { useAuth } from "../context/AuthContext";
 import { addressService } from "../services/addressService";
 import { orderService } from "../services/orderService";
 import type { Address, AddressInput } from "../types/user";
-import { FiMapPin, FiPlus, FiCheck, FiShoppingBag, FiArrowLeft, FiCreditCard, FiTrash2, FiUser, FiPhone, FiHash, FiX } from "react-icons/fi";
+import { FiMapPin, FiPlus, FiCheck, FiShoppingBag, FiArrowLeft, FiCreditCard, FiTrash2 } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import QuantitySelector from "../components/shop/QuantitySelector";
+import AddressForm from "../components/profile/AddressForm";
 
 declare global {
   interface Window {
@@ -244,65 +245,19 @@ export default function CheckoutPage() {
                                  <FiPlus className="text-xl group-hover:scale-125 transition-transform" />
                                  <span className="text-xs font-bold uppercase tracking-widest">Add New Address</span>
                              </button>
-                           ) : (
-                             <div className="md:col-span-2 p-8 rounded-3xl bg-white border border-stone-100 shadow-xl animate-scale-in">
-                                 <div className="flex items-center justify-between mb-6">
-                                     <h3 className="text-lg font-black" style={{ color: theme.colors.primary }}>New Shipping Address</h3>
-                                     <button onClick={() => setShowAddressForm(false)} className="opacity-40 hover:opacity-100 transition-opacity">
-                                         <FiX size={20} />
-                                     </button>
-                                 </div>
-                                 <form onSubmit={handleAddAddress} className="space-y-4">
-                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                         <div className="space-y-1">
-                                             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Full Name</label>
-                                             <div className="relative">
-                                                 <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-                                                 <input required value={newAddress.name} onChange={e => setNewAddress({...newAddress, name: e.target.value})} className="w-full pl-12 pr-4 py-3 rounded-xl bg-stone-50 border-2 border-transparent focus:border-stone-200 outline-none font-bold text-sm transition-all" placeholder="John Doe" />
-                                             </div>
-                                         </div>
-                                         <div className="space-y-1">
-                                             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Phone</label>
-                                             <div className="relative">
-                                                 <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-                                                 <input value={newAddress.phone || ""} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} className="w-full pl-12 pr-4 py-3 rounded-xl bg-stone-50 border-2 border-transparent focus:border-stone-200 outline-none font-bold text-sm transition-all" placeholder="+91 98765 43210" />
-                                             </div>
-                                         </div>
-                                     </div>
-                                     <div className="space-y-1">
-                                         <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Address Line 1</label>
-                                         <div className="relative">
-                                             <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-                                             <input required value={newAddress.line1} onChange={e => setNewAddress({...newAddress, line1: e.target.value})} className="w-full pl-12 pr-4 py-3 rounded-xl bg-stone-50 border-2 border-transparent focus:border-stone-200 outline-none font-bold text-sm transition-all" placeholder="Flat, House no., Building, Street" />
-                                         </div>
-                                     </div>
-                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                         <div className="space-y-1">
-                                             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">City</label>
-                                             <input required value={newAddress.city} onChange={e => setNewAddress({...newAddress, city: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-stone-50 border-2 border-transparent focus:border-stone-200 outline-none font-bold text-sm transition-all" placeholder="City" />
-                                         </div>
-                                         <div className="space-y-1">
-                                             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">State</label>
-                                             <input value={newAddress.state || ""} onChange={e => setNewAddress({...newAddress, state: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-stone-50 border-2 border-transparent focus:border-stone-200 outline-none font-bold text-sm transition-all" placeholder="State" />
-                                         </div>
-                                         <div className="space-y-1 col-span-2 md:col-span-1">
-                                             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Postal Code</label>
-                                             <div className="relative">
-                                                 <FiHash className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-                                                 <input required value={newAddress.postalCode} onChange={e => setNewAddress({...newAddress, postalCode: e.target.value})} className="w-full pl-12 pr-4 py-3 rounded-xl bg-stone-50 border-2 border-transparent focus:border-stone-200 outline-none font-bold text-sm transition-all" placeholder="6 digits" />
-                                             </div>
-                                         </div>
-                                     </div>
-                                     <div className="flex justify-end gap-3 pt-4 border-t border-stone-50">
-                                         <button type="button" onClick={() => setShowAddressForm(false)} className="px-6 py-3 font-bold opacity-60 hover:opacity-100 transition-opacity">Cancel</button>
-                                         <button type="submit" disabled={savingAddress} className="px-8 py-3 rounded-xl text-white font-black shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
-                                            style={{ backgroundColor: theme.colors.secondary }}>
-                                             {savingAddress ? "Saving..." : "Save & Use Address"}
-                                         </button>
-                                     </div>
-                                 </form>
-                             </div>
-                           )}
+                            ) : (
+                              <div className="md:col-span-2">
+                                <AddressForm 
+                                  title="New Shipping Address"
+                                  submitLabel="Save & Use Address"
+                                  formData={newAddress}
+                                  setFormData={setNewAddress}
+                                  onSubmit={handleAddAddress}
+                                  onCancel={() => setShowAddressForm(false)}
+                                  isLoading={savingAddress}
+                                />
+                              </div>
+                            )}
                       </div>
                     )}
                 </section>

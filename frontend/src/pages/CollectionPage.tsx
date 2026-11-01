@@ -5,6 +5,7 @@ import { FiArrowRight } from "react-icons/fi";
 import { categoryService } from "../services/categoryService";
 import type { Category } from "../types/artwork";
 import { useToast } from "../context/ToastContext";
+import { showImageFallback } from "../utils/imageFallback";
 
 export default function CollectionPage() {
   const navigate = useNavigate();
@@ -66,6 +67,7 @@ export default function CollectionPage() {
             {/* Background Image */}
             {category.image && (
               <img
+                onError={showImageFallback}
                 src={category.image}
                 alt={category.name}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"

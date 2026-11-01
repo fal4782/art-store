@@ -13,6 +13,7 @@ import { orderService } from "../../services/orderService";
 import type { Order, OrderStatus } from "../../types/order";
 import { getStatusConfig } from "../../utils/orderStatus";
 import { useToast } from "../../context/ToastContext";
+import { showImageFallback } from "../../utils/imageFallback";
 
 type Tab = "TO_SHIP" | OrderStatus | "ALL";
 
@@ -237,6 +238,7 @@ function OrderCard({
             <div key={item.id} className="flex items-center gap-4">
               {item.artworkImage ? (
                 <img
+                  onError={showImageFallback}
                   src={item.artworkImage}
                   alt={item.artworkName}
                   className="w-14 h-14 rounded-xl object-cover shrink-0"

@@ -18,6 +18,7 @@ import { artworkService } from "../../services/artworkService";
 import { categoryService } from "../../services/categoryService";
 import { useToast } from "../../context/ToastContext";
 import type { Artwork, Category } from "../../types/artwork";
+import { showImageFallback } from "../../utils/imageFallback";
 
 export default function AdminArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -281,6 +282,7 @@ export default function AdminArtworks() {
                         >
                           {artwork.images?.[0] ? (
                             <img
+                              onError={showImageFallback}
                               src={artwork.images[0]}
                               alt={artwork.name}
                               className="w-full h-full object-cover"

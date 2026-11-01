@@ -4,6 +4,7 @@ import { theme } from "../../theme";
 import { FiX, FiTrash2, FiShoppingBag, FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import QuantitySelector from "./QuantitySelector";
+import { showImageFallback } from "../../utils/imageFallback";
 
 export default function CartDrawer() {
   const {
@@ -130,6 +131,7 @@ export default function CartDrawer() {
                   {/* Item Image */}
                   <div className="w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0">
                     <img
+                      onError={showImageFallback}
                       src={item.artwork.images[0]}
                       alt={item.artwork.name}
                       className="w-full h-full object-cover transition-transform group-hover:scale-110"

@@ -4,6 +4,7 @@ import { useCart } from "../../context/CartContext";
 import { theme } from "../../theme";
 import { FiHeart, FiShoppingBag, FiTrash2, FiArrowRight } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
+import { showImageFallback } from "../../utils/imageFallback";
 
 export default function Wishlist() {
   const { wishlist, toggleWishlist, loading, refreshWishlist } = useWishlist();
@@ -96,6 +97,7 @@ export default function Wishlist() {
                 onClick={() => navigate(`/artwork/${item.artwork.slug}`)}
               >
                 <img
+                  onError={showImageFallback}
                   src={item.artwork.images[0]}
                   alt={item.artwork.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"

@@ -15,6 +15,7 @@ import { useToast } from "../context/ToastContext";
 
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { showImageFallback } from "../utils/imageFallback";
 
 export default function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -125,6 +126,7 @@ export default function ProductDetailsPage() {
               }}
             >
               <img
+                onError={showImageFallback}
                 src={
                   mainImage ||
                   "https://via.placeholder.com/1000x1000?text=No+Image"
@@ -169,6 +171,7 @@ export default function ProductDetailsPage() {
                     }}
                   >
                     <img
+                      onError={showImageFallback}
                       src={img}
                       className="w-full h-full object-cover"
                       alt=""

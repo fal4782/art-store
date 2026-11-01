@@ -23,6 +23,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import QuantitySelector from "../components/shop/QuantitySelector";
 import AddressForm from "../components/profile/AddressForm";
+import { showImageFallback } from "../utils/imageFallback";
 
 declare global {
   interface Window {
@@ -427,6 +428,7 @@ export default function CheckoutPage() {
                   >
                     <div className="w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0 shadow-sm">
                       <img
+                        onError={showImageFallback}
                         src={item.artwork.images[0]}
                         alt={item.artwork.name}
                         className="w-full h-full object-cover"

@@ -16,6 +16,7 @@ import { orderService } from "../../services/orderService";
 // import { downloadService } from "../../services/downloadService";
 // import { useToast } from "../../context/ToastContext";
 import type { Order, OrderStatus } from "../../types/order";
+import { showImageFallback } from "../../utils/imageFallback";
 
 export default function OrderDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -236,6 +237,7 @@ export default function OrderDetailsPage() {
                 >
                   <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-stone-100 shrink-0 border border-stone-100 relative group-hover:scale-105 transition-transform duration-500 shadow-sm">
                     <img
+                      onError={showImageFallback}
                       src={
                         item.artworkImage || "https://via.placeholder.com/200"
                       }

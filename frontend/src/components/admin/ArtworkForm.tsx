@@ -18,6 +18,7 @@ import { categoryService } from "../../services/categoryService";
 import { tagService } from "../../services/tagService";
 import type { Artwork, Category, Tag, ArtworkType } from "../../types/artwork";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import { showImageFallback } from "../../utils/imageFallback";
 
 interface ArtworkFormProps {
   initialData?: Partial<Artwork>;
@@ -197,6 +198,7 @@ export default function ArtworkForm({
                   className="aspect-square rounded-2xl overflow-hidden bg-stone-50 relative group border border-stone-100"
                 >
                   <img
+                    onError={showImageFallback}
                     src={url}
                     alt="Artwork"
                     className="w-full h-full object-cover"

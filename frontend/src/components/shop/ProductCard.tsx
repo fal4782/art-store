@@ -1,6 +1,7 @@
 import { theme } from "../../theme";
 import type { Artwork } from "../../types/artwork";
 import { FiShoppingBag, FiEye } from "react-icons/fi";
+import { showImageFallback } from "../../utils/imageFallback";
 
 interface ProductCardProps {
   artwork: Artwork;
@@ -33,6 +34,7 @@ export default function ProductCard({
         style={{ backgroundColor: `${theme.colors.primary}08` }}
       >
         <img
+          onError={showImageFallback}
           src={imageUrl}
           alt={name}
           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"

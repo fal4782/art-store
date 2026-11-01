@@ -130,7 +130,11 @@ export default function CartDrawer() {
               cart.map((item) => (
                 <div key={item.id} className="flex gap-4 group animate-fade-in">
                   {/* Item Image */}
-                  <div className="w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0">
+                  <Link
+                    to={`/artwork/${item.artwork.slug}`}
+                    onClick={() => setIsCartOpen(false)}
+                    className="block w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0"
+                  >
                     <img
                       onError={showImageFallback}
                       src={sizedImage(
@@ -140,7 +144,7 @@ export default function CartDrawer() {
                       alt={item.artwork.name}
                       className="w-full h-full object-cover transition-transform group-hover:scale-110"
                     />
-                  </div>
+                  </Link>
 
                   {/* Item Details */}
                   <div className="flex-1 flex flex-col justify-between">
@@ -150,7 +154,13 @@ export default function CartDrawer() {
                           className="font-black text-sm uppercase tracking-tight leading-tight line-clamp-1"
                           style={{ color: theme.colors.primary }}
                         >
-                          {item.artwork.name}
+                          <Link
+                            to={`/artwork/${item.artwork.slug}`}
+                            onClick={() => setIsCartOpen(false)}
+                            className="hover:underline underline-offset-2"
+                          >
+                            {item.artwork.name}
+                          </Link>
                         </h3>
                         <button
                           onClick={() => removeFromCart(item.id)}

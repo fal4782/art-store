@@ -427,7 +427,10 @@ export default function CheckoutPage() {
                       border: `1px solid ${theme.colors.primary}08`,
                     }}
                   >
-                    <div className="w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0 shadow-sm">
+                    <Link
+                      to={`/artwork/${item.artwork.slug}`}
+                      className="block w-24 h-24 rounded-2xl overflow-hidden bg-stone-100 shrink-0 shadow-sm"
+                    >
                       <img
                         onError={showImageFallback}
                         src={sizedImage(
@@ -437,13 +440,18 @@ export default function CheckoutPage() {
                         alt={item.artwork.name}
                         className="w-full h-full object-cover"
                       />
-                    </div>
+                    </Link>
                     <div className="flex-1 min-w-0 text-center sm:text-left">
                       <h3
                         className="font-black text-lg"
                         style={{ color: theme.colors.primary }}
                       >
-                        {item.artwork.name}
+                        <Link
+                          to={`/artwork/${item.artwork.slug}`}
+                          className="hover:underline underline-offset-2"
+                        >
+                          {item.artwork.name}
+                        </Link>
                       </h3>
                       <p className="text-xs font-black uppercase tracking-widest opacity-40 mb-3">
                         {item.artwork.type}

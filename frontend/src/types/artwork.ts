@@ -46,6 +46,7 @@ export interface GetArtworksQuery {
   type?: ArtworkType;
   isAvailable?: boolean;
   isFeatured?: boolean;
+  includeHidden?: boolean; // admin only: also return drafts and hidden digital
   tag?: string;
   sortBy?: "createdAt" | "price" | "views" | "name";
   sortOrder?: "asc" | "desc";

@@ -32,6 +32,7 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
     type,
     isAvailable,
     isFeatured,
+    includeHidden,
     tag,
     sortBy = "createdAt",
     sortOrder = "desc",
@@ -54,8 +55,9 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
     if (type) where.type = type;
     if (isFeatured !== undefined) where.isFeatured = isFeatured === "true";
 
-    // Visibility logic
-    if (req.isAdmin) {
+    // Visibility logic: everyone, admins included, gets the customer view
+    // unless an admin explicitly asks for hidden artworks too.
+    if (req.isAdmin && includeHidden === "true") {
       if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
     } else {
       where.isAvailable = true;

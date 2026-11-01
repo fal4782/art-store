@@ -76,6 +76,8 @@ export const GetArtworksQuerySchema = z.object({
   type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]).optional(),
   isAvailable: z.enum(["true", "false"]).optional(),
   isFeatured: z.enum(["true", "false"]).optional(),
+  // Admin-only: include drafts and hidden digital artworks (admin artworks page)
+  includeHidden: z.enum(["true", "false"]).optional(),
   tag: z.string().optional(),
   sortBy: z.enum(["createdAt", "price", "views", "name"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),

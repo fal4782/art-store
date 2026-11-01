@@ -9,19 +9,12 @@ import ProductCard from "./ProductCard";
 
 const COUNT = 4;
 
-// Same flag the shop filter uses (see backend/src/lib/config.ts). The API
-// already hides digital pieces from customers, but not from admins, so filter
-// here too to keep the homepage identical for everyone.
-const DIGITAL_SALES_ENABLED =
-  import.meta.env.VITE_DIGITAL_SALES_ENABLED === "true";
-
 const isBuyable = (a: Artwork) =>
   a.isMadeToOrder || a.type === "DIGITAL" || a.stockQuantity > 0;
 
 /**
  * Homepage row of artworks: the ones the admin marked as featured, or the
  * newest pieces if none are. In-stock pieces are shown before sold-out ones.
- * Asks for published pieces explicitly, since admins otherwise also get drafts.
  */
 export default function FeaturedArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -33,7 +26,6 @@ export default function FeaturedArtworks() {
     const load = async () => {
       const featured = await artworkService.getArtworks({
         isFeatured: true,
-        isAvailable: true,
         limit: COUNT * 2,
       });
       if (featured.artworks.length > 0)
@@ -41,19 +33,15 @@ export default function FeaturedArtworks() {
       const newest = await artworkService.getArtworks({
         sortBy: "createdAt",
         sortOrder: "desc",
-        isAvailable: true,
         limit: COUNT * 2,
       });
       return { list: newest.artworks, featured: false };
     };
     load()
       .then(({ list, featured }) => {
-        const shown = DIGITAL_SALES_ENABLED
-          ? list
-          : list.filter((a) => a.type !== "DIGITAL");
         const sorted = [
-          ...shown.filter(isBuyable),
-          ...shown.filter((a) => !isBuyable(a)),
+          ...list.filter(isBuyable),
+          ...list.filter((a) => !isBuyable(a)),
         ];
         setArtworks(sorted.slice(0, COUNT));
         setIsFeatured(featured);

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { theme } from "../theme";
 import { Link } from "react-router-dom";
+import FeaturedArtworks from "../components/shop/FeaturedArtworks";
 import {
   FiArrowRight,
   FiScissors,
@@ -152,6 +153,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <FeaturedArtworks />
 
       {/* CRAFT SHOWCASE */}
       <section

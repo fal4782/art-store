@@ -88,6 +88,10 @@ export async function adminMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  // Without a userId, Prisma would drop the id filter and match any admin.
+  if (!req.userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
   try {
     const isAdmin = await prisma.user.findFirst({
       where: {

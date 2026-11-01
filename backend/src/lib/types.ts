@@ -52,20 +52,28 @@ export const ChangePasswordSchema = z.object({
 
 export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
 
-export const CreateAddressSchema = z.object({
+// Fields without defaults. Zod 4 applies defaults even inside .partial(), so
+// update schemas are built from these; otherwise a partial update would reset
+// every field it doesn't send back to its default.
+const addressFields = {
   name: z.string().min(1),
   line1: z.string().min(1),
   line2: z.string().optional(),
   city: z.string().min(1),
   state: z.string().optional(),
   postalCode: z.string().min(1),
-  country: z.string().default("India"),
+  country: z.string(),
   phone: z.string().optional(),
   isDefault: z.boolean().optional(),
+};
+
+export const CreateAddressSchema = z.object({
+  ...addressFields,
+  country: addressFields.country.default("India"),
 });
 export type AddressInput = z.infer<typeof CreateAddressSchema>;
 
-export const UpdateAddressSchema = CreateAddressSchema.partial();
+export const UpdateAddressSchema = z.object(addressFields).partial();
 export type UpdateAddressInput = z.infer<typeof UpdateAddressSchema>;
 
 export const GetArtworksQuerySchema = z.object({
@@ -81,27 +89,40 @@ export const GetArtworksQuerySchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
-export const CreateArtworkSchema = z.object({
+// Fields without defaults; see addressFields for why.
+const artworkFields = {
   name: z.string().min(1),
   slug: z.string().min(1),
   description: z.string().optional(),
   categoryId: z.string().min(1),
-  type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]).default("PHYSICAL"),
+  type: z.enum(["PHYSICAL", "DIGITAL", "BOTH"]),
   priceInPaise: z.number().int().min(0),
   dimensions: z.string().optional(),
   medium: z.string().optional(),
   filePath: z.string().nullable().optional(),
-  stockQuantity: z.number().int().min(0).default(1),
-  isAvailable: z.boolean().default(true),
-  isFeatured: z.boolean().default(false),
-  isMadeToOrder: z.boolean().default(false),
-  sortOrder: z.number().int().default(0),
-  images: z.array(z.string()).default([]),
-  tags: z.array(z.string()).default([]), // array of tag IDs
+  stockQuantity: z.number().int().min(0),
+  isAvailable: z.boolean(),
+  isFeatured: z.boolean(),
+  isMadeToOrder: z.boolean(),
+  sortOrder: z.number().int(),
+  images: z.array(z.string()),
+  tags: z.array(z.string()), // array of tag IDs
+};
+
+export const CreateArtworkSchema = z.object({
+  ...artworkFields,
+  type: artworkFields.type.default("PHYSICAL"),
+  stockQuantity: artworkFields.stockQuantity.default(1),
+  isAvailable: artworkFields.isAvailable.default(true),
+  isFeatured: artworkFields.isFeatured.default(false),
+  isMadeToOrder: artworkFields.isMadeToOrder.default(false),
+  sortOrder: artworkFields.sortOrder.default(0),
+  images: artworkFields.images.default([]),
+  tags: artworkFields.tags.default([]),
 });
 export type CreateArtworkInput = z.infer<typeof CreateArtworkSchema>;
 
-export const UpdateArtworkSchema = CreateArtworkSchema.partial();
+export const UpdateArtworkSchema = z.object(artworkFields).partial();
 export type UpdateArtworkInput = z.infer<typeof UpdateArtworkSchema>;
 
 export const CreateTagSchema = z.object({

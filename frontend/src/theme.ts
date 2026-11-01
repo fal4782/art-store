@@ -3,6 +3,7 @@ export const theme = {
     // Main Colors
     primary: "#5C4A3A",
     secondary: "#8FAA7A",
+    secondaryDark: "#55703F", // For white text on green: passes WCAG AA, secondary doesn't
     accent: "#E8D5C4",
 
     // Background Colors

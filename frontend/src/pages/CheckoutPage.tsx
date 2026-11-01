@@ -495,7 +495,7 @@ export default function CheckoutPage() {
               <div
                 className="p-8 rounded-[40px] shadow-2xl overflow-hidden relative"
                 style={{
-                  backgroundColor: theme.colors.secondary,
+                  backgroundColor: theme.colors.secondaryDark,
                   color: theme.colors.surface,
                 }}
               >
@@ -517,7 +517,7 @@ export default function CheckoutPage() {
                         setDiscountCode(e.target.value.toUpperCase())
                       }
                       disabled={!!appliedDiscount}
-                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 placeholder-white/50 text-white font-bold outline-none focus:bg-white/20 transition-all uppercase"
+                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 placeholder-white/90 text-white font-bold outline-none focus:bg-white/20 transition-all uppercase"
                     />
                     {appliedDiscount ? (
                       <button
@@ -534,7 +534,7 @@ export default function CheckoutPage() {
                         onClick={handleApplyDiscount}
                         disabled={!discountCode || verifyingDiscount}
                         className="px-6 py-2 rounded-xl bg-white text-secondary font-black hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ color: theme.colors.secondary }}
+                        style={{ color: theme.colors.secondaryDark }}
                       >
                         {verifyingDiscount ? (
                           <FiLoader className="animate-spin" />
@@ -547,7 +547,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="space-y-4 mb-8 relative">
-                  <div className="flex justify-between text-sm font-bold opacity-80">
+                  <div className="flex justify-between text-sm font-bold opacity-90">
                     <span>Subtotal</span>
                     <span>{formatPrice(totalAmount)}</span>
                   </div>
@@ -561,7 +561,7 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  <div className="flex justify-between text-sm font-bold opacity-80">
+                  <div className="flex justify-between text-sm font-bold opacity-90">
                     <span>Shipping</span>
                     <span className="font-black">FREE</span>
                   </div>
@@ -596,7 +596,7 @@ export default function CheckoutPage() {
                   )}
                 </button>
 
-                <p className="text-[9px] text-center mt-6 opacity-40 font-black uppercase tracking-[0.2em] px-4">
+                <p className="text-[10px] text-center mt-6 font-black uppercase tracking-[0.2em] px-4">
                   Secure SSL Encryption • Razorpay Payment
                 </p>
               </div>

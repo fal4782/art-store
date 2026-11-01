@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { authMiddleware } from "../middleware";
+import { digitalSalesEnabled } from "../lib/config";
 import { AddToWishlistSchema } from "../lib/types";
 
 const router = Router();
@@ -9,7 +10,12 @@ router.get("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
   try {
     const wishlist = await prisma.wishlistItem.findMany({
-      where: { userId },
+      where: {
+        userId,
+        ...(!digitalSalesEnabled() && {
+          artwork: { type: { not: "DIGITAL" } },
+        }),
+      },
       include: {
         artwork: {
           include: {

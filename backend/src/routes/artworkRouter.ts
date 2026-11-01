@@ -10,6 +10,7 @@ import {
   authMiddleware,
   optionalAuthMiddleware,
 } from "../middleware";
+import { digitalSalesEnabled, isHiddenDigital } from "../lib/config";
 
 const router = Router();
 
@@ -58,6 +59,9 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
       if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
     } else {
       where.isAvailable = true;
+      if (!digitalSalesEnabled()) {
+        where.AND = [{ type: { not: "DIGITAL" } }];
+      }
     }
     if (tag) {
       where.tags = {
@@ -167,7 +171,10 @@ router.get("/slug/:slug", optionalAuthMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Artwork not found" });
     }
 
-    if (!artwork.isAvailable && !req.isAdmin) {
+    if (
+      !req.isAdmin &&
+      (!artwork.isAvailable || isHiddenDigital(artwork.type))
+    ) {
       return res.status(404).json({ message: "Artwork not found" });
     }
 
@@ -202,7 +209,10 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Artwork not found" });
     }
 
-    if (!artwork.isAvailable && !req.isAdmin) {
+    if (
+      !req.isAdmin &&
+      (!artwork.isAvailable || isHiddenDigital(artwork.type))
+    ) {
       return res.status(404).json({ message: "Artwork not found" });
     }
 

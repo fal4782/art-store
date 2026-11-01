@@ -16,6 +16,12 @@ interface FilterBarProps {
   className?: string;
 }
 
+// Mirrors the backend's DIGITAL_SALES_ENABLED (see backend/src/lib/config.ts).
+// Digital artworks are hidden until downloads are built (issue #8), which
+// leaves only physical pieces, so the Physical/Digital filter is hidden too.
+const DIGITAL_SALES_ENABLED =
+  import.meta.env.VITE_DIGITAL_SALES_ENABLED === "true";
+
 const TYPES: { label: string; value: ArtworkType }[] = [
   { label: "Physical", value: "PHYSICAL" },
   { label: "Digital", value: "DIGITAL" },
@@ -193,7 +199,7 @@ export default function FilterBar({
       )}
 
       {/* Format */}
-      <div className="space-y-4">
+      <div className={DIGITAL_SALES_ENABLED ? "space-y-4" : "hidden"}>
         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">
           Format
         </h3>

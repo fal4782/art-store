@@ -4,6 +4,7 @@ import { authMiddleware, optionalAuthMiddleware } from "../middleware";
 import { OrderItemData, PlaceOrderSchema } from "../lib/types";
 import { razorpay } from "../lib/razorpay";
 import { hasStock, releaseUnpaidOrder } from "../lib/stock";
+import { isHiddenDigital } from "../lib/config";
 import {
   DiscountError,
   discountedTotal,
@@ -110,7 +111,12 @@ router.post("/", authMiddleware, async (req, res) => {
       const artwork = await prisma.artwork.findUnique({
         where: { id: item.artworkId },
       });
-      if (!artwork || artwork.deletedAt || !artwork.isAvailable) {
+      if (
+        !artwork ||
+        artwork.deletedAt ||
+        !artwork.isAvailable ||
+        isHiddenDigital(artwork.type)
+      ) {
         return res
           .status(400)
           .json({ message: `Artwork not available: ${item.artworkId}` });

@@ -16,6 +16,9 @@ import { discountRouter } from "./routes/discountRouter";
 
 const app = express();
 
+// The Razorpay webhook verifies an HMAC over the raw request bytes, so it must
+// get its body before the global JSON parser consumes the stream.
+app.use("/api/v1/payments/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cors());
 

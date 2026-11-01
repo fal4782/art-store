@@ -14,7 +14,12 @@ router.post(
   async (req, res) => {
     const secret = process.env.RAZORPAY_TEST_SECRET!;
     const signature = req.headers["x-razorpay-signature"];
-    const body = req.body; // Buffer
+    const body = req.body; // Buffer (raw parser for this path runs in index.ts, before express.json())
+
+    if (!Buffer.isBuffer(body)) {
+      console.error("Webhook body was not raw; check parser order in index.ts");
+      return res.status(500).json({ message: "Webhook misconfigured" });
+    }
 
     if (!signature) {
       console.warn("Missing Razorpay signature header");

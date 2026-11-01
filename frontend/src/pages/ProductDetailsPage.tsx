@@ -95,29 +95,41 @@ export default function ProductDetailsPage() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-10 animate-fade-in">
         {/* Breadcrumbs & Back Link */}
-        <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-6 md:mb-8 text-[11px] md:text-sm font-bold opacity-60">
-          <Link
-            to="/"
-            className="hover:opacity-100 transition-opacity"
-            style={{ color: theme.colors.primary }}
-          >
-            Home
-          </Link>
-          <FiChevronRight className="opacity-40" />
-          <Link
-            to="/shop"
-            className="hover:opacity-100 transition-opacity"
-            style={{ color: theme.colors.primary }}
-          >
-            Shop
-          </Link>
-          <FiChevronRight className="opacity-40" />
-          <span
-            className="truncate max-w-[150px] md:max-w-none"
-            style={{ color: theme.colors.primary }}
-          >
-            {artwork.name}
-          </span>
+        <div className="flex items-center justify-between gap-4 mb-6 md:mb-8">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 min-w-0 text-[11px] md:text-sm font-bold opacity-60">
+            <Link
+              to="/"
+              className="hover:opacity-100 transition-opacity"
+              style={{ color: theme.colors.primary }}
+            >
+              Home
+            </Link>
+            <FiChevronRight className="opacity-40" />
+            <Link
+              to="/shop"
+              className="hover:opacity-100 transition-opacity"
+              style={{ color: theme.colors.primary }}
+            >
+              Shop
+            </Link>
+            <FiChevronRight className="opacity-40" />
+            <span
+              className="truncate max-w-[150px] md:max-w-none"
+              style={{ color: theme.colors.primary }}
+            >
+              {artwork.name}
+            </span>
+          </div>
+          {isAdmin && (
+            <Link
+              to={`/admin/artworks/edit/${artwork.id}`}
+              state={{ fromArtworkPage: true }}
+              className="shrink-0 flex items-center gap-2 text-xs font-black uppercase tracking-wider md:tracking-widest opacity-60 hover:opacity-100 transition-opacity"
+              style={{ color: theme.colors.secondaryDark }}
+            >
+              <FiEdit2 /> Edit artwork
+            </Link>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 md:gap-12 xl:gap-24 items-start">
@@ -204,19 +216,6 @@ export default function ProductDetailsPage() {
                     }}
                   >
                     {artwork.category.name}
-                  </Link>
-                )}
-                {isAdmin && (
-                  <Link
-                    to={`/admin/artworks/edit/${artwork.id}`}
-                    state={{ fromArtworkPage: true }}
-                    className="ml-auto flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border transition-colors hover:bg-stone-100"
-                    style={{
-                      color: theme.colors.primary,
-                      borderColor: `${theme.colors.primary}20`,
-                    }}
-                  >
-                    <FiEdit2 /> Edit
                   </Link>
                 )}
               </div>

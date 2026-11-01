@@ -220,7 +220,7 @@ export default function CartDrawer() {
               </Link>
 
               <p className="text-[10px] text-center font-bold opacity-30 px-6 uppercase tracking-widest leading-relaxed">
-                Taxes and shipping calculated at checkout
+                Tax included · Free shipping
               </p>
             </div>
           )}

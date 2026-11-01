@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 import crypto from "crypto";
-import { prisma } from "../lib/prisma";
+import { confirmOrderPayment } from "../lib/payments";
 
 const router = Router();
 
@@ -47,36 +47,25 @@ router.post(
     }
 
     if (event.event === "payment.captured") {
-      const razorpayOrderId = event.payload.payment.entity.order_id;
-      const razorpayPaymentId = event.payload.payment.entity.id;
-
-      const order = await prisma.order.findFirst({
-        where: { paymentIntentId: razorpayOrderId },
-      });
-
-      if (!order) {
-        console.warn(
-          "No matching order found for Razorpay order ID:",
-          razorpayOrderId,
-        );
-        return res.status(200).json({ status: "ok" });
+      const payment = event.payload.payment.entity;
+      try {
+        const result = await confirmOrderPayment({
+          razorpayOrderId: payment.order_id,
+          razorpayPaymentId: payment.id,
+          amountInPaise: payment.amount,
+          currency: payment.currency,
+        });
+        if (!result) {
+          console.warn(
+            "No matching order found for Razorpay order ID:",
+            payment.order_id,
+          );
+        }
+      } catch (error) {
+        // Confirmation is idempotent, so a non-2xx here just makes Razorpay retry.
+        console.error("Webhook payment confirmation failed", error);
+        return res.status(500).json({ message: "Internal server error" });
       }
-
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { paymentStatus: "COMPLETED", status: "CONFIRMED" },
-      });
-
-      await prisma.payment.create({
-        data: {
-          orderId: order.id,
-          amountInPaise: event.payload.payment.entity.amount,
-          currency: event.payload.payment.entity.currency,
-          status: "COMPLETED",
-          paymentGateway: "razorpay",
-          gatewayPaymentId: razorpayPaymentId,
-        },
-      });
     }
 
     // Always return 200 to acknowledge receipt
@@ -98,40 +87,20 @@ router.post("/verify", async (req, res) => {
   }
 
   try {
-    const order = await prisma.order.findFirst({
-      where: { paymentIntentId: razorpay_order_id },
+    const result = await confirmOrderPayment({
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
     });
 
-    if (!order) {
+    if (!result) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    if (order.paymentStatus === "COMPLETED") {
-      return res.json({ message: "Payment already verified", order });
-    }
-
-    // Update order status
-    const updatedOrder = await prisma.order.update({
-      where: { id: order.id },
-      data: { paymentStatus: "COMPLETED", status: "CONFIRMED" },
-    });
-
-    // Capture payment details
-    // Note: In verify, we might not have all the details the webhook has, but we can store the basics
-    await prisma.payment.create({
-      data: {
-        orderId: order.id,
-        amountInPaise: updatedOrder.totalPriceInPaise,
-        currency: "INR",
-        status: "COMPLETED",
-        paymentGateway: "razorpay",
-        gatewayPaymentId: razorpay_payment_id,
-      },
-    });
-
     return res.json({
-      message: "Payment verified successfully",
-      order: updatedOrder,
+      message: result.newlyConfirmed
+        ? "Payment verified successfully"
+        : "Payment already verified",
+      order: result.order,
     });
   } catch (error) {
     console.error(error);

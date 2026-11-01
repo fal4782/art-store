@@ -1,5 +1,6 @@
 import { FaHeart, FaPaintBrush } from "react-icons/fa";
 import { theme } from "../theme";
+import { Link } from "react-router-dom";
 import { footerLinks, socialLinks, contactInfo } from "../utils/footerData";
 
 export default function Footer() {
@@ -43,7 +44,7 @@ export default function Footer() {
                 style={{ color: `${theme.colors.primary}aa` }}
               >
                 Discover exceptional art curated for collectors and enthusiasts
-                worldwide.
+                across India.
               </p>
             </div>
 
@@ -67,8 +68,8 @@ export default function Footer() {
                 <ul className="space-y-2.5">
                   {section.links.map((link) => (
                     <li key={link.label}>
-                      <a
-                        href={link.href}
+                      <Link
+                        to={link.href}
                         className="text-sm transition-colors duration-200 hover:translate-x-0.5 inline-block"
                         style={{
                           color: `${theme.colors.primary}99`,
@@ -81,7 +82,7 @@ export default function Footer() {
                         }}
                       >
                         {link.label}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

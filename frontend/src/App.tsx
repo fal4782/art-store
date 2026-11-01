@@ -7,6 +7,14 @@ import ShopPage from "./pages/ShopPage";
 import CollectionPage from "./pages/CollectionPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import {
+  AboutPage,
+  ContactPage,
+  FaqPage,
+  PrivacyPage,
+  ShippingReturnsPage,
+  TermsPage,
+} from "./pages/InfoPages";
 import OrderDetailsPage from "./pages/profile/OrderDetailsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ToastProvider } from "./context/ToastContext";
@@ -72,6 +80,15 @@ function App() {
                           path="/artwork/:slug"
                           element={<ProductDetailsPage />}
                         />
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        <Route path="/faq" element={<FaqPage />} />
+                        <Route
+                          path="/shipping"
+                          element={<ShippingReturnsPage />}
+                        />
+                        <Route path="/terms" element={<TermsPage />} />
+                        <Route path="/privacy" element={<PrivacyPage />} />
                         <Route
                           path="/checkout"
                           element={

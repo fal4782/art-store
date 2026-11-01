@@ -105,7 +105,7 @@ export function AboutPage() {
         <List
           items={[
             "Original work, not mass-produced prints.",
-            "Packed carefully by hand and shipped across India for free.",
+            "Packed carefully by hand and shipped across India.",
             "Prices include tax, with secure payment through Razorpay.",
           ]}
         />
@@ -189,7 +189,7 @@ export function FaqPage() {
   const faqs = [
     {
       q: "Where do you ship?",
-      a: "Within India only, for now. Shipping is free.",
+      a: "Within India only, for now.",
     },
     {
       q: "How long does delivery take?",
@@ -242,7 +242,6 @@ export function ShippingReturnsPage() {
         <List
           items={[
             "We ship within India only.",
-            "Shipping is free on all orders.",
             "Orders are dispatched within 2-3 working days and usually delivered within 5-7 working days after dispatch.",
             "Made-to-order pieces are made after you order, so they take longer to dispatch.",
             "Once your order ships, its tracking number appears on the order's page under My Orders.",

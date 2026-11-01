@@ -439,15 +439,6 @@ export default function OrderDetailsPage() {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="opacity-60 font-bold">Shipping</span>
-                <span
-                  className="font-bold"
-                  style={{ color: theme.colors.secondary }}
-                >
-                  Free
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
                 <span className="opacity-60 font-bold">Tax (Included)</span>
                 <span className="font-bold opacity-40">₹0.00</span>
               </div>

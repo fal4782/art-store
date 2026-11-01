@@ -430,7 +430,7 @@ export default function ProductDetailsPage() {
               <div className="space-y-1 md:space-y-2 opacity-40 hover:opacity-100 transition-opacity cursor-default">
                 <FiMaximize2 className="mx-auto text-lg md:text-xl" />
                 <span className="block text-[7px] md:text-[8px] font-black uppercase tracking-widest">
-                  Global Shipping
+                  Ships in India
                 </span>
               </div>
               <div className="space-y-1 md:space-y-2 opacity-40 hover:opacity-100 transition-opacity cursor-default">

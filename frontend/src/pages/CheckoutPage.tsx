@@ -561,10 +561,6 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  <div className="flex justify-between text-sm font-bold opacity-90">
-                    <span>Shipping</span>
-                    <span className="font-black">FREE</span>
-                  </div>
                   <div className="h-px bg-white/20 my-6" />
                   <div className="flex justify-between text-2xl font-black tracking-tight">
                     <span>Total</span>

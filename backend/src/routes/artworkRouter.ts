@@ -32,7 +32,6 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
     type,
     isAvailable,
     isFeatured,
-    includeHidden,
     tag,
     sortBy = "createdAt",
     sortOrder = "desc",
@@ -55,15 +54,15 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
     if (type) where.type = type;
     if (isFeatured !== undefined) where.isFeatured = isFeatured === "true";
 
-    // Visibility logic: everyone, admins included, gets the customer view
-    // unless an admin explicitly asks for hidden artworks too.
-    if (req.isAdmin && includeHidden === "true") {
+    // Visibility logic
+    if (req.isAdmin) {
       if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
     } else {
       where.isAvailable = true;
-      if (!digitalSalesEnabled()) {
-        where.AND = [{ type: { not: "DIGITAL" } }];
-      }
+    }
+    // Hidden for everyone, admins included, while digital sales are off.
+    if (!digitalSalesEnabled()) {
+      where.AND = [{ type: { not: "DIGITAL" } }];
     }
     if (tag) {
       where.tags = {
@@ -174,8 +173,8 @@ router.get("/slug/:slug", optionalAuthMiddleware, async (req, res) => {
     }
 
     if (
-      !req.isAdmin &&
-      (!artwork.isAvailable || isHiddenDigital(artwork.type))
+      isHiddenDigital(artwork.type) ||
+      (!artwork.isAvailable && !req.isAdmin)
     ) {
       return res.status(404).json({ message: "Artwork not found" });
     }
@@ -212,8 +211,8 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
     }
 
     if (
-      !req.isAdmin &&
-      (!artwork.isAvailable || isHiddenDigital(artwork.type))
+      isHiddenDigital(artwork.type) ||
+      (!artwork.isAvailable && !req.isAdmin)
     ) {
       return res.status(404).json({ message: "Artwork not found" });
     }

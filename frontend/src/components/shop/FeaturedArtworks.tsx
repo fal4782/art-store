@@ -15,6 +15,7 @@ const isBuyable = (a: Artwork) =>
 /**
  * Homepage row of artworks: the ones the admin marked as featured, or the
  * newest pieces if none are. In-stock pieces are shown before sold-out ones.
+ * Asks for published pieces explicitly, since admins otherwise also get drafts.
  */
 export default function FeaturedArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -26,6 +27,7 @@ export default function FeaturedArtworks() {
     const load = async () => {
       const featured = await artworkService.getArtworks({
         isFeatured: true,
+        isAvailable: true,
         limit: COUNT * 2,
       });
       if (featured.artworks.length > 0)
@@ -33,6 +35,7 @@ export default function FeaturedArtworks() {
       const newest = await artworkService.getArtworks({
         sortBy: "createdAt",
         sortOrder: "desc",
+        isAvailable: true,
         limit: COUNT * 2,
       });
       return { list: newest.artworks, featured: false };

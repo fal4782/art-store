@@ -48,7 +48,7 @@ export default function AdminArtworks() {
   const loadArtworks = async (showLoader = false) => {
     if (showLoader) setLoading(true);
     try {
-      const query: any = { limit: 50, includeHidden: true };
+      const query: any = { limit: 50 };
       if (filters.search) query.search = filters.search;
       if (filters.categoryId) query.categoryId = filters.categoryId;
       if (filters.status === "PUBLISHED") query.isAvailable = true;

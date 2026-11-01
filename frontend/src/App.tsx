@@ -19,6 +19,7 @@ import AdminArtworks from "./pages/admin/AdminArtworks";
 import AdminArtworkAdd from "./pages/admin/AdminArtworkAdd";
 import AdminArtworkEdit from "./pages/admin/AdminArtworkEdit";
 import AdminDiscounts from "./pages/admin/AdminDiscounts";
+import AdminOrders from "./pages/admin/AdminOrders";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
                             path="/artworks/edit/:id"
                             element={<AdminArtworkEdit />}
                           />
+                          <Route path="/orders" element={<AdminOrders />} />
                           <Route
                             path="/discounts"
                             element={<AdminDiscounts />}

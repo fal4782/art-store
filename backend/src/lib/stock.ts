@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 
 // Stock is reserved when an order is placed, before payment. Unpaid orders
@@ -9,14 +10,18 @@ export const hasStock = (artworkType: string) =>
   artworkType === "PHYSICAL" || artworkType === "BOTH";
 
 /**
- * Cancels an order that is still awaiting payment and puts its stock back.
- * Does nothing (returns false) if the order was paid or already cancelled,
- * so it is safe to race against payment confirmation.
+ * Cancels an order and puts its stock back, but only if it still matches
+ * `expected`. Returns false and changes nothing otherwise, so it is safe to
+ * race against payment confirmation or another admin action.
  */
-export async function releaseUnpaidOrder(orderId: string, reason: string) {
+async function cancelAndRestock(
+  orderId: string,
+  expected: Prisma.OrderWhereInput,
+  reason: string,
+) {
   return prisma.$transaction(async (tx) => {
     const { count } = await tx.order.updateMany({
-      where: { id: orderId, status: "PENDING", paymentStatus: "PENDING" },
+      where: { id: orderId, ...expected },
       data: {
         status: "CANCELLED",
         cancelReason: reason,
@@ -36,6 +41,21 @@ export async function releaseUnpaidOrder(orderId: string, reason: string) {
     return true;
   });
 }
+
+/** Cancels an order still awaiting payment and puts its stock back. */
+export const releaseUnpaidOrder = (orderId: string, reason: string) =>
+  cancelAndRestock(
+    orderId,
+    { status: "PENDING", paymentStatus: "PENDING" },
+    reason,
+  );
+
+/**
+ * Cancels a paid order that hasn't shipped and puts its stock back. The
+ * refund itself is issued manually from the Razorpay dashboard.
+ */
+export const cancelPaidOrder = (orderId: string, reason: string) =>
+  cancelAndRestock(orderId, { status: "CONFIRMED" }, reason);
 
 export async function releaseExpiredOrders() {
   const cutoff = new Date(Date.now() - RESERVATION_MINUTES * 60 * 1000);

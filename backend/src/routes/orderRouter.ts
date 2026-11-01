@@ -1,9 +1,17 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { authMiddleware, optionalAuthMiddleware } from "../middleware";
-import { OrderItemData, PlaceOrderSchema } from "../lib/types";
+import {
+  adminMiddleware,
+  authMiddleware,
+  optionalAuthMiddleware,
+} from "../middleware";
+import {
+  OrderItemData,
+  PlaceOrderSchema,
+  UpdateOrderStatusSchema,
+} from "../lib/types";
 import { razorpay } from "../lib/razorpay";
-import { hasStock, releaseUnpaidOrder } from "../lib/stock";
+import { cancelPaidOrder, hasStock, releaseUnpaidOrder } from "../lib/stock";
 import { isHiddenDigital } from "../lib/config";
 import {
   DiscountError,
@@ -271,5 +279,75 @@ router.post("/:id/cancel", authMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// Which status an order must currently be in to move to each new status.
+const ALLOWED_FROM = {
+  SHIPPED: ["CONFIRMED"],
+  DELIVERED: ["SHIPPED"],
+  CANCELLED: ["PENDING", "CONFIRMED"],
+} as const;
+
+// Admin fulfilment: ship, deliver or cancel an order.
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    const { id } = req.params;
+    const parseResult = UpdateOrderStatusSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request", errors: parseResult.error.issues });
+    }
+    const { status, trackingNumber, cancelReason } = parseResult.data;
+
+    try {
+      const order = await prisma.order.findUnique({ where: { id } });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      const allowedFrom: readonly string[] = ALLOWED_FROM[status];
+      if (!allowedFrom.includes(order.status)) {
+        return res.status(400).json({
+          message: `Can't change a ${order.status.toLowerCase()} order to ${status.toLowerCase()}`,
+        });
+      }
+
+      let updated: boolean;
+      if (status === "CANCELLED") {
+        const reason = cancelReason || "Cancelled by the store";
+        updated =
+          order.status === "PENDING"
+            ? await releaseUnpaidOrder(id, reason)
+            : await cancelPaidOrder(id, reason);
+      } else {
+        // Conditional on the current status so two admins can't race.
+        const { count } = await prisma.order.updateMany({
+          where: { id, status: order.status },
+          data: {
+            status,
+            ...(trackingNumber !== undefined && {
+              trackingNumber: trackingNumber || null,
+            }),
+          },
+        });
+        updated = count === 1;
+      }
+
+      if (!updated) {
+        return res
+          .status(409)
+          .json({ message: "Order changed in the meantime, please refresh" });
+      }
+
+      const result = await prisma.order.findUnique({ where: { id } });
+      return res.json(result);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 export { router as orderRouter };

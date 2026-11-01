@@ -4,17 +4,14 @@ import {
   FiShoppingBag,
   FiChevronRight,
   FiLoader,
-  FiCheckCircle,
-  FiTruck,
-  FiClock,
   FiPackage,
-  FiXCircle,
   FiTrendingUp,
   FiUsers,
 } from "react-icons/fi";
 import { orderService } from "../../services/orderService";
 import { adminService, type DashboardStats } from "../../services/adminService";
-import type { Order, OrderStatus } from "../../types/order";
+import type { Order } from "../../types/order";
+import { getStatusConfig } from "../../utils/orderStatus";
 import { Link } from "react-router-dom";
 
 const StatCard = ({ title, value, icon: Icon, color }: any) => (
@@ -70,53 +67,6 @@ export default function AdminOverview() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
-
-  const getStatusConfig = (status: OrderStatus) => {
-    switch (status) {
-      case "DELIVERED":
-        return {
-          label: "Delivered",
-          icon: FiCheckCircle,
-          color: theme.colors.secondary,
-          bg: `${theme.colors.secondary}15`,
-        };
-      case "SHIPPED":
-        return {
-          label: "In Transit",
-          icon: FiTruck,
-          color: theme.colors.info,
-          bg: `${theme.colors.info}15`,
-        };
-      case "PENDING":
-        return {
-          label: "Processing",
-          icon: FiClock,
-          color: theme.colors.warning,
-          bg: `${theme.colors.warning}15`,
-        };
-      case "CONFIRMED":
-        return {
-          label: "Confirmed",
-          icon: FiPackage,
-          color: theme.colors.primary,
-          bg: `${theme.colors.primary}15`,
-        };
-      case "CANCELLED":
-        return {
-          label: "Cancelled",
-          icon: FiXCircle,
-          color: theme.colors.error,
-          bg: `${theme.colors.error}15`,
-        };
-      default:
-        return {
-          label: status,
-          icon: FiPackage,
-          color: theme.colors.primary,
-          bg: `${theme.colors.primary}15`,
-        };
-    }
-  };
 
   if (loading) {
     return (

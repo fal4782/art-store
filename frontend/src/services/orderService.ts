@@ -17,6 +17,12 @@ export interface VerifyPaymentInput {
   razorpay_signature: string;
 }
 
+export interface UpdateOrderStatusInput {
+  status: "SHIPPED" | "DELIVERED" | "CANCELLED";
+  trackingNumber?: string;
+  cancelReason?: string;
+}
+
 export const orderService = {
   getUserOrders: async (query?: { limit?: number }): Promise<Order[]> => {
     const response = await apiClient.get("/orders", { params: query });
@@ -32,6 +38,14 @@ export const orderService = {
     data: PlaceOrderInput,
   ): Promise<{ order: Order; razorpayOrder: any }> => {
     const response = await apiClient.post("/orders", data);
+    return response.data;
+  },
+
+  updateOrderStatus: async (
+    id: string,
+    data: UpdateOrderStatusInput,
+  ): Promise<Order> => {
+    const response = await apiClient.patch<Order>(`/orders/${id}/status`, data);
     return response.data;
   },
 

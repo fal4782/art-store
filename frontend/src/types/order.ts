@@ -32,6 +32,8 @@ export interface Order {
   discountInPaise: number;
   paymentIntentId: string | null;
   trackingNumber: string | null;
+  cancelReason: string | null;
+  cancelledAt: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string;

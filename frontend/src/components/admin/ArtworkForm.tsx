@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { theme } from "../../theme";
 import {
   FiImage,
@@ -64,6 +64,21 @@ export default function ArtworkForm({
     [],
   );
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const isBusy = Boolean(isLoading) || uploads.length > 0;
+
+  // Ctrl+S / Cmd+S saves, the same way as the Save button
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault(); // not the browser's "Save page" dialog
+        if (!isBusy) formRef.current?.requestSubmit();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isBusy]);
 
   useEffect(() => {
     categoryService.getCategories().then(setCategories).catch(console.error);
@@ -178,7 +193,7 @@ export default function ArtworkForm({
   });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-12">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button
@@ -197,7 +212,7 @@ export default function ArtworkForm({
         </div>
         <button
           type="submit"
-          disabled={isLoading || uploads.length > 0}
+          disabled={isBusy}
           className="px-10 py-4 rounded-2xl text-white font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-secondary/30 disabled:opacity-50 min-w-[180px] justify-center"
           style={{ backgroundColor: theme.colors.secondary }}
         >

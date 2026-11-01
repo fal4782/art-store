@@ -60,7 +60,7 @@ export default function FeaturedArtworks() {
         <div className="space-y-2">
           <p
             className="text-xs font-black uppercase tracking-[0.2em]"
-            style={{ color: theme.colors.secondary }}
+            style={{ color: theme.colors.secondaryDark }}
           >
             {isFeatured ? "Featured" : "Just added"}
           </p>

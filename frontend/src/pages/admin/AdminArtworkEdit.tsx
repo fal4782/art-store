@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { theme } from "../../theme";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ArtworkForm from "../../components/admin/ArtworkForm";
 import { artworkService } from "../../services/artworkService";
 import { useToast } from "../../context/ToastContext";
@@ -10,6 +10,9 @@ import { FiLoader } from "react-icons/fi";
 export default function AdminArtworkEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Opened from the storefront's artwork page: go back there when done
+  const fromArtworkPage = Boolean(location.state?.fromArtworkPage);
   const { showToast } = useToast();
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,9 +36,12 @@ export default function AdminArtworkEdit() {
     if (!id) return;
     setIsLoading(true);
     try {
-      await artworkService.updateArtwork(id, data);
+      const updated = await artworkService.updateArtwork(id, data);
       showToast("Artwork updated successfully!", "success");
-      navigate("/admin/artworks");
+      // Use the saved slug, in case renaming the artwork changed its URL
+      navigate(
+        fromArtworkPage ? `/artwork/${updated.slug}` : "/admin/artworks",
+      );
     } catch (err: any) {
       console.error(err);
       showToast(
@@ -66,7 +72,11 @@ export default function AdminArtworkEdit() {
       title="Edit Artwork"
       initialData={artwork}
       onSubmit={handleSubmit}
-      onCancel={() => navigate("/admin/artworks")}
+      onCancel={() =>
+        navigate(
+          fromArtworkPage ? `/artwork/${artwork.slug}` : "/admin/artworks",
+        )
+      }
       isLoading={isLoading}
     />
   );

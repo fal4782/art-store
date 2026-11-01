@@ -10,11 +10,13 @@ import {
   FiInfo,
   FiCheckCircle,
   FiChevronRight,
+  FiEdit2,
 } from "react-icons/fi";
 import { useToast } from "../context/ToastContext";
 
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 import { showImageFallback } from "../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../utils/sizedImage";
 
@@ -29,6 +31,8 @@ export default function ProductDetailsPage() {
 
   const { addToCart, loading: cartLoading } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
   useEffect(() => {
     if (slug) {
@@ -200,6 +204,19 @@ export default function ProductDetailsPage() {
                     }}
                   >
                     {artwork.category.name}
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link
+                    to={`/admin/artworks/edit/${artwork.id}`}
+                    state={{ fromArtworkPage: true }}
+                    className="ml-auto flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border transition-colors hover:bg-stone-100"
+                    style={{
+                      color: theme.colors.primary,
+                      borderColor: `${theme.colors.primary}20`,
+                    }}
+                  >
+                    <FiEdit2 /> Edit
                   </Link>
                 )}
               </div>

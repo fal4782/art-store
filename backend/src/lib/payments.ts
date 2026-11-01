@@ -34,6 +34,14 @@ export async function confirmOrderPayment({
     });
     const newlyConfirmed = count === 1;
 
+    // Count a discount use only once the order is actually paid.
+    if (newlyConfirmed && order.discountCode) {
+      await tx.discountCode.updateMany({
+        where: { code: order.discountCode },
+        data: { usedCount: { increment: 1 } },
+      });
+    }
+
     const payment = {
       amountInPaise: amountInPaise ?? order.totalPriceInPaise,
       currency,

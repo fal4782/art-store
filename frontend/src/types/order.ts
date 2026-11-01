@@ -27,7 +27,9 @@ export interface Order {
   addressId: string | null;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
-  totalPriceInPaise: number;
+  totalPriceInPaise: number; // Amount charged, after any discount
+  discountCode: string | null;
+  discountInPaise: number;
   paymentIntentId: string | null;
   trackingNumber: string | null;
   notes: string | null;

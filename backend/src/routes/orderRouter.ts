@@ -3,6 +3,11 @@ import { prisma } from "../lib/prisma";
 import { authMiddleware, optionalAuthMiddleware } from "../middleware";
 import { OrderItemData, PlaceOrderSchema } from "../lib/types";
 import { razorpay } from "../lib/razorpay";
+import {
+  DiscountError,
+  discountedTotal,
+  validateDiscount,
+} from "../lib/discounts";
 
 const router = Router();
 
@@ -120,7 +125,32 @@ router.post("/", authMiddleware, async (req, res) => {
       });
     }
 
-    // TODO: Apply discount code logic here
+    let discountInPaise = 0;
+    let appliedDiscountCode: string | null = null;
+    if (discountCode) {
+      try {
+        const discount = await validateDiscount(
+          discountCode,
+          totalPriceInPaise,
+        );
+        discountInPaise =
+          totalPriceInPaise - discountedTotal(discount, totalPriceInPaise);
+        appliedDiscountCode = discount.code;
+      } catch (error) {
+        if (error instanceof DiscountError) {
+          return res.status(400).json({ message: error.message });
+        }
+        throw error;
+      }
+    }
+
+    const amountToChargeInPaise = totalPriceInPaise - discountInPaise;
+    // Razorpay rejects orders below 100 paise.
+    if (amountToChargeInPaise < 100) {
+      return res
+        .status(400)
+        .json({ message: "Order total after discount must be at least ₹1" });
+    }
 
     // Use Prisma transaction for atomicity
     const result = await prisma.$transaction(async (tx) => {
@@ -131,7 +161,9 @@ router.post("/", authMiddleware, async (req, res) => {
           addressId,
           status: "PENDING",
           paymentStatus: "PENDING",
-          totalPriceInPaise,
+          totalPriceInPaise: amountToChargeInPaise,
+          discountCode: appliedDiscountCode,
+          discountInPaise,
           notes,
           shippingName: address.name,
           shippingAddressLine1: address.line1,
@@ -153,7 +185,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
       // Create Razorpay order
       const razorpayOrder = await razorpay.orders.create({
-        amount: totalPriceInPaise,
+        amount: amountToChargeInPaise,
         currency: "INR",
         receipt: order.id,
         payment_capture: true,

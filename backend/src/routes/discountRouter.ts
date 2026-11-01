@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { authMiddleware, adminMiddleware } from "../middleware";
+import { DiscountError, validateDiscount } from "../lib/discounts";
 
 const router = Router();
 
@@ -182,41 +183,7 @@ router.post("/verify", async (req, res) => {
       return res.status(400).json({ message: "Cart total is required" });
     }
 
-    const discount = await prisma.discountCode.findUnique({
-      where: { code: code.toUpperCase() },
-    });
-
-    if (!discount) {
-      return res.status(404).json({ message: "Invalid discount code" });
-    }
-
-    if (!discount.isActive) {
-      return res.status(400).json({ message: "Discount code is inactive" });
-    }
-
-    const now = new Date();
-    if (discount.validFrom > now) {
-      return res
-        .status(400)
-        .json({ message: "Discount code is not yet valid" });
-    }
-
-    if (discount.validUntil && discount.validUntil < now) {
-      return res.status(400).json({ message: "Discount code has expired" });
-    }
-
-    if (discount.maxUses && discount.usedCount >= discount.maxUses) {
-      return res.status(400).json({ message: "Discount usage limit reached" });
-    }
-
-    if (
-      discount.minPurchaseInPaise &&
-      cartTotalInPaise < discount.minPurchaseInPaise
-    ) {
-      return res.status(400).json({
-        message: `Minimum purchase amount of ₹${discount.minPurchaseInPaise / 100} required`,
-      });
-    }
+    const discount = await validateDiscount(code, cartTotalInPaise);
 
     res.json({
       id: discount.id,
@@ -227,6 +194,9 @@ router.post("/verify", async (req, res) => {
       minPurchaseInPaise: discount.minPurchaseInPaise,
     });
   } catch (error) {
+    if (error instanceof DiscountError) {
+      return res.status(error.status).json({ message: error.message });
+    }
     console.error("Verify discount error:", error);
     res.status(500).json({ message: "Internal server error" });
   }

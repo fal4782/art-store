@@ -176,6 +176,7 @@ export default function CheckoutPage() {
           artworkId: item.artworkId,
           quantity: item.quantity,
         })),
+        discountCode: appliedDiscount?.code,
       };
 
       const { razorpayOrder, order } = await orderService.placeOrder(payload);

@@ -195,7 +195,9 @@ model Order {
     addressId         String?
     status            OrderStatus   @default(PENDING)
     paymentStatus     PaymentStatus @default(PENDING)
-    totalPriceInPaise Int
+    totalPriceInPaise Int // Amount actually charged, after any discount
+    discountCode      String? // Code applied at checkout (snapshot)
+    discountInPaise   Int           @default(0)
     paymentIntentId   String?
     trackingNumber    String?
     notes             String? // Internal admin notes

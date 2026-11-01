@@ -47,7 +47,7 @@ export interface GetArtworksQuery {
   isAvailable?: boolean;
   isFeatured?: boolean;
   tag?: string;
-  sortBy?: "createdAt" | "price" | "views" | "name";
+  sortBy?: "createdAt" | "price" | "views" | "name" | "featuredPosition";
   sortOrder?: "asc" | "desc";
 }
 

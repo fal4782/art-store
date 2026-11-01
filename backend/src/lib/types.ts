@@ -85,7 +85,9 @@ export const GetArtworksQuerySchema = z.object({
   isAvailable: z.enum(["true", "false"]).optional(),
   isFeatured: z.enum(["true", "false"]).optional(),
   tag: z.string().optional(),
-  sortBy: z.enum(["createdAt", "price", "views", "name"]).default("createdAt"),
+  sortBy: z
+    .enum(["createdAt", "price", "views", "name", "featuredPosition"])
+    .default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
@@ -104,7 +106,6 @@ const artworkFields = {
   isAvailable: z.boolean(),
   isFeatured: z.boolean(),
   isMadeToOrder: z.boolean(),
-  sortOrder: z.number().int(),
   images: z.array(z.string()),
   tags: z.array(z.string()), // array of tag IDs
 };
@@ -116,7 +117,6 @@ export const CreateArtworkSchema = z.object({
   isAvailable: artworkFields.isAvailable.default(true),
   isFeatured: artworkFields.isFeatured.default(false),
   isMadeToOrder: artworkFields.isMadeToOrder.default(false),
-  sortOrder: artworkFields.sortOrder.default(0),
   images: artworkFields.images.default([]),
   tags: artworkFields.tags.default([]),
 });
@@ -124,6 +124,11 @@ export type CreateArtworkInput = z.infer<typeof CreateArtworkSchema>;
 
 export const UpdateArtworkSchema = z.object(artworkFields).partial();
 export type UpdateArtworkInput = z.infer<typeof UpdateArtworkSchema>;
+
+// Every featured artwork's id, in the order they should appear on the homepage
+export const ReorderFeaturedSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1),
+});
 
 export const CreateTagSchema = z.object({
   name: z.string().min(1),

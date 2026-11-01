@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import {
   CreateArtworkSchema,
   GetArtworksQuerySchema,
+  ReorderFeaturedSchema,
   UpdateArtworkSchema,
 } from "../lib/types";
 import {
@@ -13,6 +14,18 @@ import {
 import { digitalSalesEnabled, isHiddenDigital } from "../lib/config";
 
 const router = Router();
+
+/**
+ * Position that puts an artwork first among the featured ones, so a newly
+ * featured piece shows on the homepage straight away.
+ */
+async function topFeaturedPosition() {
+  const first = await prisma.artwork.aggregate({
+    where: { isFeatured: true, deletedAt: null },
+    _min: { featuredPosition: true },
+  });
+  return (first._min.featuredPosition ?? 1) - 1;
+}
 
 router.get("/", optionalAuthMiddleware, async (req, res) => {
   const parseResult = GetArtworksQuerySchema.safeParse(req.query);
@@ -78,8 +91,11 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
     }
 
     // Build orderBy
-    const orderBy: any = {};
-    if (sortBy === "price") {
+    let orderBy: any = {};
+    if (sortBy === "featuredPosition") {
+      // Admin-chosen order; ties (e.g. never reordered) fall back to newest
+      orderBy = [{ featuredPosition: "asc" }, { createdAt: "desc" }];
+    } else if (sortBy === "price") {
       orderBy.priceInPaise = sortOrder;
     } else if (sortBy === "views") {
       orderBy.views = sortOrder;
@@ -250,6 +266,9 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
     const artwork = await prisma.artwork.create({
       data: {
         ...data,
+        ...(data.isFeatured && {
+          featuredPosition: await topFeaturedPosition(),
+        }),
         tags: {
           create: data.tags.map((tagId: string) => ({
             tag: { connect: { id: tagId } },
@@ -271,6 +290,62 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
+/**
+ * Saves the homepage order of featured artworks. Takes every featured artwork
+ * the admin can see, in order; a list that doesn't match (e.g. changed in
+ * another tab) is rejected rather than saving a partial order.
+ */
+router.put(
+  "/featured-order",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    const parseResult = ReorderFeaturedSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: parseResult.error.issues,
+      });
+    }
+    const { ids } = parseResult.data;
+
+    try {
+      const featured = await prisma.artwork.findMany({
+        where: {
+          isFeatured: true,
+          deletedAt: null,
+          // Hidden digital pieces aren't in the admin's list; leave them be
+          ...(!digitalSalesEnabled() && { type: { not: "DIGITAL" } }),
+        },
+        select: { id: true },
+      });
+      const featuredIds = new Set(featured.map((a) => a.id));
+      const matches =
+        ids.length === featuredIds.size &&
+        new Set(ids).size === ids.length &&
+        ids.every((id) => featuredIds.has(id));
+      if (!matches) {
+        return res.status(409).json({
+          message: "The featured artworks changed. Reload and try again.",
+        });
+      }
+
+      await prisma.$transaction(
+        ids.map((id, index) =>
+          prisma.artwork.update({
+            where: { id },
+            data: { featuredPosition: index },
+          }),
+        ),
+      );
+      return res.json({ message: "Featured order saved" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 router.patch("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   const { id } = req.params;
@@ -301,10 +376,16 @@ router.patch("/:id", authMiddleware, adminMiddleware, async (req, res) => {
       };
     }
 
+    const newlyFeatured =
+      parseResult.data.isFeatured === true && !artwork.isFeatured;
+
     const updatedArtwork = await prisma.artwork.update({
       where: { id },
       data: {
         ...parseResult.data,
+        ...(newlyFeatured && {
+          featuredPosition: await topFeaturedPosition(),
+        }),
         tags: tagsUpdate,
       },
       include: {

@@ -41,6 +41,11 @@ export const artworkService = {
     return response.data;
   },
 
+  /** Saves the homepage order of all featured artworks. */
+  reorderFeatured: async (ids: string[]): Promise<void> => {
+    await apiClient.put("/artworks/featured-order", { ids });
+  },
+
   deleteArtwork: async (id: string): Promise<void> => {
     await apiClient.delete(`/artworks/${id}`);
   },

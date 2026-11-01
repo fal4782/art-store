@@ -85,7 +85,7 @@ model Artwork {
     isAvailable   Boolean     @default(true)
     isFeatured    Boolean     @default(false)
     isMadeToOrder Boolean     @default(false)
-    sortOrder     Int         @default(0)
+    featuredPosition Int      @default(0) // Order of featured artworks on the homepage, lowest first
     images        String[] // Array of image URLs
     views         Int         @default(0)
     lastViewedAt  DateTime?

@@ -6,16 +6,16 @@ import { artworkService } from "../../services/artworkService";
 import { useCart } from "../../context/CartContext";
 import type { Artwork } from "../../types/artwork";
 import ProductCard from "./ProductCard";
-
-const COUNT = 4;
-
-const isBuyable = (a: Artwork) =>
-  a.isMadeToOrder || a.type === "DIGITAL" || a.stockQuantity > 0;
+import {
+  HOMEPAGE_FEATURED_COUNT as COUNT,
+  pickHomepageFeatured,
+} from "../../utils/homepageFeatured";
 
 /**
- * Homepage row of artworks: the ones the admin marked as featured, or the
- * newest pieces if none are. In-stock pieces are shown before sold-out ones.
- * Asks for published pieces explicitly, since admins otherwise also get drafts.
+ * Homepage row of artworks: the ones the admin marked as featured, in the
+ * admin's order, or the newest pieces if none are. In-stock pieces are shown
+ * before sold-out ones. Asks for published pieces explicitly, since admins
+ * otherwise also get drafts.
  */
 export default function FeaturedArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -28,7 +28,8 @@ export default function FeaturedArtworks() {
       const featured = await artworkService.getArtworks({
         isFeatured: true,
         isAvailable: true,
-        limit: COUNT * 2,
+        sortBy: "featuredPosition",
+        limit: 100,
       });
       if (featured.artworks.length > 0)
         return { list: featured.artworks, featured: true };
@@ -42,11 +43,7 @@ export default function FeaturedArtworks() {
     };
     load()
       .then(({ list, featured }) => {
-        const sorted = [
-          ...list.filter(isBuyable),
-          ...list.filter((a) => !isBuyable(a)),
-        ];
-        setArtworks(sorted.slice(0, COUNT));
+        setArtworks(pickHomepageFeatured(list));
         setIsFeatured(featured);
       })
       .catch((err) => console.error("Failed to load featured artworks", err));

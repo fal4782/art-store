@@ -190,16 +190,6 @@ export default function ProductDetailsPage() {
           <div className="lg:w-[45%] w-full space-y-5 md:space-y-10">
             <div className="space-y-4 md:space-y-6">
               <div className="flex flex-wrap items-center gap-4">
-                <span
-                  className="px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border"
-                  style={{
-                    backgroundColor: `${theme.colors.secondary}10`,
-                    borderColor: `${theme.colors.secondary}20`,
-                    color: theme.colors.secondary,
-                  }}
-                >
-                  ID: #{artwork.id.slice(0, 5)}
-                </span>
                 {artwork.category && (
                   <Link
                     to={`/shop?categoryId=${artwork.categoryId}`}

@@ -19,6 +19,7 @@ import { categoryService } from "../../services/categoryService";
 import { useToast } from "../../context/ToastContext";
 import type { Artwork, Category } from "../../types/artwork";
 import { showImageFallback } from "../../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
 export default function AdminArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -283,7 +284,10 @@ export default function AdminArtworks() {
                           {artwork.images?.[0] ? (
                             <img
                               onError={showImageFallback}
-                              src={artwork.images[0]}
+                              src={sizedImage(
+                                artwork.images[0],
+                                IMAGE_WIDTH.thumb,
+                              )}
                               alt={artwork.name}
                               className="w-full h-full object-cover"
                             />

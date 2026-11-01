@@ -6,6 +6,7 @@ import { categoryService } from "../../services/categoryService";
 import { artworkService } from "../../services/artworkService";
 import type { Category } from "../../types/artwork";
 import { showImageFallback } from "../../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
 interface Tile {
   category: Category;
@@ -48,7 +49,7 @@ export default function CategoryTiles() {
             images: [
               ...res.artworks.map((a) => a.images[0]).filter(Boolean),
               ...(category.image ? [category.image] : []),
-            ],
+            ].map((url) => sizedImage(url, IMAGE_WIDTH.card)!),
             count: res.pagination.total,
           };
         }),

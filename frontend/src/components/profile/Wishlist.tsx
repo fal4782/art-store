@@ -5,6 +5,7 @@ import { theme } from "../../theme";
 import { FiHeart, FiShoppingBag, FiTrash2, FiArrowRight } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { showImageFallback } from "../../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
 export default function Wishlist() {
   const { wishlist, toggleWishlist, loading, refreshWishlist } = useWishlist();
@@ -98,7 +99,7 @@ export default function Wishlist() {
               >
                 <img
                   onError={showImageFallback}
-                  src={item.artwork.images[0]}
+                  src={sizedImage(item.artwork.images[0], IMAGE_WIDTH.card)}
                   alt={item.artwork.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />

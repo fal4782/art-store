@@ -19,6 +19,7 @@ import { tagService } from "../../services/tagService";
 import type { Artwork, Category, Tag, ArtworkType } from "../../types/artwork";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { showImageFallback } from "../../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 import { uploadService, MAX_UPLOAD_BYTES } from "../../services/uploadService";
 
 interface ArtworkFormProps {
@@ -241,7 +242,7 @@ export default function ArtworkForm({
                 >
                   <img
                     onError={showImageFallback}
-                    src={url}
+                    src={sizedImage(url, IMAGE_WIDTH.thumb)}
                     alt="Artwork"
                     className="w-full h-full object-cover"
                   />

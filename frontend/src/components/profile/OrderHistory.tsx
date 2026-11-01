@@ -13,6 +13,7 @@ import { orderService } from "../../services/orderService";
 import type { Order, OrderStatus } from "../../types/order";
 import { Link } from "react-router-dom";
 import { showImageFallback } from "../../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -211,7 +212,7 @@ export default function OrderHistory() {
                         <img
                           onError={showImageFallback}
                           src={
-                            item.artworkImage ||
+                            sizedImage(item.artworkImage, IMAGE_WIDTH.thumb) ||
                             "https://via.placeholder.com/200"
                           }
                           alt={item.artworkName}

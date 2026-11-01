@@ -14,6 +14,7 @@ import type { Order, OrderStatus } from "../../types/order";
 import { getStatusConfig } from "../../utils/orderStatus";
 import { useToast } from "../../context/ToastContext";
 import { showImageFallback } from "../../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
 type Tab = "TO_SHIP" | OrderStatus | "ALL";
 
@@ -239,7 +240,7 @@ function OrderCard({
               {item.artworkImage ? (
                 <img
                   onError={showImageFallback}
-                  src={item.artworkImage}
+                  src={sizedImage(item.artworkImage, IMAGE_WIDTH.thumb)}
                   alt={item.artworkName}
                   className="w-14 h-14 rounded-xl object-cover shrink-0"
                 />

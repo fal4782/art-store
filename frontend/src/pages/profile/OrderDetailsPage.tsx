@@ -17,6 +17,7 @@ import { orderService } from "../../services/orderService";
 // import { useToast } from "../../context/ToastContext";
 import type { Order, OrderStatus } from "../../types/order";
 import { showImageFallback } from "../../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
 export default function OrderDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -239,7 +240,8 @@ export default function OrderDetailsPage() {
                     <img
                       onError={showImageFallback}
                       src={
-                        item.artworkImage || "https://via.placeholder.com/200"
+                        sizedImage(item.artworkImage, IMAGE_WIDTH.thumb) ||
+                        "https://via.placeholder.com/200"
                       }
                       alt={item.artworkName}
                       className="w-full h-full object-cover"

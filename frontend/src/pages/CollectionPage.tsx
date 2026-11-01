@@ -6,6 +6,7 @@ import { categoryService } from "../services/categoryService";
 import type { Category } from "../types/artwork";
 import { useToast } from "../context/ToastContext";
 import { showImageFallback } from "../utils/imageFallback";
+import { sizedImage, IMAGE_WIDTH } from "../utils/sizedImage";
 
 export default function CollectionPage() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ export default function CollectionPage() {
             {category.image && (
               <img
                 onError={showImageFallback}
-                src={category.image}
+                src={sizedImage(category.image, IMAGE_WIDTH.card)}
                 alt={category.name}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               />

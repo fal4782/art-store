@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { authMiddleware, optionalAuthMiddleware } from "../middleware";
 import { OrderItemData, PlaceOrderSchema } from "../lib/types";
 import { razorpay } from "../lib/razorpay";
+import { hasStock, releaseUnpaidOrder } from "../lib/stock";
 import {
   DiscountError,
   discountedTotal,
@@ -10,6 +11,12 @@ import {
 } from "../lib/discounts";
 
 const router = Router();
+
+class OutOfStockError extends Error {
+  constructor(artworkName: string) {
+    super(`Insufficient stock for artwork: ${artworkName}`);
+  }
+}
 
 router.get("/", optionalAuthMiddleware, async (req, res) => {
   try {
@@ -201,24 +208,18 @@ router.post("/", authMiddleware, async (req, res) => {
         data: { paymentIntentId: razorpayOrder.id },
       });
 
-      // Decrement stock for PHYSICAL or BOTH artworks
-      for (const item of items) {
-        const artwork = await tx.artwork.findUnique({
-          where: { id: item.artworkId },
+      // Reserve stock for PHYSICAL or BOTH artworks. The conditional update
+      // stops two concurrent checkouts from both taking the last piece.
+      for (const item of orderItemsData) {
+        if (!hasStock(item.artworkType)) continue;
+        const { count } = await tx.artwork.updateMany({
+          where: {
+            id: item.artworkId,
+            stockQuantity: { gte: item.quantity },
+          },
+          data: { stockQuantity: { decrement: item.quantity } },
         });
-        if (
-          artwork &&
-          (artwork.type === "PHYSICAL" || artwork.type === "BOTH")
-        ) {
-          await tx.artwork.update({
-            where: { id: item.artworkId },
-            data: {
-              stockQuantity: {
-                decrement: item.quantity,
-              },
-            },
-          });
-        }
+        if (count === 0) throw new OutOfStockError(item.artworkName);
       }
 
       return { order, razorpayOrder };
@@ -232,6 +233,33 @@ router.post("/", authMiddleware, async (req, res) => {
         currency: result.razorpayOrder.currency,
       },
     });
+  } catch (error) {
+    if (error instanceof OutOfStockError) {
+      return res.status(400).json({ message: error.message });
+    }
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Called when the customer closes the Razorpay popup without paying.
+router.post("/:id/cancel", authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const order = await prisma.order.findUnique({ where: { id } });
+    if (!order || order.userId !== req.userId) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    const released = await releaseUnpaidOrder(
+      id,
+      "Checkout closed before payment",
+    );
+    if (!released) {
+      return res
+        .status(409)
+        .json({ message: "Order is no longer awaiting payment" });
+    }
+    return res.json({ message: "Order cancelled" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });

@@ -35,6 +35,10 @@ export const orderService = {
     return response.data;
   },
 
+  cancelOrder: async (id: string): Promise<void> => {
+    await apiClient.post(`/orders/${id}/cancel`);
+  },
+
   verifyPayment: async (
     data: VerifyPaymentInput,
   ): Promise<{ message: string; order: Order }> => {

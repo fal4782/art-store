@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { hasStock } from "./stock";
 
 interface ConfirmPaymentInput {
   razorpayOrderId: string;
@@ -27,12 +28,45 @@ export async function confirmOrderPayment({
     });
     if (!order) return null;
 
-    // Conditional update: only one concurrent caller can win this.
+    // Conditional updates: only one concurrent caller can win these.
+    // First, a payment that landed after the unpaid order was released
+    // (e.g. a slow UPI approval): revive the order and take its stock again.
+    const revived = await tx.order.updateMany({
+      where: {
+        id: order.id,
+        status: "CANCELLED",
+        paymentStatus: { not: "COMPLETED" },
+      },
+      data: {
+        paymentStatus: "COMPLETED",
+        status: "CONFIRMED",
+        cancelReason: null,
+        cancelledAt: null,
+      },
+    });
+    if (revived.count === 1) {
+      const items = await tx.orderItem.findMany({
+        where: { orderId: order.id },
+      });
+      for (const item of items) {
+        if (!hasStock(item.artworkType)) continue;
+        const artwork = await tx.artwork.update({
+          where: { id: item.artworkId },
+          data: { stockQuantity: { decrement: item.quantity } },
+        });
+        if (artwork.stockQuantity < 0) {
+          console.warn(
+            `Oversold "${artwork.name}" (stock ${artwork.stockQuantity}) after late payment on order ${order.id}`,
+          );
+        }
+      }
+    }
+
     const { count } = await tx.order.updateMany({
       where: { id: order.id, paymentStatus: { not: "COMPLETED" } },
       data: { paymentStatus: "COMPLETED", status: "CONFIRMED" },
     });
-    const newlyConfirmed = count === 1;
+    const newlyConfirmed = count === 1 || revived.count === 1;
 
     // Count a discount use only once the order is actually paid.
     if (newlyConfirmed && order.discountCode) {

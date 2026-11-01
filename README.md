@@ -165,24 +165,26 @@ The admin logs in with an `ADMIN` account, then works from `/admin`:
 
 ## API reference
 
-All routes are prefixed with `/api/v1`. 🔒 = login required, 👑 = admin only.
+All routes are prefixed with `/api/v1` (except `GET /health`).
 
-| Resource   | Endpoints                                                                                                                                                            |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth       | `POST /auth/signup`, `POST /auth/login`                                                                                                                              |
-| Users      | 🔒 `GET/PATCH /users/me`, `PATCH /users/me/password`, `PATCH /users/me/deactivate`, `PATCH /users/me/reactivate` · 👑 `GET /users`, `GET /users/:id`, `PATCH /users/:id/deactivate` |
-| Addresses  | 🔒 `GET /addresses`, `POST /addresses`, `PATCH /addresses/:id`, `DELETE /addresses/:id`                                                                               |
-| Categories | `GET /categories` · 👑 `POST /categories`                                                                                                                            |
-| Artworks   | `GET /artworks` (query: `page, limit, search, categoryId, type, tag, isFeatured, isAvailable, sortBy, sortOrder`), `GET /artworks/slug/:slug`, `GET /artworks/:id` · 👑 `POST`, `PATCH /:id`, `DELETE /:id` |
-| Tags       | `GET /tags` · 👑 `POST /tags`, `DELETE /tags/:id`                                                                                                                    |
-| Cart       | 🔒 `GET /cart`, `POST /cart`, `PATCH /cart/:itemId`, `DELETE /cart/:itemId`, `DELETE /cart`                                                                          |
-| Wishlist   | 🔒 `GET /wishlist`, `POST /wishlist`, `DELETE /wishlist/:itemId`                                                                                                     |
-| Orders     | 🔒 `GET /orders` (own orders, or all orders for admin), `GET /orders/:id`, `POST /orders`                                                                                                  |
-| Payments   | `POST /payments/verify`, `POST /payments/webhook`                                                                                                                    |
-| Reviews    | `GET /artworks/:id/reviews` · 🔒 `POST /artworks/:id/reviews`, `DELETE` own review                                                                                   |
-| Discounts  | `GET /discounts/public`, `POST /discounts/verify` · 👑 `GET`, `POST`, `PUT /:id`, `DELETE /:id`                                                                      |
-| Admin      | 👑 `GET /admin/stats`                                                                                                                                                |
-| Health     | `GET /health` (no prefix)                                                                                                                                            |
+| Resource   | Public                                                         | Logged in                                                                                                 | Admin only                                                         |
+| ---------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Auth       | `POST /auth/signup`, `POST /auth/login`                        |                                                                                                           |                                                                    |
+| Users      |                                                                | `GET /users/me`, `PATCH /users/me`, `PATCH /users/me/password`, `PATCH /users/me/deactivate`, `PATCH /users/me/reactivate` | `GET /users`, `GET /users/:id`, `PATCH /users/:id/deactivate`      |
+| Addresses  |                                                                | `GET /addresses`, `POST /addresses`, `PATCH /addresses/:id`, `DELETE /addresses/:id`                      |                                                                    |
+| Categories | `GET /categories`                                              |                                                                                                           | `POST /categories`                                                 |
+| Artworks   | `GET /artworks`, `GET /artworks/slug/:slug`, `GET /artworks/:id` |                                                                                                         | `POST /artworks`, `PATCH /artworks/:id`, `DELETE /artworks/:id`    |
+| Tags       | `GET /tags`                                                    |                                                                                                           | `POST /tags`, `DELETE /tags/:id`                                   |
+| Cart       |                                                                | `GET /cart`, `POST /cart`, `PATCH /cart/:itemId`, `DELETE /cart/:itemId`, `DELETE /cart`                  |                                                                    |
+| Wishlist   |                                                                | `GET /wishlist`, `POST /wishlist`, `DELETE /wishlist/:itemId`                                             |                                                                    |
+| Orders     |                                                                | `GET /orders` (admins get all orders), `GET /orders/:id`, `POST /orders`                                  |                                                                    |
+| Payments   | `POST /payments/verify`, `POST /payments/webhook`              |                                                                                                           |                                                                    |
+| Reviews    | `GET /artworks/:id/reviews`                                    | `POST /artworks/:id/reviews`, `DELETE /artworks/:id/reviews/:reviewId`                                    |                                                                    |
+| Discounts  | `GET /discounts/public`, `POST /discounts/verify`              |                                                                                                           | `GET /discounts`, `POST /discounts`, `PUT /discounts/:id`, `DELETE /discounts/:id` |
+| Admin      |                                                                |                                                                                                           | `GET /admin/stats`                                                 |
+| Health     | `GET /health`                                                  |                                                                                                           |                                                                    |
+
+`GET /artworks` accepts `page`, `limit`, `search`, `categoryId`, `type`, `tag`, `isFeatured`, `isAvailable`, `sortBy` (`createdAt`, `price`, `views`, `name`) and `sortOrder` (`asc`, `desc`). Guests and customers only ever see published artworks; admins also see drafts.
 
 ---
 

@@ -125,6 +125,11 @@ export type CreateArtworkInput = z.infer<typeof CreateArtworkSchema>;
 export const UpdateArtworkSchema = z.object(artworkFields).partial();
 export type UpdateArtworkInput = z.infer<typeof UpdateArtworkSchema>;
 
+// The homepage hero's three slots in order; null leaves a slot empty
+export const HeroSlotsSchema = z.object({
+  slots: z.array(z.string().min(1).nullable()).length(3),
+});
+
 // Every featured artwork's id, in the order they should appear on the homepage
 export const ReorderFeaturedSchema = z.object({
   ids: z.array(z.string().min(1)).min(1),

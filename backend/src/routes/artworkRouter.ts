@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import {
   CreateArtworkSchema,
   GetArtworksQuerySchema,
+  HeroSlotsSchema,
   ReorderFeaturedSchema,
   UpdateArtworkSchema,
 } from "../lib/types";
@@ -126,6 +127,7 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
           isAvailable: true,
           isFeatured: true,
           isMadeToOrder: true,
+          heroSlot: true,
           images: true,
           views: true,
           createdAt: true,
@@ -163,6 +165,97 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
         hasPrev: page > 1,
       },
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/**
+ * The artworks the admin picked for the homepage hero, in slot order. Only
+ * ones customers can see are returned, so an unpublished pick just drops out.
+ * Declared before "/:id" so "hero" isn't read as an artwork id.
+ */
+router.get("/hero", async (req, res) => {
+  try {
+    const artworks = await prisma.artwork.findMany({
+      where: {
+        heroSlot: { not: null },
+        isAvailable: true,
+        deletedAt: null,
+        ...(!digitalSalesEnabled() && { type: { not: "DIGITAL" } }),
+      },
+      orderBy: { heroSlot: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        images: true,
+        heroSlot: true,
+        isFeatured: true,
+      },
+    });
+    return res.json(artworks);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/**
+ * Sets all three hero slots at once. Each pick must be a published artwork
+ * customers can see, and the same artwork can't take two slots.
+ */
+router.put("/hero-slots", authMiddleware, adminMiddleware, async (req, res) => {
+  const parseResult = HeroSlotsSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: "Invalid request body",
+      errors: parseResult.error.issues,
+    });
+  }
+  const { slots } = parseResult.data;
+  const ids = slots.filter((id): id is string => id !== null);
+
+  if (new Set(ids).size !== ids.length) {
+    return res
+      .status(400)
+      .json({ message: "An artwork can only be in one hero slot" });
+  }
+
+  try {
+    const valid = await prisma.artwork.count({
+      where: {
+        id: { in: ids },
+        isAvailable: true,
+        deletedAt: null,
+        ...(!digitalSalesEnabled() && { type: { not: "DIGITAL" } }),
+      },
+    });
+    if (valid !== ids.length) {
+      return res.status(400).json({
+        message: "Hero picks must be published artworks",
+      });
+    }
+
+    // Clear first so the unique heroSlot never clashes mid-update
+    await prisma.$transaction([
+      prisma.artwork.updateMany({
+        where: { heroSlot: { not: null } },
+        data: { heroSlot: null },
+      }),
+      ...slots.flatMap((id, index) =>
+        id
+          ? [
+              prisma.artwork.update({
+                where: { id },
+                data: { heroSlot: index + 1 },
+              }),
+            ]
+          : [],
+      ),
+    ]);
+    return res.json({ message: "Hero saved" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -414,7 +507,7 @@ router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 
     await prisma.artwork.update({
       where: { id },
-      data: { deletedAt: new Date() },
+      data: { deletedAt: new Date(), heroSlot: null },
     });
     return res.json({ message: "Artwork deleted" });
   } catch (error) {

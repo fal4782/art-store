@@ -4,7 +4,6 @@ import { FiArrowRight } from "react-icons/fi";
 import { theme } from "../../theme";
 import { artworkService } from "../../services/artworkService";
 import type { Artwork } from "../../types/artwork";
-import { pickHomepageFeatured } from "../../utils/homepageFeatured";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
@@ -36,26 +35,34 @@ function useHeroScroll() {
   return scrolled;
 }
 
-/** The pieces shown in the hero: featured first, topped up with the newest. */
-async function loadHeroPieces(): Promise<Artwork[]> {
-  const featured = await artworkService.getArtworks({
-    isFeatured: true,
-    isAvailable: true,
-    sortBy: "featuredPosition",
-    limit: 100,
-  });
-  let pieces = pickHomepageFeatured(featured.artworks);
+type HeroPiece = Pick<Artwork, "id" | "name" | "slug" | "images">;
+
+/**
+ * The pieces shown in the hero: the admin's picks in slot order, with any
+ * empty slots filled by the newest pieces. Non-featured pieces are preferred
+ * for those, so the hero doesn't repeat the Featured row right below it.
+ */
+async function loadHeroPieces(): Promise<HeroPiece[]> {
+  const picks = await artworkService.getHeroArtworks();
+  let pieces: HeroPiece[] = picks.filter((a) => a.images?.[0]);
   if (pieces.length < PIECES) {
     const newest = await artworkService.getArtworks({
       isAvailable: true,
       sortBy: "createdAt",
       sortOrder: "desc",
-      limit: PIECES * 2,
+      limit: 20,
     });
-    const ids = new Set(pieces.map((a) => a.id));
-    pieces = [...pieces, ...newest.artworks.filter((a) => !ids.has(a.id))];
+    const taken = new Set(pieces.map((a) => a.id));
+    const spare = newest.artworks.filter(
+      (a) => !taken.has(a.id) && a.images?.[0],
+    );
+    pieces = [
+      ...pieces,
+      ...spare.filter((a) => !a.isFeatured),
+      ...spare.filter((a) => a.isFeatured),
+    ];
   }
-  return pieces.filter((a) => a.images?.[0]).slice(0, PIECES);
+  return pieces.slice(0, PIECES);
 }
 
 // Placement of each piece in the collage (desktop), and how fast it drifts
@@ -104,7 +111,7 @@ function Line({ children, delay }: { children: ReactNode; delay: number }) {
 }
 
 export default function Hero() {
-  const [pieces, setPieces] = useState<Artwork[]>([]);
+  const [pieces, setPieces] = useState<HeroPiece[]>([]);
   const [loaded, setLoaded] = useState(false);
   const scrolled = useHeroScroll();
 

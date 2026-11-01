@@ -3,6 +3,7 @@ import type {
   Artwork,
   ArtworksResponse,
   GetArtworksQuery,
+  HeroArtwork,
 } from "../types/artwork";
 
 export const artworkService = {
@@ -39,6 +40,17 @@ export const artworkService = {
   ): Promise<Artwork> => {
     const response = await apiClient.patch<Artwork>(`/artworks/${id}`, data);
     return response.data;
+  },
+
+  /** The admin's hero picks customers can see, in slot order. */
+  getHeroArtworks: async (): Promise<HeroArtwork[]> => {
+    const response = await apiClient.get<HeroArtwork[]>("/artworks/hero");
+    return response.data;
+  },
+
+  /** Saves all three hero slots; null leaves a slot empty. */
+  setHeroSlots: async (slots: (string | null)[]): Promise<void> => {
+    await apiClient.put("/artworks/hero-slots", { slots });
   },
 
   /** Saves the homepage order of all featured artworks. */

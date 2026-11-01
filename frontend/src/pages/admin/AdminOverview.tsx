@@ -14,6 +14,7 @@ import type { Order } from "../../types/order";
 import { getStatusConfig } from "../../utils/orderStatus";
 import { Link } from "react-router-dom";
 import FeaturedOrder from "../../components/admin/FeaturedOrder";
+import HeroPicks from "../../components/admin/HeroPicks";
 
 const StatCard = ({ title, value, icon: Icon, color }: any) => (
   <div
@@ -242,6 +243,8 @@ export default function AdminOverview() {
           </div>
         )}
       </div>
+
+      <HeroPicks />
 
       <FeaturedOrder />
     </div>

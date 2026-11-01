@@ -31,12 +31,19 @@ export interface Artwork {
   isAvailable: boolean;
   isFeatured: boolean;
   isMadeToOrder: boolean;
+  heroSlot?: number | null; // 1-3 if picked for the homepage hero
   images: string[];
   views: number;
   createdAt: string;
   updatedAt: string;
   tags: Tag[];
 }
+
+/** What GET /artworks/hero returns for each picked artwork. */
+export type HeroArtwork = Pick<
+  Artwork,
+  "id" | "name" | "slug" | "images" | "isFeatured"
+> & { heroSlot: number };
 
 export interface GetArtworksQuery {
   page?: number;

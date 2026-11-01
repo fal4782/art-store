@@ -13,9 +13,13 @@ import { reviewRouter } from "./routes/reviewRouter";
 import { categoryRouter } from "./routes/categoryRouter";
 import { adminRouter } from "./routes/adminRouter";
 import { discountRouter } from "./routes/discountRouter";
+import { releaseExpiredOrders } from "./lib/stock";
 
 const app = express();
 
+// The Razorpay webhook verifies an HMAC over the raw request bytes, so it must
+// get its body before the global JSON parser consumes the stream.
+app.use("/api/v1/payments/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cors());
 
@@ -41,3 +45,11 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Put stock back from orders that were never paid.
+const sweepExpiredOrders = () =>
+  releaseExpiredOrders().catch((error) =>
+    console.error("Failed to release expired orders", error),
+  );
+sweepExpiredOrders();
+setInterval(sweepExpiredOrders, 5 * 60 * 1000);

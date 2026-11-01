@@ -1,10 +1,31 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { authMiddleware, optionalAuthMiddleware } from "../middleware";
-import { OrderItemData, PlaceOrderSchema } from "../lib/types";
+import {
+  adminMiddleware,
+  authMiddleware,
+  optionalAuthMiddleware,
+} from "../middleware";
+import {
+  OrderItemData,
+  PlaceOrderSchema,
+  UpdateOrderStatusSchema,
+} from "../lib/types";
 import { razorpay } from "../lib/razorpay";
+import { cancelPaidOrder, hasStock, releaseUnpaidOrder } from "../lib/stock";
+import { isHiddenDigital } from "../lib/config";
+import {
+  DiscountError,
+  discountedTotal,
+  validateDiscount,
+} from "../lib/discounts";
 
 const router = Router();
+
+class OutOfStockError extends Error {
+  constructor(artworkName: string) {
+    super(`Insufficient stock for artwork: ${artworkName}`);
+  }
+}
 
 router.get("/", optionalAuthMiddleware, async (req, res) => {
   try {
@@ -98,7 +119,12 @@ router.post("/", authMiddleware, async (req, res) => {
       const artwork = await prisma.artwork.findUnique({
         where: { id: item.artworkId },
       });
-      if (!artwork || artwork.deletedAt || !artwork.isAvailable) {
+      if (
+        !artwork ||
+        artwork.deletedAt ||
+        !artwork.isAvailable ||
+        isHiddenDigital(artwork.type)
+      ) {
         return res
           .status(400)
           .json({ message: `Artwork not available: ${item.artworkId}` });
@@ -120,7 +146,32 @@ router.post("/", authMiddleware, async (req, res) => {
       });
     }
 
-    // TODO: Apply discount code logic here
+    let discountInPaise = 0;
+    let appliedDiscountCode: string | null = null;
+    if (discountCode) {
+      try {
+        const discount = await validateDiscount(
+          discountCode,
+          totalPriceInPaise,
+        );
+        discountInPaise =
+          totalPriceInPaise - discountedTotal(discount, totalPriceInPaise);
+        appliedDiscountCode = discount.code;
+      } catch (error) {
+        if (error instanceof DiscountError) {
+          return res.status(400).json({ message: error.message });
+        }
+        throw error;
+      }
+    }
+
+    const amountToChargeInPaise = totalPriceInPaise - discountInPaise;
+    // Razorpay rejects orders below 100 paise.
+    if (amountToChargeInPaise < 100) {
+      return res
+        .status(400)
+        .json({ message: "Order total after discount must be at least ₹1" });
+    }
 
     // Use Prisma transaction for atomicity
     const result = await prisma.$transaction(async (tx) => {
@@ -131,7 +182,9 @@ router.post("/", authMiddleware, async (req, res) => {
           addressId,
           status: "PENDING",
           paymentStatus: "PENDING",
-          totalPriceInPaise,
+          totalPriceInPaise: amountToChargeInPaise,
+          discountCode: appliedDiscountCode,
+          discountInPaise,
           notes,
           shippingName: address.name,
           shippingAddressLine1: address.line1,
@@ -153,7 +206,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
       // Create Razorpay order
       const razorpayOrder = await razorpay.orders.create({
-        amount: totalPriceInPaise,
+        amount: amountToChargeInPaise,
         currency: "INR",
         receipt: order.id,
         payment_capture: true,
@@ -169,24 +222,18 @@ router.post("/", authMiddleware, async (req, res) => {
         data: { paymentIntentId: razorpayOrder.id },
       });
 
-      // Decrement stock for PHYSICAL or BOTH artworks
-      for (const item of items) {
-        const artwork = await tx.artwork.findUnique({
-          where: { id: item.artworkId },
+      // Reserve stock for PHYSICAL or BOTH artworks. The conditional update
+      // stops two concurrent checkouts from both taking the last piece.
+      for (const item of orderItemsData) {
+        if (!hasStock(item.artworkType)) continue;
+        const { count } = await tx.artwork.updateMany({
+          where: {
+            id: item.artworkId,
+            stockQuantity: { gte: item.quantity },
+          },
+          data: { stockQuantity: { decrement: item.quantity } },
         });
-        if (
-          artwork &&
-          (artwork.type === "PHYSICAL" || artwork.type === "BOTH")
-        ) {
-          await tx.artwork.update({
-            where: { id: item.artworkId },
-            data: {
-              stockQuantity: {
-                decrement: item.quantity,
-              },
-            },
-          });
-        }
+        if (count === 0) throw new OutOfStockError(item.artworkName);
       }
 
       return { order, razorpayOrder };
@@ -201,9 +248,106 @@ router.post("/", authMiddleware, async (req, res) => {
       },
     });
   } catch (error) {
+    if (error instanceof OutOfStockError) {
+      return res.status(400).json({ message: error.message });
+    }
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// Called when the customer closes the Razorpay popup without paying.
+router.post("/:id/cancel", authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const order = await prisma.order.findUnique({ where: { id } });
+    if (!order || order.userId !== req.userId) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    const released = await releaseUnpaidOrder(
+      id,
+      "Checkout closed before payment",
+    );
+    if (!released) {
+      return res
+        .status(409)
+        .json({ message: "Order is no longer awaiting payment" });
+    }
+    return res.json({ message: "Order cancelled" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Which status an order must currently be in to move to each new status.
+const ALLOWED_FROM = {
+  SHIPPED: ["CONFIRMED"],
+  DELIVERED: ["SHIPPED"],
+  CANCELLED: ["PENDING", "CONFIRMED"],
+} as const;
+
+// Admin fulfilment: ship, deliver or cancel an order.
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    const { id } = req.params;
+    const parseResult = UpdateOrderStatusSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request", errors: parseResult.error.issues });
+    }
+    const { status, trackingNumber, cancelReason } = parseResult.data;
+
+    try {
+      const order = await prisma.order.findUnique({ where: { id } });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      const allowedFrom: readonly string[] = ALLOWED_FROM[status];
+      if (!allowedFrom.includes(order.status)) {
+        return res.status(400).json({
+          message: `Can't change a ${order.status.toLowerCase()} order to ${status.toLowerCase()}`,
+        });
+      }
+
+      let updated: boolean;
+      if (status === "CANCELLED") {
+        const reason = cancelReason || "Cancelled by the store";
+        updated =
+          order.status === "PENDING"
+            ? await releaseUnpaidOrder(id, reason)
+            : await cancelPaidOrder(id, reason);
+      } else {
+        // Conditional on the current status so two admins can't race.
+        const { count } = await prisma.order.updateMany({
+          where: { id, status: order.status },
+          data: {
+            status,
+            ...(trackingNumber !== undefined && {
+              trackingNumber: trackingNumber || null,
+            }),
+          },
+        });
+        updated = count === 1;
+      }
+
+      if (!updated) {
+        return res
+          .status(409)
+          .json({ message: "Order changed in the meantime, please refresh" });
+      }
+
+      const result = await prisma.order.findUnique({ where: { id } });
+      return res.json(result);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 export { router as orderRouter };

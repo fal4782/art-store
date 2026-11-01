@@ -176,6 +176,7 @@ export default function CheckoutPage() {
           artworkId: item.artworkId,
           quantity: item.quantity,
         })),
+        discountCode: appliedDiscount?.code,
       };
 
       const { razorpayOrder, order } = await orderService.placeOrder(payload);
@@ -222,6 +223,16 @@ export default function CheckoutPage() {
         },
         theme: {
           color: theme.colors.secondary,
+        },
+        // Stock is reserved when the order is placed; give it back if the
+        // customer walks away. The server also releases it after 30 minutes.
+        timeout: 15 * 60,
+        modal: {
+          ondismiss: () => {
+            orderService.cancelOrder(order.id).catch((err) => {
+              console.error("Failed to cancel unpaid order", err);
+            });
+          },
         },
       };
 

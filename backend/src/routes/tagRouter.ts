@@ -44,7 +44,7 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-router.delete("/:id", adminMiddleware, adminMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
     const tag = await prisma.tag.findUnique({

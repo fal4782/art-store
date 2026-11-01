@@ -139,6 +139,12 @@ export const PlaceOrderSchema = z.object({
 });
 export type PlaceOrderInput = z.infer<typeof PlaceOrderSchema>;
 
+export const UpdateOrderStatusSchema = z.object({
+  status: z.enum(["SHIPPED", "DELIVERED", "CANCELLED"]),
+  trackingNumber: z.string().trim().optional(),
+  cancelReason: z.string().trim().optional(),
+});
+
 export type OrderItemData = {
   artworkId: string;
   quantity: number;

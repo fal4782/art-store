@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { authMiddleware } from "../middleware";
+import { digitalSalesEnabled, isHiddenDigital } from "../lib/config";
 import { AddToCartSchema, UpdateCartItemSchema } from "../lib/types";
 
 const router = Router();
@@ -9,7 +10,12 @@ router.get("/", authMiddleware, async (req, res) => {
   const userId = req.userId;
   try {
     const cartItems = await prisma.cartItem.findMany({
-      where: { userId },
+      where: {
+        userId,
+        ...(!digitalSalesEnabled() && {
+          artwork: { type: { not: "DIGITAL" } },
+        }),
+      },
       include: {
         artwork: {
           include: {
@@ -40,7 +46,12 @@ router.post("/", authMiddleware, async (req, res) => {
     const artwork = await prisma.artwork.findUnique({
       where: { id: artworkId },
     });
-    if (!artwork || artwork.deletedAt || !artwork.isAvailable) {
+    if (
+      !artwork ||
+      artwork.deletedAt ||
+      !artwork.isAvailable ||
+      isHiddenDigital(artwork.type)
+    ) {
       return res.status(404).json({ message: "Artwork not available" });
     }
     // Check if already in cart

@@ -354,10 +354,12 @@ export default function ProductDetailsPage() {
               </div>
             </div>
 
-            {/* Specifications Grid */}
-            <div className="grid grid-cols-2 gap-3 md:gap-6">
+            {/* Specifications Grid: only real values, no placeholders */}
+            <div
+              className={`grid grid-cols-2 gap-3 md:gap-6 ${!artwork.dimensions && !artwork.medium ? "hidden" : ""}`}
+            >
               <div
-                className="p-4 md:p-6 rounded-2xl md:rounded-3xl border transition-all hover:shadow-lg"
+                className={`p-4 md:p-6 rounded-2xl md:rounded-3xl border transition-all hover:shadow-lg ${artwork.dimensions ? "" : "hidden"}`}
                 style={{
                   backgroundColor: theme.colors.surface,
                   borderColor: `${theme.colors.primary}10`,
@@ -370,11 +372,11 @@ export default function ProductDetailsPage() {
                   className="text-sm md:text-lg font-bold truncate block"
                   style={{ color: theme.colors.primary }}
                 >
-                  {artwork.dimensions || "Custom"}
+                  {artwork.dimensions}
                 </span>
               </div>
               <div
-                className="p-4 md:p-6 rounded-2xl md:rounded-3xl border transition-all hover:shadow-lg"
+                className={`p-4 md:p-6 rounded-2xl md:rounded-3xl border transition-all hover:shadow-lg ${artwork.medium ? "" : "hidden"}`}
                 style={{
                   backgroundColor: theme.colors.surface,
                   borderColor: `${theme.colors.primary}10`,
@@ -387,7 +389,7 @@ export default function ProductDetailsPage() {
                   className="text-sm md:text-lg font-bold truncate block"
                   style={{ color: theme.colors.primary }}
                 >
-                  {artwork.medium || "Quality"}
+                  {artwork.medium}
                 </span>
               </div>
             </div>

@@ -19,6 +19,7 @@ import { tagService } from "../../services/tagService";
 import type { Artwork, Category, Tag, ArtworkType } from "../../types/artwork";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { showImageFallback } from "../../utils/imageFallback";
+import { uploadService, MAX_UPLOAD_BYTES } from "../../services/uploadService";
 
 interface ArtworkFormProps {
   initialData?: Partial<Artwork>;
@@ -57,6 +58,11 @@ export default function ArtworkForm({
   });
 
   const [newImageUrl, setNewImageUrl] = useState("");
+  // In-flight uploads, keyed by a local id, with their progress in percent
+  const [uploads, setUploads] = useState<{ id: string; progress: number }[]>(
+    [],
+  );
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     categoryService.getCategories().then(setCategories).catch(console.error);
@@ -86,6 +92,42 @@ export default function ArtworkForm({
       }));
       setNewImageUrl("");
     }
+  };
+
+  const handleUploadFiles = async (files: FileList | null) => {
+    if (!files) return;
+    setUploadError(null);
+    const errors: string[] = [];
+
+    await Promise.all(
+      Array.from(files).map(async (file) => {
+        if (!file.type.startsWith("image/")) {
+          errors.push(`${file.name} isn't an image`);
+          return;
+        }
+        if (file.size > MAX_UPLOAD_BYTES) {
+          errors.push(`${file.name} is over 10 MB`);
+          return;
+        }
+        const id = crypto.randomUUID();
+        setUploads((prev) => [...prev, { id, progress: 0 }]);
+        try {
+          const url = await uploadService.uploadImage(file, (progress) =>
+            setUploads((prev) =>
+              prev.map((u) => (u.id === id ? { ...u, progress } : u)),
+            ),
+          );
+          setFormData((prev) => ({ ...prev, images: [...prev.images, url] }));
+        } catch (err) {
+          console.error("Image upload failed", err);
+          errors.push(`${file.name} failed to upload`);
+        } finally {
+          setUploads((prev) => prev.filter((u) => u.id !== id));
+        }
+      }),
+    );
+
+    if (errors.length > 0) setUploadError(errors.join(". ") + ".");
   };
 
   const removeImage = (index: number) => {
@@ -154,7 +196,7 @@ export default function ArtworkForm({
         </div>
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || uploads.length > 0}
           className="px-10 py-4 rounded-2xl text-white font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-secondary/30 disabled:opacity-50 min-w-[180px] justify-center"
           style={{ backgroundColor: theme.colors.secondary }}
         >
@@ -213,13 +255,54 @@ export default function ArtworkForm({
                   </button>
                 </div>
               ))}
-              <div className="aspect-square rounded-2xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center text-stone-300 gap-2">
+              {uploads.map((u) => (
+                <div
+                  key={u.id}
+                  className="aspect-square rounded-2xl border border-stone-100 bg-stone-50 flex flex-col items-center justify-center gap-3 px-4"
+                >
+                  <span
+                    className="text-xs font-black"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    Uploading {u.progress}%
+                  </span>
+                  <div className="h-1.5 w-full rounded-full bg-stone-200 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${u.progress}%`,
+                        backgroundColor: theme.colors.secondaryDark,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+              <label className="aspect-square rounded-2xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center text-stone-400 gap-2 cursor-pointer transition-colors hover:border-stone-300 hover:text-stone-500 focus-within:border-stone-400">
                 <FiPlus size={24} />
                 <span className="text-[10px] font-black uppercase">
-                  Add Image
+                  Upload Photos
                 </span>
-              </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="sr-only"
+                  onChange={(e) => {
+                    handleUploadFiles(e.target.files);
+                    e.target.value = ""; // allow picking the same file again
+                  }}
+                />
+              </label>
             </div>
+
+            {uploadError && (
+              <p
+                className="text-sm font-bold"
+                style={{ color: theme.colors.error }}
+              >
+                {uploadError}
+              </p>
+            )}
 
             <div className="relative">
               <FiLink
@@ -231,7 +314,7 @@ export default function ArtworkForm({
               />
               <input
                 type="text"
-                placeholder="Paste image URL here..."
+                placeholder="Or paste an image URL..."
                 value={newImageUrl}
                 onFocus={() => setIsFocused("newImageUrl")}
                 onBlur={() => setIsFocused(null)}

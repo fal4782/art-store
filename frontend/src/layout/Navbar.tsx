@@ -1,7 +1,8 @@
 import { theme } from "../theme";
 import { Link, useLocation } from "react-router-dom";
 
-import { FiHome, FiUser, FiShoppingBag, FiHeart } from "react-icons/fi";
+import { FiHome, FiUser, FiShoppingBag, FiHeart, FiGrid } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
 
 const navItems = [
   { label: "Home", icon: FiHome, href: "/" },
@@ -10,8 +11,14 @@ const navItems = [
   { label: "Me", icon: FiUser, href: "/profile" },
 ];
 
+// Only shown to admins. Hiding it is just convenience: /admin is protected by
+// ProtectedRoute and the backend's admin checks either way.
+const adminNavItem = { label: "Dashboard", icon: FiGrid, href: "/admin" };
+
 export default function Navbar() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
+  const items = user?.role === "ADMIN" ? [...navItems, adminNavItem] : navItems;
 
   return (
     <>
@@ -24,7 +31,7 @@ export default function Navbar() {
         }}
       >
         <div className="flex h-full items-center justify-around px-4">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const isActive = pathname === item.href;
             const count = 0;
 
@@ -92,7 +99,7 @@ export default function Navbar() {
         }}
       >
         <div className="flex items-center px-10">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

@@ -1,58 +1,16 @@
-import { useState, useEffect, useRef } from "react";
 import { theme } from "../theme";
 import { Link } from "react-router-dom";
 import FeaturedArtworks from "../components/shop/FeaturedArtworks";
 import CategoryTiles from "../components/shop/CategoryTiles";
+import Hero from "../components/shop/Hero";
 import {
   FiArrowRight,
-  FiScissors,
-  FiPenTool,
   FiFeather,
   FiTruck,
   FiLock,
   FiTag,
   FiShoppingBag,
 } from "react-icons/fi";
-
-/**
- * Normalized scroll progress (0 to 1) of a section through the viewport.
- * Updates at most once per frame, and stays at 0 when the user prefers
- * reduced motion, so the animations driven by it don't run.
- */
-function useSectionScroll(ref: React.RefObject<HTMLDivElement | null>) {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-
-      // 0 when the top is at the bottom of the viewport,
-      // 1 when the bottom is at the top of the viewport
-      const totalScrollArea = rect.height + windowHeight;
-      const currentScroll = windowHeight - rect.top;
-
-      setProgress(Math.min(Math.max(currentScroll / totalScrollArea, 0), 1));
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    update();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
-    };
-  }, [ref]);
-
-  return progress;
-}
 
 const promises = [
   {
@@ -78,105 +36,12 @@ const promises = [
 ];
 
 export default function HomePage() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const heroProgress = useSectionScroll(heroRef);
-
   return (
     <div
       className="min-h-screen overflow-x-hidden"
       style={{ backgroundColor: theme.colors.background }}
     >
-      {/* HERO */}
-      <section
-        ref={heroRef}
-        className="relative h-[130vh]"
-        style={{ backgroundColor: theme.colors.surface }}
-      >
-        <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-          {/* Background Text: "CRAFT" */}
-          <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-            style={{
-              transform: `scale(${1 + heroProgress * 1.5})`,
-              opacity: 0.12 * (1 - heroProgress * 0.5),
-            }}
-          >
-            <span
-              className="text-[23vw] font-black tracking-tighter"
-              style={{ color: theme.colors.primary }}
-            >
-              CRAFT
-            </span>
-          </div>
-
-          {/* Main Title Split Animation */}
-          <div className="relative text-center z-10 px-4">
-            <h1 className="flex flex-col text-6xl md:text-[8rem] lg:text-[10rem] font-black leading-none tracking-tighter">
-              <span
-                className="inline-block"
-                style={{
-                  transform: `translateX(${-heroProgress * 120}px) rotate(${-heroProgress * 8}deg)`,
-                  color: theme.colors.primary,
-                }}
-              >
-                MADE BY
-              </span>
-              <span
-                className="inline-block italic font-serif"
-                style={{
-                  transform: `translateX(${heroProgress * 120}px) rotate(${heroProgress * 8}deg)`,
-                  color: theme.colors.secondaryDark,
-                }}
-              >
-                HEART.
-              </span>
-            </h1>
-
-            <div
-              className="mt-8 md:mt-12 space-y-6"
-              style={{
-                opacity: Math.min(1, Math.max(0, 1 - (heroProgress - 0.3) * 3)),
-                transform: `translateY(${Math.max(0, (heroProgress - 0.2) * 100)}px)`,
-              }}
-            >
-              <p
-                className="text-lg md:text-2xl font-medium max-w-xl mx-auto"
-                style={{ color: theme.colors.primary }}
-              >
-                Original paintings and handmade crochet, made by hand in a small
-                home studio.
-              </p>
-              <Link
-                to="/shop"
-                className="inline-flex items-center gap-4 px-10 py-5 rounded-full font-black text-xl text-white transition-transform hover:scale-105 active:scale-95 shadow-xl"
-                style={{ backgroundColor: theme.colors.secondaryDark }}
-              >
-                Enter the Shop <FiArrowRight />
-              </Link>
-            </div>
-          </div>
-
-          {/* Floating Accents */}
-          <div
-            className="absolute top-1/4 left-6 md:left-20 opacity-15 pointer-events-none"
-            style={{
-              transform: `translateY(${-heroProgress * 150}px) rotate(${heroProgress * 80}deg)`,
-              color: theme.colors.primary,
-            }}
-          >
-            <FiScissors className="w-16 h-16 md:w-24 md:h-24" />
-          </div>
-          <div
-            className="absolute bottom-1/4 right-6 md:right-20 opacity-15 pointer-events-none"
-            style={{
-              transform: `translateY(${-heroProgress * 400}px) rotate(${-heroProgress * 40}deg)`,
-              color: theme.colors.primary,
-            }}
-          >
-            <FiPenTool className="w-20 h-20 md:w-36 md:h-36" />
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* TRUST STRIP */}
       <section

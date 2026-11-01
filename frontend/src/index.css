@@ -61,6 +61,9 @@ a:focus-visible {
   --animate-float-organic-re: float-organic-re 7s ease-in-out infinite;
   --animate-pulse-slow: pulse-slow 4s ease-in-out infinite;
   --animate-scale-in: scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* "both" keeps delayed items hidden until their turn instead of flashing */
+  --animate-reveal-up: reveal-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-rise-in: rise-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes fade-in {
     from {
@@ -147,6 +150,25 @@ a:focus-visible {
       transform: scale(1);
       opacity: 1;
       filter: blur(0px);
+    }
+  }
+  /* Text sliding up from behind an overflow-hidden line */
+  @keyframes reveal-up {
+    from {
+      transform: translateY(105%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes rise-in {
+    from {
+      transform: translateY(32px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
     }
   }
 }

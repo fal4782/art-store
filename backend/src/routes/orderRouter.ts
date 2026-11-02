@@ -8,6 +8,7 @@ import {
 import {
   OrderItemData,
   PlaceOrderSchema,
+  ShipReadyItemsSchema,
   UpdateOrderStatusSchema,
 } from "../lib/types";
 import { razorpay } from "../lib/razorpay";
@@ -309,6 +310,69 @@ const ALLOWED_FROM = {
   DELIVERED: ["SHIPPED"],
   CANCELLED: ["PENDING", "CONFIRMED"],
 } as const;
+
+// Admin fulfilment: ship an order's ready copies while its made-to-order
+// units are still being made. The order stays CONFIRMED (To Ship) until the
+// rest goes out through the status route below.
+router.post(
+  "/:id/ship-ready",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    const { id } = req.params;
+    const parseResult = ShipReadyItemsSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request", errors: parseResult.error.issues });
+    }
+    const { trackingNumber } = parseResult.data;
+
+    try {
+      const order = await prisma.order.findUnique({
+        where: { id },
+        include: { orderItems: true },
+      });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      const items = order.orderItems;
+      const hasMadeToOrder = items.some((i) => i.madeToOrderQuantity > 0);
+      const hasReady = items.some((i) => i.quantity > i.madeToOrderQuantity);
+      if (
+        order.status !== "CONFIRMED" ||
+        order.readyShippedAt ||
+        !hasMadeToOrder ||
+        !hasReady
+      ) {
+        return res.status(400).json({
+          message:
+            "Only a paid, unshipped order with both ready and made-to-order items can ship its ready items first",
+        });
+      }
+
+      // Conditional so two admins can't both record the first parcel.
+      const { count } = await prisma.order.updateMany({
+        where: { id, status: "CONFIRMED", readyShippedAt: null },
+        data: {
+          readyShippedAt: new Date(),
+          readyTrackingNumber: trackingNumber || null,
+        },
+      });
+      if (count === 0) {
+        return res
+          .status(409)
+          .json({ message: "Order changed in the meantime, please refresh" });
+      }
+
+      const result = await prisma.order.findUnique({ where: { id } });
+      return res.json(result);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 // Admin fulfilment: ship, deliver or cancel an order.
 router.patch(

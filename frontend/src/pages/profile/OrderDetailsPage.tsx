@@ -18,7 +18,10 @@ import { orderService } from "../../services/orderService";
 import type { Order, OrderStatus } from "../../types/order";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
-import { MADE_TO_ORDER_NOTE } from "../../utils/madeToOrder";
+import {
+  MADE_TO_ORDER_NOTE,
+  readyShipmentProgress,
+} from "../../utils/madeToOrder";
 
 export default function OrderDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -189,6 +192,40 @@ export default function OrderDetailsPage() {
           </div>
         </div>
 
+        {order.readyShippedAt && (
+          <div
+            className="p-4 rounded-2xl border flex items-center gap-4 bg-white shadow-sm"
+            style={{ borderColor: `${theme.colors.secondary}20` }}
+          >
+            <div
+              className="p-2 rounded-xl"
+              style={{
+                backgroundColor: `${theme.colors.secondary}15`,
+                color: theme.colors.secondary,
+              }}
+            >
+              <FiTruck size={20} />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                Ready items shipped{" "}
+                {new Date(order.readyShippedAt).toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                })}
+              </p>
+              {order.readyTrackingNumber && (
+                <p
+                  className="font-mono font-bold"
+                  style={{ color: theme.colors.primary }}
+                >
+                  {order.readyTrackingNumber}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {order.trackingNumber && (
           <div
             className="p-4 rounded-2xl border flex items-center gap-4 bg-white shadow-sm"
@@ -205,7 +242,9 @@ export default function OrderDetailsPage() {
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                Tracking Number
+                {order.readyShippedAt
+                  ? "Tracking Number (rest of the order)"
+                  : "Tracking Number"}
               </p>
               <p
                 className="font-mono font-bold"
@@ -261,17 +300,27 @@ export default function OrderDetailsPage() {
                           <span className="px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest bg-white border border-stone-200">
                             {item.artworkType}
                           </span>
-                          {item.madeToOrderQuantity > 0 && (
+                          {order.readyShippedAt &&
+                          order.status === "CONFIRMED" ? (
                             <p
                               className="mt-3 text-xs font-bold"
                               style={{ color: theme.colors.secondary }}
                             >
-                              {item.madeToOrderQuantity} of {item.quantity} made
-                              to order.
-                              {(order.status === "PENDING" ||
-                                order.status === "CONFIRMED") &&
-                                ` ${MADE_TO_ORDER_NOTE}`}
+                              {readyShipmentProgress(item)}
                             </p>
+                          ) : (
+                            item.madeToOrderQuantity > 0 && (
+                              <p
+                                className="mt-3 text-xs font-bold"
+                                style={{ color: theme.colors.secondary }}
+                              >
+                                {item.madeToOrderQuantity} of {item.quantity}{" "}
+                                made to order.
+                                {(order.status === "PENDING" ||
+                                  order.status === "CONFIRMED") &&
+                                  ` ${MADE_TO_ORDER_NOTE}`}
+                              </p>
+                            )
                           )}
                         </div>
                         <p
@@ -391,6 +440,22 @@ export default function OrderDetailsPage() {
                         </p>
                         <p className="text-[10px] opacity-40 font-bold">
                           On its way
+                        </p>
+                      </div>
+                    ) : order.readyShippedAt && order.status === "CONFIRMED" ? (
+                      <div className="relative">
+                        <div
+                          className="absolute -left-[31px] top-1 w-3 h-3 rounded-full border-2 border-white shadow-sm"
+                          style={{ backgroundColor: theme.colors.secondary }}
+                        />
+                        <p
+                          className="font-bold text-sm"
+                          style={{ color: theme.colors.primary }}
+                        >
+                          Partly shipped
+                        </p>
+                        <p className="text-[10px] opacity-40 font-bold">
+                          Ready items are on their way, the rest is being made
                         </p>
                       </div>
                     ) : (

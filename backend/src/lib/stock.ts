@@ -56,6 +56,14 @@ async function cancelAndRestock(
     });
     if (count === 0) return false;
 
+    // Once the ready copies have shipped, everything that came from stock
+    // has left, so there's nothing to put back.
+    const { readyShippedAt } = await tx.order.findUniqueOrThrow({
+      where: { id: orderId },
+      select: { readyShippedAt: true },
+    });
+    if (readyShippedAt) return true;
+
     const items = await tx.orderItem.findMany({ where: { orderId } });
     for (const item of items) {
       if (!hasStock(item.artworkType)) continue;

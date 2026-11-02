@@ -33,6 +33,8 @@ export interface Order {
   discountInPaise: number;
   paymentIntentId: string | null;
   trackingNumber: string | null;
+  readyShippedAt: string | null; // Ready copies shipped ahead of made-to-order units
+  readyTrackingNumber: string | null;
   cancelReason: string | null;
   cancelledAt: string | null;
   notes: string | null;

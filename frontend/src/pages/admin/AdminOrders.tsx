@@ -15,6 +15,10 @@ import { getStatusConfig } from "../../utils/orderStatus";
 import { useToast } from "../../context/ToastContext";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
+import {
+  canShipReadyFirst,
+  readyShipmentProgress,
+} from "../../utils/madeToOrder";
 
 type Tab = "TO_SHIP" | OrderStatus | "ALL";
 
@@ -166,21 +170,40 @@ function OrderCard({
   const status = getStatusConfig(order.status);
   const isPaid = order.paymentStatus === "COMPLETED";
 
-  const update = async (
+  const readyFirst = canShipReadyFirst(order);
+  const restPending = !!order.readyShippedAt && order.status === "CONFIRMED";
+
+  const update = (
     data: Parameters<typeof orderService.updateOrderStatus>[1],
     successMessage: string,
-  ) => {
+  ) =>
+    run(() => orderService.updateOrderStatus(order.id, data), successMessage);
+
+  const shipReady = async () => {
+    if (
+      await run(
+        () => orderService.shipReadyItems(order.id, { trackingNumber }),
+        "Ready items marked as shipped",
+      )
+    ) {
+      setTrackingNumber("");
+    }
+  };
+
+  const run = async (request: () => Promise<Order>, successMessage: string) => {
     setSaving(true);
     try {
-      const updated = await orderService.updateOrderStatus(order.id, data);
+      const updated = await request();
       onUpdated(updated);
       setConfirmingCancel(false);
       showToast(successMessage, "success");
+      return true;
     } catch (err) {
       const message = isAxiosError(err)
         ? err.response?.data?.message
         : undefined;
       showToast(message || "Failed to update order", "error");
+      return false;
     } finally {
       setSaving(false);
     }
@@ -270,13 +293,23 @@ function OrderCard({
                 <p className="text-xs font-bold opacity-50">
                   Qty {item.quantity} · {formatPrice(item.priceInPaise)} each
                 </p>
-                {item.madeToOrderQuantity > 0 && (
+                {restPending ? (
                   <p
                     className="text-xs font-bold"
                     style={{ color: theme.colors.secondary }}
                   >
-                    {item.madeToOrderQuantity} of {item.quantity} made to order
+                    {readyShipmentProgress(item)}
                   </p>
+                ) : (
+                  item.madeToOrderQuantity > 0 && (
+                    <p
+                      className="text-xs font-bold"
+                      style={{ color: theme.colors.secondary }}
+                    >
+                      {item.madeToOrderQuantity} of {item.quantity} made to
+                      order
+                    </p>
+                  )
                 )}
               </div>
             </div>
@@ -317,6 +350,20 @@ function OrderCard({
               </span>
             </p>
           )}
+          {order.readyShippedAt && (
+            <p
+              className="text-xs font-bold pt-2"
+              style={{ color: theme.colors.info }}
+            >
+              Ready items shipped{" "}
+              {new Date(order.readyShippedAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+              })}
+              {order.readyTrackingNumber &&
+                ` · Tracking: ${order.readyTrackingNumber}`}
+            </p>
+          )}
           {order.trackingNumber && order.status !== "CONFIRMED" && (
             <p
               className="text-xs font-bold pt-2"
@@ -350,7 +397,9 @@ function OrderCard({
                 className="text-sm font-bold"
                 style={{ color: theme.colors.error }}
               >
-                Cancel this order? The items go back on sale.
+                {order.readyShippedAt
+                  ? "Cancel this order? Its ready items have already shipped, so nothing goes back on sale."
+                  : "Cancel this order? The items go back on sale."}
                 {isPaid &&
                   " The customer has paid, so refund them from the Razorpay dashboard."}
               </p>
@@ -391,9 +440,26 @@ function OrderCard({
                   <input
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
-                    placeholder="Tracking number (optional)"
+                    placeholder={
+                      restPending
+                        ? "Tracking number for the rest (optional)"
+                        : "Tracking number (optional)"
+                    }
                     className="flex-1 min-w-48 px-4 py-3 rounded-xl border border-stone-200 outline-none text-sm"
                   />
+                  {readyFirst && (
+                    <button
+                      disabled={saving}
+                      onClick={shipReady}
+                      className="px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 border-2 hover:cursor-pointer disabled:opacity-50"
+                      style={{
+                        borderColor: theme.colors.secondary,
+                        color: theme.colors.secondary,
+                      }}
+                    >
+                      <FiTruck /> Ship Ready Items
+                    </button>
+                  )}
                   <button
                     disabled={saving}
                     onClick={() =>
@@ -405,7 +471,12 @@ function OrderCard({
                     className="px-5 py-3 rounded-xl text-sm font-bold text-white flex items-center gap-2 hover:cursor-pointer disabled:opacity-50"
                     style={{ backgroundColor: theme.colors.secondary }}
                   >
-                    <FiTruck /> Mark as Shipped
+                    <FiTruck />{" "}
+                    {readyFirst
+                      ? "Ship Everything"
+                      : restPending
+                        ? "Ship the Rest"
+                        : "Mark as Shipped"}
                   </button>
                 </>
               )}

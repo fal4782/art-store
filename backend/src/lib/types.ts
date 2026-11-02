@@ -176,6 +176,10 @@ export const UpdateOrderStatusSchema = z.object({
   cancelReason: z.string().trim().optional(),
 });
 
+export const ShipReadyItemsSchema = z.object({
+  trackingNumber: z.string().trim().optional(),
+});
+
 export type OrderItemData = {
   artworkId: string;
   quantity: number;

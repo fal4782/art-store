@@ -49,6 +49,17 @@ export const orderService = {
     return response.data;
   },
 
+  shipReadyItems: async (
+    id: string,
+    data: { trackingNumber?: string },
+  ): Promise<Order> => {
+    const response = await apiClient.post<Order>(
+      `/orders/${id}/ship-ready`,
+      data,
+    );
+    return response.data;
+  },
+
   cancelOrder: async (id: string): Promise<void> => {
     await apiClient.post(`/orders/${id}/cancel`);
   },

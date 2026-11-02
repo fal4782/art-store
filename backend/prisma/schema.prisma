@@ -201,6 +201,8 @@ model Order {
     discountInPaise   Int           @default(0)
     paymentIntentId   String?
     trackingNumber    String?
+    readyShippedAt      DateTime? // When the ready copies shipped ahead of the made-to-order units
+    readyTrackingNumber String? // Tracking number for that first parcel
     notes             String? // Internal admin notes
     cancelReason      String?
     cancelledAt       DateTime?

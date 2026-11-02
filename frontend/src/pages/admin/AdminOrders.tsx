@@ -7,7 +7,9 @@ import {
   FiTruck,
   FiCheckCircle,
   FiXCircle,
-  FiMapPin,
+  FiMail,
+  FiPhone,
+  FiCopy,
 } from "react-icons/fi";
 import { orderService } from "../../services/orderService";
 import type { Order, OrderStatus } from "../../types/order";
@@ -209,15 +211,39 @@ function OrderCard({
     }
   };
 
-  const address = [
+  const labelClass =
+    "text-[10px] font-black uppercase tracking-[0.2em] opacity-50";
+
+  const customerName = [order.user?.firstName, order.user?.lastName]
+    .filter(Boolean)
+    .join(" ");
+  const shipsToCustomer =
+    order.shippingName?.trim().toLowerCase() === customerName.toLowerCase();
+
+  // Laid out like a postal label: street lines, then "City, State PIN".
+  const addressLines = [
     order.shippingAddressLine1,
     order.shippingAddressLine2,
-    order.shippingCity,
-    order.shippingState,
-    order.shippingPostalCode,
-  ]
-    .filter(Boolean)
-    .join(", ");
+    [
+      [order.shippingCity, order.shippingState].filter(Boolean).join(", "),
+      order.shippingPostalCode,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  ].filter(Boolean);
+
+  // Name, address and phone in one go, for pasting into a courier booking.
+  const copyAddress = async () => {
+    const text = [order.shippingName, ...addressLines, order.shippingPhone]
+      .filter(Boolean)
+      .join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("Address copied", "success");
+    } catch {
+      showToast("Couldn't copy the address", "error");
+    }
+  };
 
   return (
     <div
@@ -268,9 +294,9 @@ function OrderCard({
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-6">
         {/* Items */}
-        <div className="md:col-span-2 space-y-3">
+        <div className="lg:col-span-2 space-y-3">
           {order.orderItems.map((item) => (
             <div key={item.id} className="flex items-center gap-4">
               {item.artworkImage ? (
@@ -335,21 +361,78 @@ function OrderCard({
         </div>
 
         {/* Customer + address */}
-        <div className="space-y-2 text-sm">
-          <p className="font-bold" style={{ color: theme.colors.primary }}>
-            {order.user?.firstName} {order.user?.lastName}
-          </p>
-          <p className="text-xs opacity-60 break-all">{order.user?.email}</p>
-          {address && (
-            <p className="text-xs opacity-60 flex gap-2 pt-2">
-              <FiMapPin className="shrink-0 mt-0.5" />
-              <span>
-                {order.shippingName && <>{order.shippingName}, </>}
-                {address}
-                {order.shippingPhone && <> · {order.shippingPhone}</>}
-              </span>
-            </p>
-          )}
+        <div className="space-y-4 text-sm">
+          <div
+            className="rounded-2xl p-4 space-y-3"
+            style={{ backgroundColor: `${theme.colors.accent}25` }}
+          >
+            {/* Who, and how to reach them */}
+            <div className="space-y-1">
+              <p className="font-bold" style={{ color: theme.colors.primary }}>
+                {customerName}
+              </p>
+              {order.user?.email && (
+                <a
+                  href={`mailto:${order.user.email}`}
+                  title={order.user.email}
+                  className="text-xs font-bold flex items-center gap-2 min-w-0 hover:underline"
+                  style={{ color: theme.colors.secondary }}
+                >
+                  <FiMail className="shrink-0" />
+                  <span className="truncate">{order.user.email}</span>
+                </a>
+              )}
+              {order.shippingPhone ? (
+                <a
+                  href={`tel:${order.shippingPhone.replace(/[^\d+]/g, "")}`}
+                  className="text-xs font-bold flex items-center gap-2 hover:underline"
+                  style={{ color: theme.colors.secondary }}
+                >
+                  <FiPhone className="shrink-0" />
+                  {order.shippingPhone}
+                </a>
+              ) : (
+                <p className="text-xs flex items-center gap-2 opacity-50">
+                  <FiPhone className="shrink-0" />
+                  No phone on this order
+                </p>
+              )}
+            </div>
+
+            {addressLines.length > 0 && (
+              <div
+                className="space-y-1 pt-3 border-t"
+                style={{ borderColor: `${theme.colors.primary}10` }}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className={labelClass}>Ship to</p>
+                  <button
+                    type="button"
+                    onClick={copyAddress}
+                    className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1 opacity-50 hover:opacity-100 transition-opacity"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    <FiCopy />
+                    Copy
+                  </button>
+                </div>
+                <div
+                  className="text-xs leading-relaxed"
+                  style={{ color: theme.colors.primary }}
+                >
+                  {/* Only when someone else receives it, e.g. a gift */}
+                  {order.shippingName && !shipsToCustomer && (
+                    <p className="font-bold">{order.shippingName}</p>
+                  )}
+                  {addressLines.map((line) => (
+                    <p key={line} className="opacity-70">
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           {order.readyShippedAt && (
             <p
               className="text-xs font-bold pt-2"

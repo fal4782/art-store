@@ -63,7 +63,14 @@ const addressFields = {
   state: z.string().optional(),
   postalCode: z.string().min(1),
   country: z.string(),
-  phone: z.string().optional(),
+  // Required so the store can reach the customer (couriers, made-to-order
+  // timing). Formatting is free, but it needs at least 10 digits.
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v.replace(/\D/g, "").length >= 10, {
+      message: "Phone number needs at least 10 digits",
+    }),
   isDefault: z.boolean().optional(),
 };
 

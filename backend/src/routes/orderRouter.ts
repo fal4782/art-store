@@ -117,6 +117,12 @@ router.post("/", authMiddleware, async (req, res) => {
     if (!address || address.userId !== userId) {
       return res.status(400).json({ message: "Invalid address" });
     }
+    // Addresses saved before phone was required may not have one.
+    if (!address.phone) {
+      return res.status(400).json({
+        message: "Add a phone number to this address before placing the order",
+      });
+    }
 
     // Validate artworks, stock, and calculate total
     let totalPriceInPaise = 0;

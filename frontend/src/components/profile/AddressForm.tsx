@@ -11,6 +11,7 @@ import {
 import { theme } from "../../theme";
 import type { AddressInput } from "../../types/user";
 import { useToast } from "../../context/ToastContext";
+import { PHONE_HINT, PHONE_PATTERN } from "../../utils/phone";
 
 interface PostOffice {
   Name: string;
@@ -342,6 +343,10 @@ export default function AddressForm({
                 }}
               />
               <input
+                required
+                type="tel"
+                pattern={PHONE_PATTERN}
+                title={PHONE_HINT}
                 value={formData.phone || ""}
                 onFocus={() => setIsFocused("phone")}
                 onBlur={() => setIsFocused(null)}

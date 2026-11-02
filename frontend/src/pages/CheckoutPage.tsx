@@ -18,6 +18,7 @@ import {
   FiCreditCard,
   FiTrash2,
   FiLoader,
+  FiPhone,
 } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
@@ -30,6 +31,7 @@ import {
   madeToOrderCount,
   maxCartQuantity,
 } from "../utils/madeToOrder";
+import { PHONE_HINT, PHONE_PATTERN, isValidPhone } from "../utils/phone";
 
 declare global {
   interface Window {
@@ -71,6 +73,8 @@ export default function CheckoutPage() {
   const [newAddress, setNewAddress] =
     useState<AddressInput>(initialAddressState);
   const [savingAddress, setSavingAddress] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("");
+  const [savingPhone, setSavingPhone] = useState(false);
 
   // Discount State
   const [discountCode, setDiscountCode] = useState("");
@@ -158,6 +162,32 @@ export default function CheckoutPage() {
       showToast("Failed to add address", "error");
     } finally {
       setSavingAddress(false);
+    }
+  };
+
+  // Addresses saved before phone was required may not have one, and the
+  // order API rejects them, so ask for it here.
+  const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
+  const needsPhone = !!selectedAddress && !selectedAddress.phone;
+
+  const handleSavePhone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAddress) return;
+    try {
+      setSavingPhone(true);
+      const updated = await addressService.updateAddress(selectedAddress.id, {
+        phone: phoneInput.trim(),
+      });
+      setAddresses((prev) =>
+        prev.map((a) => (a.id === updated.id ? updated : a)),
+      );
+      setPhoneInput("");
+      showToast("Phone number saved", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to save phone number", "error");
+    } finally {
+      setSavingPhone(false);
     }
   };
 
@@ -411,6 +441,51 @@ export default function CheckoutPage() {
                   )}
                 </div>
               )}
+
+              {needsPhone && (
+                <form
+                  onSubmit={handleSavePhone}
+                  className="p-6 rounded-2xl border-2 space-y-3"
+                  style={{
+                    backgroundColor: theme.colors.surface,
+                    borderColor: `${theme.colors.warning}40`,
+                  }}
+                >
+                  <p
+                    className="text-sm font-bold"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    Add a phone number to this address so we can reach you about
+                    delivery.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <div className="relative flex-1 min-w-48">
+                      <FiPhone
+                        className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40"
+                        style={{ color: theme.colors.primary }}
+                      />
+                      <input
+                        required
+                        type="tel"
+                        pattern={PHONE_PATTERN}
+                        title={PHONE_HINT}
+                        value={phoneInput}
+                        onChange={(e) => setPhoneInput(e.target.value)}
+                        placeholder="+91 00000 00000"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-stone-200 outline-none text-sm"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={savingPhone || !isValidPhone(phoneInput)}
+                      className="px-5 py-3 rounded-xl text-sm font-bold text-white hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ backgroundColor: theme.colors.secondary }}
+                    >
+                      {savingPhone ? "Saving..." : "Save Phone"}
+                    </button>
+                  </div>
+                </form>
+              )}
             </section>
 
             {/* Order Items Review */}
@@ -597,7 +672,10 @@ export default function CheckoutPage() {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={
-                    placingOrder || !selectedAddressId || cartCount === 0
+                    placingOrder ||
+                    !selectedAddressId ||
+                    needsPhone ||
+                    cartCount === 0
                   }
                   className="w-full py-5 rounded-[24px] font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group shadow-xl"
                   style={{

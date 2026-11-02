@@ -21,6 +21,7 @@ import { FaIndianRupeeSign } from "react-icons/fa6";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 import { uploadService, MAX_UPLOAD_BYTES } from "../../services/uploadService";
+import Select from "../common/Select";
 
 interface ArtworkFormProps {
   initialData?: Partial<Artwork>;
@@ -482,33 +483,30 @@ export default function ArtworkForm({
                 >
                   Category
                 </label>
-                <div className="relative">
-                  <FiLayers
-                    className={iconClass}
-                    style={{
-                      color: theme.colors.primary,
-                      opacity: isFocused === "categoryId" ? 1 : 0.4,
-                    }}
-                  />
-                  <select
-                    required
-                    value={formData.categoryId}
-                    onFocus={() => setIsFocused("categoryId")}
-                    onBlur={() => setIsFocused(null)}
-                    onChange={(e) =>
-                      setFormData({ ...formData, categoryId: e.target.value })
-                    }
-                    className={`${inputClass} appearance-none cursor-pointer`}
-                    style={getInputStyle("categoryId")}
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <Select
+                  required
+                  value={formData.categoryId}
+                  onFocus={() => setIsFocused("categoryId")}
+                  onBlur={() => setIsFocused(null)}
+                  onChange={(value) =>
+                    setFormData({ ...formData, categoryId: value })
+                  }
+                  options={[
+                    { value: "", label: "Select Category" },
+                    ...categories.map((c) => ({ value: c.id, label: c.name })),
+                  ]}
+                  icon={
+                    <FiLayers
+                      className={iconClass}
+                      style={{
+                        color: theme.colors.primary,
+                        opacity: isFocused === "categoryId" ? 1 : 0.4,
+                      }}
+                    />
+                  }
+                  className={`${inputClass} cursor-pointer`}
+                  style={getInputStyle("categoryId")}
+                />
               </div>
 
               <div className="space-y-2">

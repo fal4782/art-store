@@ -18,6 +18,7 @@ import { artworkService } from "../../services/artworkService";
 import { categoryService } from "../../services/categoryService";
 import { useToast } from "../../context/ToastContext";
 import type { Artwork, Category } from "../../types/artwork";
+import Select from "../../components/common/Select";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
 
@@ -179,47 +180,49 @@ export default function AdminArtworks() {
 
         <div className="flex gap-4 w-full lg:w-auto">
           <div className="relative flex-1 lg:w-48">
-            <FiFilter className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-            <select
+            <Select
               value={filters.categoryId}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, categoryId: e.target.value }))
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, categoryId: value }))
               }
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none appearance-none font-bold"
+              options={[
+                { value: "", label: "All Categories" },
+                ...categories.map((c) => ({ value: c.id, label: c.name })),
+              ]}
+              icon={
+                <FiFilter className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+              }
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none font-bold"
               style={{
                 backgroundColor: theme.colors.surface,
                 borderColor: `${theme.colors.primary}08`,
                 color: theme.colors.primary,
               }}
-            >
-              <option value="">All Categories</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div className="relative flex-1 lg:w-48">
-            <FiStar className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-            <select
+            <Select
               value={filters.status}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, status: e.target.value }))
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, status: value }))
               }
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none appearance-none font-bold"
+              options={[
+                { value: "", label: "All Statuses" },
+                { value: "PUBLISHED", label: "Published" },
+                { value: "DRAFT", label: "Draft" },
+                { value: "SOLD_OUT", label: "Sold Out" },
+              ]}
+              icon={
+                <FiStar className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+              }
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none font-bold"
               style={{
                 backgroundColor: theme.colors.surface,
                 borderColor: `${theme.colors.primary}08`,
                 color: theme.colors.primary,
               }}
-            >
-              <option value="">All Statuses</option>
-              <option value="PUBLISHED">Published</option>
-              <option value="DRAFT">Draft</option>
-              <option value="SOLD_OUT">Sold Out</option>
-            </select>
+            />
           </div>
         </div>
       </div>

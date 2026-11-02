@@ -3,6 +3,7 @@ import { theme } from "../../theme";
 import { FiSearch, FiX, FiTag } from "react-icons/fi";
 import { categoryService } from "../../services/categoryService";
 import { tagService } from "../../services/tagService";
+import Select from "../common/Select";
 import type {
   Category,
   ArtworkType,
@@ -262,30 +263,32 @@ export default function FilterBar({
           Sort By
         </h3>
         <div className="space-y-2">
-          <select
+          <Select
             value={filters.sortBy || "createdAt"}
-            onChange={(e) => updateFilter("sortBy", e.target.value)}
+            onChange={(value) => updateFilter("sortBy", value)}
+            options={[
+              { value: "createdAt", label: "Newest First" },
+              { value: "price", label: "Price" },
+              { value: "views", label: "Most Popular" },
+              { value: "name", label: "Name (A-Z)" },
+            ]}
             className="w-full px-4 py-3 rounded-xl border border-stone-200 outline-none font-bold text-sm cursor-pointer hover:border-stone-300 transition-colors"
             style={{
               color: theme.colors.primary,
               backgroundColor: theme.colors.surface,
             }}
-          >
-            <option value="createdAt">Newest First</option>
-            <option value="price">Price</option>
-            <option value="views">Most Popular</option>
-            <option value="name">Name (A-Z)</option>
-          </select>
+          />
           {filters.sortBy === "price" && (
-            <select
+            <Select
               value={filters.sortOrder || "asc"}
-              onChange={(e) => updateFilter("sortOrder", e.target.value)}
+              onChange={(value) => updateFilter("sortOrder", value)}
+              options={[
+                { value: "asc", label: "Low to High" },
+                { value: "desc", label: "High to Low" },
+              ]}
               className="w-full px-4 py-3 rounded-xl bg-white border border-stone-200 outline-none font-bold text-sm cursor-pointer animate-fade-in"
               style={{ color: theme.colors.primary }}
-            >
-              <option value="asc">Low to High</option>
-              <option value="desc">High to Low</option>
-            </select>
+            />
           )}
         </div>
       </div>

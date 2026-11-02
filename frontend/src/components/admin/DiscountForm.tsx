@@ -16,6 +16,7 @@ import type {
 } from "../../services/discountService";
 import { useToast } from "../../context/ToastContext";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import Select from "../common/Select";
 
 interface DiscountFormProps {
   onSuccess: () => void;
@@ -181,27 +182,28 @@ export default function DiscountForm({
             >
               Type
             </label>
-            <div className="relative">
-              <FiTag className="absolute left-4 top-1/2 -translate-y-1/2 text-lg opacity-40" />
-              <select
-                value={formData.discountType}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    discountType: e.target.value as "PERCENTAGE" | "FIXED",
-                  })
-                }
-                className={inputClass}
-                style={{
-                  borderColor: `${theme.colors.accent}40`,
-                  backgroundColor: `${theme.colors.accent}15`,
-                  color: theme.colors.primary,
-                }}
-              >
-                <option value="PERCENTAGE">Percentage (%)</option>
-                <option value="FIXED">Fixed Amount (₹)</option>
-              </select>
-            </div>
+            <Select
+              value={formData.discountType}
+              onChange={(value) =>
+                setFormData({
+                  ...formData,
+                  discountType: value as "PERCENTAGE" | "FIXED",
+                })
+              }
+              options={[
+                { value: "PERCENTAGE", label: "Percentage (%)" },
+                { value: "FIXED", label: "Fixed Amount (₹)" },
+              ]}
+              icon={
+                <FiTag className="absolute left-4 top-1/2 -translate-y-1/2 text-lg opacity-40" />
+              }
+              className={inputClass}
+              style={{
+                borderColor: `${theme.colors.accent}40`,
+                backgroundColor: `${theme.colors.accent}15`,
+                color: theme.colors.primary,
+              }}
+            />
           </div>
         </div>
 

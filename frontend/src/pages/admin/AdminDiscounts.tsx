@@ -16,6 +16,7 @@ import { discountService } from "../../services/discountService";
 import type { DiscountCode } from "../../services/discountService";
 import { useToast } from "../../context/ToastContext";
 import DiscountForm from "../../components/admin/DiscountForm";
+import Select from "../../components/common/Select";
 
 export default function AdminDiscounts() {
   const [discounts, setDiscounts] = useState<DiscountCode[]>([]);
@@ -145,23 +146,26 @@ export default function AdminDiscounts() {
             )}
           </div>
           <div className="relative flex-1 lg:w-48">
-            <FiFilter className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-            <select
+            <Select
               value={filters.status}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, status: e.target.value }))
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, status: value }))
               }
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none appearance-none font-bold"
+              options={[
+                { value: "", label: "All Statuses" },
+                { value: "ACTIVE", label: "Active" },
+                { value: "INACTIVE", label: "Inactive" },
+              ]}
+              icon={
+                <FiFilter className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+              }
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 outline-none font-bold"
               style={{
                 backgroundColor: theme.colors.surface,
                 borderColor: `${theme.colors.primary}08`,
                 color: theme.colors.primary,
               }}
-            >
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+            />
           </div>
         </div>
       )}

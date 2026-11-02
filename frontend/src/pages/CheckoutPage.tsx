@@ -19,6 +19,7 @@ import {
   FiTrash2,
   FiLoader,
   FiPhone,
+  FiMessageSquare,
 } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
@@ -32,6 +33,9 @@ import {
   maxCartQuantity,
 } from "../utils/madeToOrder";
 import { PHONE_HINT, PHONE_PATTERN, isValidPhone } from "../utils/phone";
+
+// Same cap as the order API.
+const ORDER_NOTE_MAX = 1000;
 
 declare global {
   interface Window {
@@ -75,6 +79,7 @@ export default function CheckoutPage() {
   const [savingAddress, setSavingAddress] = useState(false);
   const [phoneInput, setPhoneInput] = useState("");
   const [savingPhone, setSavingPhone] = useState(false);
+  const [note, setNote] = useState("");
 
   // Discount State
   const [discountCode, setDiscountCode] = useState("");
@@ -214,6 +219,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
         })),
         discountCode: appliedDiscount?.code,
+        notes: note.trim() || undefined,
       };
 
       const { razorpayOrder, order } = await orderService.placeOrder(payload);
@@ -587,6 +593,36 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
+            </section>
+
+            {/* Note to the store */}
+            <section className="space-y-4">
+              <h2
+                className="text-xl font-bold flex items-center gap-3"
+                style={{ color: theme.colors.primary }}
+              >
+                <FiMessageSquare style={{ color: theme.colors.secondary }} />{" "}
+                Note for the Store{" "}
+                <span className="text-sm font-bold opacity-40">(optional)</span>
+              </h2>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                maxLength={ORDER_NOTE_MAX}
+                rows={3}
+                placeholder="Anything we should know? Preferences for a made-to-order piece, a gift message, a date you need it by..."
+                className="w-full p-5 rounded-3xl outline-none text-sm resize-y"
+                style={{
+                  backgroundColor: theme.colors.surface,
+                  border: `1px solid ${theme.colors.primary}15`,
+                  color: theme.colors.primary,
+                }}
+              />
+              {note.length > ORDER_NOTE_MAX - 100 && (
+                <p className="text-xs font-bold opacity-50 text-right">
+                  {ORDER_NOTE_MAX - note.length} characters left
+                </p>
+              )}
             </section>
           </div>
 

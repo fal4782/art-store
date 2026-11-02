@@ -172,7 +172,13 @@ export const PlaceOrderSchema = z.object({
       quantity: z.number().int().min(1),
     }),
   ),
-  notes: z.string().optional(),
+  // The customer's note to the store; blank counts as no note.
+  notes: z
+    .string()
+    .trim()
+    .max(1000, "Note can be at most 1000 characters")
+    .transform((v) => v || undefined)
+    .optional(),
   discountCode: z.string().optional(),
 });
 export type PlaceOrderInput = z.infer<typeof PlaceOrderSchema>;

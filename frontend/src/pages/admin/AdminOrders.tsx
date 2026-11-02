@@ -358,6 +358,20 @@ function OrderCard({
               {formatPrice(order.totalPriceInPaise)}
             </span>
           </div>
+          {order.notes && (
+            <div
+              className="rounded-2xl p-4 space-y-1"
+              style={{ backgroundColor: `${theme.colors.secondary}10` }}
+            >
+              <p className={labelClass}>Customer note</p>
+              <p
+                className="text-sm whitespace-pre-wrap break-words"
+                style={{ color: theme.colors.primary }}
+              >
+                {order.notes}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Customer + address */}

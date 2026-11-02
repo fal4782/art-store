@@ -492,6 +492,22 @@ export default function OrderDetailsPage() {
                 <FiCheckCircle /> Digital delivery only. No shipping required.
               </div>
             )}
+            {order.notes && (
+              <div className="mt-10 relative z-10">
+                <h3 className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-4">
+                  Your Note
+                </h3>
+                <p
+                  className="text-sm font-medium pl-4 border-l-2 whitespace-pre-wrap break-words"
+                  style={{
+                    color: theme.colors.primary,
+                    borderColor: theme.colors.secondary,
+                  }}
+                >
+                  {order.notes}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

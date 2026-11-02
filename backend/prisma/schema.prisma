@@ -203,7 +203,7 @@ model Order {
     trackingNumber    String?
     readyShippedAt      DateTime? // When the ready copies shipped ahead of the made-to-order units
     readyTrackingNumber String? // Tracking number for that first parcel
-    notes             String? // Internal admin notes
+    notes             String? // The customer's note to the store, from checkout
     cancelReason      String?
     cancelledAt       DateTime?
     createdAt         DateTime      @default(now())

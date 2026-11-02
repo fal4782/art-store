@@ -18,6 +18,7 @@ import { orderService } from "../../services/orderService";
 import type { Order, OrderStatus } from "../../types/order";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
+import { MADE_TO_ORDER_NOTE } from "../../utils/madeToOrder";
 
 export default function OrderDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -260,6 +261,18 @@ export default function OrderDetailsPage() {
                           <span className="px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest bg-white border border-stone-200">
                             {item.artworkType}
                           </span>
+                          {item.madeToOrderQuantity > 0 && (
+                            <p
+                              className="mt-3 text-xs font-bold"
+                              style={{ color: theme.colors.secondary }}
+                            >
+                              {item.madeToOrderQuantity} of {item.quantity} made
+                              to order.
+                              {(order.status === "PENDING" ||
+                                order.status === "CONFIRMED") &&
+                                ` ${MADE_TO_ORDER_NOTE}`}
+                            </p>
+                          )}
                         </div>
                         <p
                           className="font-black text-lg"

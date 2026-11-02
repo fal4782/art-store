@@ -235,6 +235,7 @@ model OrderItem {
     artworkId    String
     quantity     Int
     priceInPaise Int // Price at time of purchase
+    madeToOrderQuantity Int @default(0) // Units of a made-to-order piece beyond the stock there was, to be made after ordering
 
     // Snapshot of artwork details at time of order
     artworkName        String

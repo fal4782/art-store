@@ -14,6 +14,7 @@ import type { Order, OrderStatus } from "../../types/order";
 import { Link } from "react-router-dom";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
+import { MADE_TO_ORDER_NOTE } from "../../utils/madeToOrder";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -233,6 +234,18 @@ export default function OrderHistory() {
                           <span>•</span>
                           <span>{item.artworkType}</span>
                         </div>
+                        {item.madeToOrderQuantity > 0 && (
+                          <p
+                            className="mt-1 text-xs font-bold"
+                            style={{ color: theme.colors.secondary }}
+                          >
+                            {item.madeToOrderQuantity} of {item.quantity} made
+                            to order.
+                            {(order.status === "PENDING" ||
+                              order.status === "CONFIRMED") &&
+                              ` ${MADE_TO_ORDER_NOTE}`}
+                          </p>
+                        )}
                       </div>
                       <Link
                         to={`/artwork/${item.artwork?.slug || item.artworkId}`}

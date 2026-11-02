@@ -25,6 +25,11 @@ import QuantitySelector from "../components/shop/QuantitySelector";
 import AddressForm from "../components/profile/AddressForm";
 import { showImageFallback } from "../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../utils/sizedImage";
+import {
+  MADE_TO_ORDER_NOTE,
+  madeToOrderCount,
+  maxCartQuantity,
+} from "../utils/madeToOrder";
 
 declare global {
   interface Window {
@@ -462,7 +467,7 @@ export default function CheckoutPage() {
                         <QuantitySelector
                           size="sm"
                           quantity={item.quantity}
-                          max={item.artwork.stockQuantity}
+                          max={maxCartQuantity(item.artwork)}
                           onIncrease={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
@@ -483,6 +488,15 @@ export default function CheckoutPage() {
                           <FiTrash2 size={18} />
                         </button>
                       </div>
+                      {madeToOrderCount(item.artwork, item.quantity) > 0 && (
+                        <p
+                          className="mt-3 text-xs font-bold"
+                          style={{ color: theme.colors.secondary }}
+                        >
+                          {madeToOrderCount(item.artwork, item.quantity)} of{" "}
+                          {item.quantity} made to order. {MADE_TO_ORDER_NOTE}
+                        </p>
+                      )}
                     </div>
                     <div className="text-center sm:text-right">
                       <span

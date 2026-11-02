@@ -180,6 +180,7 @@ export type OrderItemData = {
   artworkId: string;
   quantity: number;
   priceInPaise: number;
+  madeToOrderQuantity: number;
   artworkName: string;
   artworkType: string;
   artworkDescription: string | null;

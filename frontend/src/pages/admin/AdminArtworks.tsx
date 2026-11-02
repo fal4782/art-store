@@ -21,6 +21,7 @@ import type { Artwork, Category } from "../../types/artwork";
 import Select from "../../components/common/Select";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
+import { isSoldOut } from "../../utils/madeToOrder";
 
 export default function AdminArtworks() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -60,9 +61,7 @@ export default function AdminArtworks() {
 
       let filteredArtworks = data.artworks;
       if (filters.status === "SOLD_OUT") {
-        filteredArtworks = filteredArtworks.filter(
-          (a) => a.stockQuantity === 0,
-        );
+        filteredArtworks = filteredArtworks.filter(isSoldOut);
       }
       setArtworks(filteredArtworks);
     } catch (err) {
@@ -282,7 +281,7 @@ export default function AdminArtworks() {
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
                         <div
-                          className={`w-12 h-12 rounded-xl bg-stone-100 overflow-hidden shrink-0 border border-stone-200 relative transition-all ${artwork.stockQuantity === 0 ? "grayscale opacity-50 scale-90" : ""}`}
+                          className={`w-12 h-12 rounded-xl bg-stone-100 overflow-hidden shrink-0 border border-stone-200 relative transition-all ${isSoldOut(artwork) ? "grayscale opacity-50 scale-90" : ""}`}
                         >
                           {artwork.images?.[0] ? (
                             <img
@@ -299,16 +298,14 @@ export default function AdminArtworks() {
                               <FiImage size={20} />
                             </div>
                           )}
-                          {artwork.stockQuantity === 0 && (
+                          {isSoldOut(artwork) && (
                             <div className="absolute inset-0 bg-error/10 flex items-center justify-center">
                               <div className="w-full h-px bg-error/40 -rotate-45 absolute" />
                             </div>
                           )}
                         </div>
                         <div
-                          className={
-                            artwork.stockQuantity === 0 ? "opacity-40" : ""
-                          }
+                          className={isSoldOut(artwork) ? "opacity-40" : ""}
                         >
                           <p
                             className="font-black truncate max-w-[200px]"
@@ -344,12 +341,11 @@ export default function AdminArtworks() {
                     <td className="px-8 py-6 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <p
-                          className={`font-black text-sm ${artwork.stockQuantity > 0 ? "" : "text-error"}`}
+                          className={`font-black text-sm ${isSoldOut(artwork) ? "text-error" : ""}`}
                           style={{
-                            color:
-                              artwork.stockQuantity > 0
-                                ? theme.colors.primary
-                                : theme.colors.error,
+                            color: isSoldOut(artwork)
+                              ? theme.colors.error
+                              : theme.colors.primary,
                           }}
                         >
                           {artwork.stockQuantity}
@@ -357,6 +353,14 @@ export default function AdminArtworks() {
                         <p className="text-[8px] font-bold uppercase opacity-30">
                           Units
                         </p>
+                        {artwork.isMadeToOrder && (
+                          <p
+                            className="mt-1 text-[10px] font-black uppercase tracking-widest whitespace-nowrap"
+                            style={{ color: theme.colors.secondary }}
+                          >
+                            Made to order
+                          </p>
+                        )}
                       </div>
                     </td>
                     <td className="px-8 py-6">

@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { hasStock } from "./stock";
+import { hasStock, takeReadyCopies } from "./stock";
 
 interface ConfirmPaymentInput {
   razorpayOrderId: string;
@@ -50,9 +50,28 @@ export async function confirmOrderPayment({
       });
       for (const item of items) {
         if (!hasStock(item.artworkType)) continue;
+        const fromStock = item.quantity - item.madeToOrderQuantity;
+        if (fromStock === 0) continue;
+        const { isMadeToOrder } = await tx.artwork.findUniqueOrThrow({
+          where: { id: item.artworkId },
+          select: { isMadeToOrder: true },
+        });
+        if (isMadeToOrder) {
+          // Ready copies sold in the meantime become made-to-order units.
+          const taken = await takeReadyCopies(tx, item.artworkId, fromStock);
+          if (taken < fromStock) {
+            await tx.orderItem.update({
+              where: { id: item.id },
+              data: {
+                madeToOrderQuantity: { increment: fromStock - taken },
+              },
+            });
+          }
+          continue;
+        }
         const artwork = await tx.artwork.update({
           where: { id: item.artworkId },
-          data: { stockQuantity: { decrement: item.quantity } },
+          data: { stockQuantity: { decrement: fromStock } },
         });
         if (artwork.stockQuantity < 0) {
           console.warn(

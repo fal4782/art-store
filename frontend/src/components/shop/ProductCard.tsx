@@ -3,6 +3,7 @@ import type { Artwork } from "../../types/artwork";
 import { FiShoppingBag, FiEye } from "react-icons/fi";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
+import { isSoldOut } from "../../utils/madeToOrder";
 
 interface ProductCardProps {
   artwork: Artwork;
@@ -59,22 +60,30 @@ export default function ProductCard({
               e.stopPropagation();
               onAddToCart(artwork.id);
             }}
-            disabled={artwork.stockQuantity === 0}
+            disabled={isSoldOut(artwork)}
             className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl hover:scale-110 transition-transform shadow-lg disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
             style={{ background: theme.colors.secondary }}
-            title={artwork.stockQuantity === 0 ? "Sold Out" : "Add to Cart"}
+            title={isSoldOut(artwork) ? "Sold Out" : "Add to Cart"}
           >
             <FiShoppingBag />
           </button>
         </div>
 
         {/* Tag/Badge (Optional) */}
-        {artwork.stockQuantity === 0 && (
+        {isSoldOut(artwork) && (
           <div
             className="absolute top-3 right-3 px-3 py-1 text-white text-xs font-bold uppercase tracking-widest rounded-full"
             style={{ backgroundColor: theme.colors.primary }}
           >
             Sold Out
+          </div>
+        )}
+        {artwork.isMadeToOrder && artwork.stockQuantity === 0 && (
+          <div
+            className="absolute top-3 right-3 px-3 py-1 text-white text-xs font-bold uppercase tracking-widest rounded-full"
+            style={{ backgroundColor: theme.colors.secondary }}
+          >
+            Made to Order
           </div>
         )}
       </div>

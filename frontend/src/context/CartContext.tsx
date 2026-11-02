@@ -10,6 +10,7 @@ import { cartService } from "../services/cartService";
 import type { CartItem } from "../types/cart";
 import { useToast } from "./ToastContext";
 import { useAuth } from "./AuthContext";
+import { maxCartQuantity } from "../utils/madeToOrder";
 
 interface CartContextType {
   cart: CartItem[];
@@ -94,7 +95,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       // Check stock limit
       const item = cart.find((i) => i.id === itemId);
-      if (item && quantity > item.artwork.stockQuantity) {
+      const max = item && maxCartQuantity(item.artwork);
+      if (item && max !== undefined && quantity > max) {
         showToast(
           `Only ${item.artwork.stockQuantity} units available`,
           "error",

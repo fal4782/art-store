@@ -19,6 +19,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 import { showImageFallback } from "../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../utils/sizedImage";
+import { MADE_TO_ORDER_NOTE, isSoldOut } from "../utils/madeToOrder";
 
 export default function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -249,6 +250,13 @@ export default function ProductDetailsPage() {
                       />
                       Available & Ready
                     </div>
+                  ) : artwork.isMadeToOrder ? (
+                    <div
+                      className="flex items-center gap-2 text-[10px] md:text-[11px] font-black uppercase tracking-widest"
+                      style={{ color: theme.colors.secondary }}
+                    >
+                      Made to Order
+                    </div>
                   ) : (
                     <div
                       className="flex items-center gap-2 text-[10px] md:text-[11px] font-black uppercase tracking-widest"
@@ -256,6 +264,16 @@ export default function ProductDetailsPage() {
                     >
                       Sold Out
                     </div>
+                  )}
+                  {artwork.isMadeToOrder && (
+                    <p
+                      className="text-[10px] md:text-xs font-bold"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      {artwork.stockQuantity > 0
+                        ? `${artwork.stockQuantity} in stock, ships now. More can be made to order.`
+                        : MADE_TO_ORDER_NOTE}
+                    </p>
                   )}
                   <p className="text-[10px] md:text-xs font-bold opacity-40">
                     Tax included. Secure Checkout.
@@ -267,7 +285,7 @@ export default function ProductDetailsPage() {
               <div className="pt-2 flex flex-row gap-3 md:gap-5">
                 <button
                   onClick={handleAddToCart}
-                  disabled={cartLoading || artwork.stockQuantity === 0}
+                  disabled={cartLoading || isSoldOut(artwork)}
                   className="group relative flex-4 flex items-center justify-center gap-3 md:gap-4 py-4 md:py-6 rounded-2xl md:rounded-3xl text-sm md:text-xl font-black tracking-wide transition-all overflow-hidden shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale"
                   style={{
                     backgroundColor: theme.colors.secondary,
@@ -284,7 +302,7 @@ export default function ProductDetailsPage() {
                   ) : (
                     <>
                       <FiShoppingBag className="text-lg md:text-2xl group-hover:rotate-12 transition-transform" />
-                      {artwork.stockQuantity > 0 ? "Add to Cart" : "Sold Out"}
+                      {isSoldOut(artwork) ? "Sold Out" : "Add to Cart"}
                     </>
                   )}
                 </button>

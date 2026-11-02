@@ -11,7 +11,12 @@ import {
   UpdateOrderStatusSchema,
 } from "../lib/types";
 import { razorpay } from "../lib/razorpay";
-import { cancelPaidOrder, hasStock, releaseUnpaidOrder } from "../lib/stock";
+import {
+  cancelPaidOrder,
+  hasStock,
+  releaseUnpaidOrder,
+  takeReadyCopies,
+} from "../lib/stock";
 import { isHiddenDigital } from "../lib/config";
 import {
   DiscountError,
@@ -115,6 +120,8 @@ router.post("/", authMiddleware, async (req, res) => {
     // Validate artworks, stock, and calculate total
     let totalPriceInPaise = 0;
     const orderItemsData: OrderItemData[] = [];
+    // Made-to-order pieces can be ordered past their stock (see takeReadyCopies).
+    const madeToOrderIds = new Set<string>();
     for (const item of items) {
       const artwork = await prisma.artwork.findUnique({
         where: { id: item.artworkId },
@@ -129,7 +136,12 @@ router.post("/", authMiddleware, async (req, res) => {
           .status(400)
           .json({ message: `Artwork not available: ${item.artworkId}` });
       }
-      if (artwork.type !== "DIGITAL" && artwork.stockQuantity < item.quantity) {
+      if (artwork.isMadeToOrder) {
+        madeToOrderIds.add(artwork.id);
+      } else if (
+        artwork.type !== "DIGITAL" &&
+        artwork.stockQuantity < item.quantity
+      ) {
         return res
           .status(400)
           .json({ message: `Insufficient stock for artwork: ${artwork.name}` });
@@ -139,6 +151,7 @@ router.post("/", authMiddleware, async (req, res) => {
         artworkId: artwork.id,
         quantity: item.quantity,
         priceInPaise: artwork.priceInPaise,
+        madeToOrderQuantity: 0, // set when stock is reserved below
         artworkName: artwork.name,
         artworkType: artwork.type,
         artworkDescription: artwork.description,
@@ -175,6 +188,30 @@ router.post("/", authMiddleware, async (req, res) => {
 
     // Use Prisma transaction for atomicity
     const result = await prisma.$transaction(async (tx) => {
+      // Reserve stock for PHYSICAL or BOTH artworks first, so each item's
+      // made-to-order count is known when it's created. The conditional
+      // update stops two concurrent checkouts from both taking the last piece.
+      for (const item of orderItemsData) {
+        if (!hasStock(item.artworkType)) continue;
+        if (madeToOrderIds.has(item.artworkId)) {
+          const taken = await takeReadyCopies(
+            tx,
+            item.artworkId,
+            item.quantity,
+          );
+          item.madeToOrderQuantity = item.quantity - taken;
+          continue;
+        }
+        const { count } = await tx.artwork.updateMany({
+          where: {
+            id: item.artworkId,
+            stockQuantity: { gte: item.quantity },
+          },
+          data: { stockQuantity: { decrement: item.quantity } },
+        });
+        if (count === 0) throw new OutOfStockError(item.artworkName);
+      }
+
       // Create order and order items
       const order = await tx.order.create({
         data: {
@@ -221,20 +258,6 @@ router.post("/", authMiddleware, async (req, res) => {
         where: { id: order.id },
         data: { paymentIntentId: razorpayOrder.id },
       });
-
-      // Reserve stock for PHYSICAL or BOTH artworks. The conditional update
-      // stops two concurrent checkouts from both taking the last piece.
-      for (const item of orderItemsData) {
-        if (!hasStock(item.artworkType)) continue;
-        const { count } = await tx.artwork.updateMany({
-          where: {
-            id: item.artworkId,
-            stockQuantity: { gte: item.quantity },
-          },
-          data: { stockQuantity: { decrement: item.quantity } },
-        });
-        if (count === 0) throw new OutOfStockError(item.artworkName);
-      }
 
       return { order, razorpayOrder };
     });

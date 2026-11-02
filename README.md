@@ -15,10 +15,10 @@ Prices are in Indian Rupees and stored internally in **paise** (1 ₹ = 100 pais
 - **Home page** — a hero showing three artworks (the admin's picks, filled with the newest pieces), a trust strip, a featured row of up to four artworks (the admin's order, in-stock first, or "Just added" when nothing is featured), and category tiles (empty categories hidden).
 - **Shop** (`/shop`) — paginated catalogue with search, category filter, "specialty" tag filter, and sorting (newest, price low→high / high→low, most popular by views). The physical / digital type filter only shows when digital sales are on.
 - **Collections** (`/collection`) — browse by category.
-- **Artwork page** (`/artwork/:slug`) — image gallery, medium, dimensions, made-to-order flag, stock-aware quantity selector, "Sold Out" state, add to cart, and wishlist toggle. Specs with no value are hidden, and admins get an Edit link in the breadcrumb row.
-- **Cart drawer** — slides in on add-to-cart; quantities are capped at available stock, and each item links to its artwork page.
+- **Artwork page** (`/artwork/:slug`) — image gallery, medium, dimensions, stock-aware quantity selector, "Sold Out" state (a made-to-order piece shows "Made to Order" instead, or how many ready copies are left), add to cart, and wishlist toggle. Specs with no value are hidden, and admins get an Edit link in the breadcrumb row.
+- **Cart drawer** — slides in on add-to-cart; quantities are capped at available stock (no cap for made-to-order pieces), and each item links to its artwork page.
 - **Wishlist** — heart any artwork; view it under your profile.
-- **Checkout** (`/checkout`, login required) — pick a saved shipping address, apply a discount code (validated live and re-checked when the total changes), and pay via the Razorpay checkout popup. Closing the popup cancels the unpaid order and puts its stock back.
+- **Checkout** (`/checkout`, login required) — pick a saved shipping address, apply a discount code (validated live and re-checked when the total changes), and pay via the Razorpay checkout popup. Items with more units than ready copies say how many will be made to order and that the store will be in touch about timing. Closing the popup cancels the unpaid order and puts its stock back.
 - **Info pages** — About, Contact, FAQ, Shipping, Terms and Privacy (`/about`, `/contact`, `/faq`, `/shipping`, `/terms`, `/privacy`), linked from the footer. Shipping is within India only. The contact details in `frontend/src/utils/footerData.ts` are still placeholders.
 - **Images** — Cloudinary photos are served resized for where they appear (thumbnail, card, full size), and a placeholder replaces any image that fails to load.
 - **Profile** (`/profile`, login required) — personal info and password change, address book (with a default address), order history, order detail page, wishlist, and sign out.
@@ -31,9 +31,9 @@ Admins see a Dashboard link in the navbar. When browsing the shop they also see 
 - **Overview** — total artworks, revenue (from completed payments), customer count, active orders, and recent orders with status badges. Also:
   - **Hero picks** — choose the three artworks in the homepage hero (published pieces only); each change saves immediately.
   - **Featured order** — arrange the featured artworks with up/down arrows; this is the homepage's featured row order.
-- **Artworks** — list with search, category and status (Published / Draft / Sold Out) filters; quick publish/unpublish and feature toggles; soft delete.
+- **Artworks** — list with search, category and status (Published / Draft / Sold Out) filters (made-to-order pieces never count as sold out, and are marked in the Inventory column); quick publish/unpublish and feature toggles; soft delete.
 - **Add / edit artwork** — name, slug, description, category, type, price, dimensions, medium, stock, featured / made-to-order / available flags, tags, and photos. Photos upload straight from the browser to Cloudinary (images up to 10 MB), or can be added by URL. `Ctrl+S` / `Cmd+S` saves the form.
-- **Orders** — tabs for To Ship, In Transit, Delivered, Cancelled and All. Mark an order shipped (with an optional tracking number), delivered, or cancelled (with an optional reason). Cancelling puts the stock back; refunds for paid orders are done by hand in the Razorpay dashboard.
+- **Orders** — tabs for To Ship, In Transit, Delivered, Cancelled and All. Orders with made-to-order units carry a "Made to order" tag, so the owner knows to get in touch about timing. Mark an order shipped (with an optional tracking number), delivered, or cancelled (with an optional reason). Cancelling puts the stock back; refunds for paid orders are done by hand in the Razorpay dashboard.
 - **Discounts** — create, edit, activate/deactivate, and delete discount codes (percentage or fixed amount, optional minimum spend, usage cap, and validity window).
 
 ---
@@ -108,7 +108,7 @@ erDiagram
 | **WishlistItem**         | One row per user + artwork.                                                                                                                                                                                                                                                                    |
 | **Address**              | Saved shipping addresses; one can be `isDefault`. Country defaults to India.                                                                                                                                                                                                                   |
 | **Order**                | `status` (`PENDING → CONFIRMED → SHIPPED → DELIVERED`, or `CANCELLED`) and `paymentStatus` (`PENDING / COMPLETED / FAILED / REFUNDED`). `paymentIntentId` holds the Razorpay order id. `totalPriceInPaise` is the amount actually charged, after any discount; `discountCode` and `discountInPaise` record the discount. Shipping address is **snapshotted** onto the order so later address edits don't rewrite history. |
-| **OrderItem**            | Price, name, type, description and primary image **snapshotted at purchase time**, so editing or deleting an artwork doesn't change past orders.                                                                                                                                               |
+| **OrderItem**            | Price, name, type, description and primary image **snapshotted at purchase time**, so editing or deleting an artwork doesn't change past orders. `madeToOrderQuantity` = how many units were ordered beyond the ready copies of a made-to-order piece.                                                                                                                                               |
 | **Payment**              | One per order; stores the Razorpay payment id, amount and currency.                                                                                                                                                                                                                            |
 | **Review**               | 1–5 rating + comment, one per user per artwork.                                                                                                                                                                                                                                                |
 | **DiscountCode**         | `discountType` `PERCENTAGE` or `FIXED`; `discountValue` (percent or paise); optional `minPurchaseInPaise`, `maxUses`, `validFrom` / `validUntil`. Codes are stored uppercase. `usedCount` goes up when an order using the code is paid. |
@@ -136,9 +136,9 @@ sequenceDiagram
     FE->>API: POST /discounts/verify
     S->>FE: Pay
     FE->>API: POST /orders {addressId, items, discountCode}
-    API->>DB: Validate stock and discount, create Order + OrderItems (snapshots)
+    API->>DB: Validate stock and discount, reserve stock, create Order + OrderItems (snapshots)
     API->>RZ: Create Razorpay order for the discounted total
-    API->>DB: Save paymentIntentId, reserve stock
+    API->>DB: Save paymentIntentId
     API-->>FE: order + razorpayOrder
     FE->>RZ: Open checkout popup
     alt Shopper closes the popup
@@ -155,10 +155,10 @@ sequenceDiagram
 
 1. **Browsing** is public. Logged-out users only see `isAvailable` artworks; admins can also see drafts. While `DIGITAL_SALES_ENABLED` is off, `DIGITAL` artworks are hidden from everyone, admins included, in listings, artwork pages, cart, wishlist and orders (`BOTH` pieces stay on sale).
 2. **Cart and wishlist** need an account. If a guest tries to add something, a toast asks them to log in.
-3. **Placing an order** happens in one database transaction: create the order and its line items, create the Razorpay order, store its id, and reserve stock for `PHYSICAL` / `BOTH` items (the decrement only succeeds if enough stock is left).
+3. **Placing an order** happens in one database transaction: reserve stock for `PHYSICAL` / `BOTH` items (the decrement only succeeds if enough stock is left), create the order and its line items, create the Razorpay order, and store its id. Made-to-order pieces (`isMadeToOrder`) can be ordered past their stock: the order takes whatever ready copies are left, stock stops at 0, and the rest are recorded as the line's `madeToOrderQuantity` (`takeReadyCopies` in `backend/src/lib/stock.ts`). Cancelling only returns the units that came from stock.
 4. **Discounts** are applied by the server, which re-validates the code (active, dates, usage cap, minimum spend) and charges the discounted total; the frontend sends only the code. The charged amount must be at least ₹1. A code's `usedCount` goes up when the order is paid.
 5. **Unpaid orders give their stock back** when the shopper closes the Razorpay popup (`POST /orders/:id/cancel`), when the admin cancels them, or, as a fallback, after 30 minutes (`RESERVATION_MINUTES` in `backend/src/lib/stock.ts`), checked on startup and every 5 minutes. The popup itself times out after 15 minutes.
-6. **Payment confirmation** comes from two places: the browser calls `/payments/verify` with Razorpay's HMAC signature, and Razorpay's `payment.captured` webhook acts as a server-to-server backup. Both mark the order `CONFIRMED` + `COMPLETED` through one idempotent function, so whichever arrives second changes nothing. If a payment lands on an order that was already released, the order is revived and its stock taken again. The webhook checks its signature against the raw request body, so it is mounted before the JSON parser.
+6. **Payment confirmation** comes from two places: the browser calls `/payments/verify` with Razorpay's HMAC signature, and Razorpay's `payment.captured` webhook acts as a server-to-server backup. Both mark the order `CONFIRMED` + `COMPLETED` through one idempotent function, so whichever arrives second changes nothing. If a payment lands on an order that was already released, the order is revived and its stock taken again; for a made-to-order piece, copies sold in the meantime become made-to-order units instead of overselling. The webhook checks its signature against the raw request body, so it is mounted before the JSON parser.
 
 ### Auth
 

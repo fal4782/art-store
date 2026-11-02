@@ -12,6 +12,7 @@ export interface OrderItem {
   artworkId: string;
   quantity: number;
   priceInPaise: number;
+  madeToOrderQuantity: number; // Units to be made after ordering
   artworkName: string;
   artworkType: string;
   artworkDescription: string | null;

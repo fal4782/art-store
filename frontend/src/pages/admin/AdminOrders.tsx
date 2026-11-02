@@ -223,13 +223,26 @@ function OrderCard({
             })}
           </p>
         </div>
-        <span
-          className="px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
-          style={{ backgroundColor: status.bg, color: status.color }}
-        >
-          <status.icon className="text-sm" />
-          {status.label}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {order.orderItems.some((item) => item.madeToOrderQuantity > 0) && (
+            <span
+              className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest"
+              style={{
+                backgroundColor: `${theme.colors.secondary}15`,
+                color: theme.colors.secondary,
+              }}
+            >
+              Made to order
+            </span>
+          )}
+          <span
+            className="px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+            style={{ backgroundColor: status.bg, color: status.color }}
+          >
+            <status.icon className="text-sm" />
+            {status.label}
+          </span>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -257,6 +270,14 @@ function OrderCard({
                 <p className="text-xs font-bold opacity-50">
                   Qty {item.quantity} · {formatPrice(item.priceInPaise)} each
                 </p>
+                {item.madeToOrderQuantity > 0 && (
+                  <p
+                    className="text-xs font-bold"
+                    style={{ color: theme.colors.secondary }}
+                  >
+                    {item.madeToOrderQuantity} of {item.quantity} made to order
+                  </p>
+                )}
               </div>
             </div>
           ))}

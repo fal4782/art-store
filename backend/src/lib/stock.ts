@@ -10,6 +10,32 @@ export const hasStock = (artworkType: string) =>
   artworkType === "PHYSICAL" || artworkType === "BOTH";
 
 /**
+ * For made-to-order pieces: takes up to `wanted` ready copies from stock and
+ * returns how many it took. The rest are made after ordering, so stock never
+ * goes below 0. The update only applies if stock hasn't changed since it was
+ * read, so two concurrent checkouts can't both take the last ready copy.
+ */
+export async function takeReadyCopies(
+  tx: Prisma.TransactionClient,
+  artworkId: string,
+  wanted: number,
+) {
+  for (;;) {
+    const { stockQuantity } = await tx.artwork.findUniqueOrThrow({
+      where: { id: artworkId },
+      select: { stockQuantity: true },
+    });
+    const take = Math.min(Math.max(stockQuantity, 0), wanted);
+    if (take === 0) return 0;
+    const { count } = await tx.artwork.updateMany({
+      where: { id: artworkId, stockQuantity },
+      data: { stockQuantity: { decrement: take } },
+    });
+    if (count === 1) return take;
+  }
+}
+
+/**
  * Cancels an order and puts its stock back, but only if it still matches
  * `expected`. Returns false and changes nothing otherwise, so it is safe to
  * race against payment confirmation or another admin action.
@@ -33,9 +59,12 @@ async function cancelAndRestock(
     const items = await tx.orderItem.findMany({ where: { orderId } });
     for (const item of items) {
       if (!hasStock(item.artworkType)) continue;
+      // Made-to-order units never came out of stock, so only return the rest.
+      const fromStock = item.quantity - item.madeToOrderQuantity;
+      if (fromStock === 0) continue;
       await tx.artwork.update({
         where: { id: item.artworkId },
-        data: { stockQuantity: { increment: item.quantity } },
+        data: { stockQuantity: { increment: fromStock } },
       });
     }
     return true;

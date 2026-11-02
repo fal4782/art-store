@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import QuantitySelector from "./QuantitySelector";
 import { showImageFallback } from "../../utils/imageFallback";
 import { sizedImage, IMAGE_WIDTH } from "../../utils/sizedImage";
+import { maxCartQuantity } from "../../utils/madeToOrder";
 
 export default function CartDrawer() {
   const {
@@ -185,7 +186,7 @@ export default function CartDrawer() {
                       <QuantitySelector
                         size="sm"
                         quantity={item.quantity}
-                        max={item.artwork.stockQuantity}
+                        max={maxCartQuantity(item.artwork)}
                         onIncrease={() =>
                           updateQuantity(item.id, item.quantity + 1)
                         }
